@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
-import { prisma } from "@/lib/prisma";
+import { completePendingSaleByRef } from "@/lib/complete-pending-sale";
 import {
   TERMINAL_CALLBACK_PATH,
   validateTerminalApiKey,
@@ -35,12 +35,12 @@ export async function POST(request: Request) {
   }
 
   const { paymentRef, amount, method, status, terminalTxId } = parsed.data;
+  const ref = paymentRef.trim().toUpperCase();
 
   try {
-    const sale = await prisma.sale.findUnique({
-      where: { paymentRef: paymentRef.toUpperCase() },
-      include: { payments: true },
-    });
+    const sale = await import("@/lib/prisma").then((m) =>
+      m.prisma.sale.findUnique({ where: { paymentRef: ref } }),
+    );
 
     if (!sale) {
       return NextResponse.json(
@@ -69,10 +69,11 @@ export async function POST(request: Request) {
     }
 
     if (status === "DECLINED") {
+      const { prisma } = await import("@/lib/prisma");
       await prisma.auditLog.create({
         data: {
           action: "PAGAMENTO_RECUSADO",
-          detail: `Máquina recusou pagamento ref ${paymentRef} (tx ${terminalTxId ?? "-"})`,
+          detail: `Máquina recusou pagamento ref ${ref} (tx ${terminalTxId ?? "-"})`,
         },
       });
       return NextResponse.json({
@@ -84,36 +85,18 @@ export async function POST(request: Request) {
       });
     }
 
-    await prisma.$transaction(async (tx) => {
-      await tx.sale.update({
-        where: { id: sale.id },
-        data: {
-          status: "CONCLUIDA",
-          paymentSource: "TERMINAL",
-          paymentConfirmedAt: new Date(),
-          terminalTxId: terminalTxId ?? null,
-        },
-      });
-
-      if (sale.payments[0] && sale.payments[0].method !== method) {
-        await tx.payment.update({
-          where: { id: sale.payments[0].id },
-          data: { method },
-        });
-      }
-
-      await tx.auditLog.create({
-        data: {
-          action: "VENDA_LIBERADA_TERMINAL",
-          detail: `Venda ${sale.id} paga na máquina — ref ${paymentRef} (${method}) tx ${terminalTxId ?? "-"}`,
-        },
-      });
+    const result = await completePendingSaleByRef(ref, {
+      paymentSource: "TERMINAL",
+      terminalTxId: terminalTxId ?? null,
+      method,
+      auditAction: "VENDA_LIBERADA_TERMINAL",
+      auditDetail: `Venda ${sale.id} paga na máquina — ref ${ref} (${method}) tx ${terminalTxId ?? "-"}`,
     });
 
     return NextResponse.json({
       ok: true,
-      saleId: sale.id,
-      paymentRef: sale.paymentRef,
+      saleId: result.saleId,
+      paymentRef: ref,
       status: "CONCLUIDA",
       endpoint: TERMINAL_CALLBACK_PATH,
     });

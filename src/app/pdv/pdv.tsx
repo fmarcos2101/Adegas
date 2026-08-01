@@ -37,6 +37,8 @@ type AwaitingPayment = {
   total: number;
   paymentRef: string;
   method: Method;
+  provider?: "mercadopago" | "generic";
+  mpOrderId?: string;
 };
 
 const methods: { value: Method; label: string }[] = [
@@ -48,7 +50,7 @@ const methods: { value: Method; label: string }[] = [
 
 const CARD_METHODS: Method[] = ["DEBITO", "CREDITO"];
 
-export function Pdv() {
+export function Pdv({ mercadoPagoEnabled = false }: { mercadoPagoEnabled?: boolean }) {
   const [cart, setCart] = useState<CartLine[]>([]);
   const [discount, setDiscount] = useState(0);
   const [method, setMethod] = useState<Method>("DINHEIRO");
@@ -189,10 +191,16 @@ export function Pdv() {
           total: res.total ?? total,
           paymentRef: res.paymentRef,
           method,
+          provider: res.provider,
+          mpOrderId: res.mpOrderId,
         });
         setCart([]);
         setDiscount(0);
-        toast.info(`Aguardando pagamento na máquina — ref ${res.paymentRef}`);
+        toast.info(
+          res.provider === "mercadopago"
+            ? `Ordem enviada para Mercado Pago Point — ref ${res.paymentRef}`
+            : `Aguardando pagamento na máquina — ref ${res.paymentRef}`,
+        );
         return;
       }
 
@@ -325,9 +333,24 @@ export function Pdv() {
                 </div>
               </div>
               <p className="text-sm text-amber-900/80">
-                Informe a referência <strong>{awaiting.paymentRef}</strong> na máquina de
-                cartão ou aguarde a confirmação automática via API. O PDV libera a venda
-                assim que o pagamento for aprovado.
+                {awaiting.provider === "mercadopago" ? (
+                  <>
+                    A ordem foi enviada para a <strong>maquininha Mercado Pago Point</strong>.
+                    O cliente paga na máquina; quando aprovado, o PDV libera automaticamente
+                    via webhook. Referência interna: <strong>{awaiting.paymentRef}</strong>
+                    {awaiting.mpOrderId ? (
+                      <>
+                        {" "}
+                        · Order MP: <code>{awaiting.mpOrderId}</code>
+                      </>
+                    ) : null}
+                  </>
+                ) : (
+                  <>
+                    Informe a referência <strong>{awaiting.paymentRef}</strong> na máquina de
+                    cartão ou aguarde a confirmação automática via API.
+                  </>
+                )}
               </p>
               <div className="flex flex-wrap gap-2">
                 <Button type="button" variant="success" disabled={pending} onClick={manualRelease}>
@@ -596,7 +619,11 @@ export function Pdv() {
                   className="h-4 w-4 accent-pink-600"
                 />
                 <CreditCard className="h-4 w-4 text-pink-700" />
-                <span>Cobrar na máquina de cartão (API)</span>
+                <span>
+                  {mercadoPagoEnabled
+                    ? "Cobrar na Mercado Pago Point"
+                    : "Cobrar na máquina de cartão (API)"}
+                </span>
               </label>
             ) : null}
             <div className="flex justify-between border-t border-neutral-200 pt-3 text-lg font-bold">
@@ -615,7 +642,9 @@ export function Pdv() {
               {pending
                 ? "Processando..."
                 : useTerminal && canUseTerminal
-                  ? "Enviar para máquina"
+                  ? mercadoPagoEnabled
+                    ? "Enviar para Mercado Pago"
+                    : "Enviar para máquina"
                   : "Finalizar venda"}
             </Button>
             {cart.length > 0 && !locked ? (

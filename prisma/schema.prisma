@@ -76,6 +76,7 @@ enum SaleStatus {
 enum PaymentSource {
   IMEDIATO
   TERMINAL
+  MERCADOPAGO
   MANUAL
 }
 
@@ -88,6 +89,7 @@ model Sale {
   user       User       @relation(fields: [userId], references: [id])
   cancelReason String?
   paymentRef   String?   @unique
+  mpOrderId    String?   @unique
   terminalTxId String?
   paymentSource PaymentSource?
   paymentConfirmedAt DateTime?

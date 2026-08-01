@@ -71,14 +71,30 @@ Modelos principais:
 
 ## 4. API da máquina de cartão
 
+### Mercado Pago Point (recomendado)
+
+Configure no `.env`:
+
+```
+MERCADOPAGO_ACCESS_TOKEN=APP_USR-...
+MERCADOPAGO_TERMINAL_ID=NEWLAND_N950__SERIAL
+MERCADOPAGO_WEBHOOK_SECRET=...
+```
+
+Webhook: `POST /api/pagamentos/mercadopago/webhook` — evento **Order** no painel Mercado Pago.
+
+No PDV, marque **"Cobrar na Mercado Pago Point"** — o sistema cria a order na API e a maquininha carrega automaticamente.
+
+Documentação completa em **`/pagamentos`**.
+
+### API genérica (fallback)
+
 Porta: mesma do servidor Next.js (padrão **3000**). Autenticação via header `X-Terminal-Key` (variável `TERMINAL_API_KEY` no `.env`).
 
 | Endpoint | Método | Descrição |
 |----------|--------|-----------|
 | `/api/pagamentos/terminal/consulta?ref=XXXX` | GET | Consulta venda pendente pelo código exibido no PDV |
 | `/api/pagamentos/terminal/callback` | POST | Máquina confirma pagamento (`status: APPROVED`) e libera a venda |
-
-Documentação completa e exemplos cURL na tela **Pagamentos** (`/pagamentos`).
 
 > **Nota:** o cadastro de Marcas (Etapa 3) não foi implementado como entidade separada — a categorização de produtos ficou centralizada em Categorias.
 

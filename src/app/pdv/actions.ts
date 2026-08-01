@@ -7,6 +7,10 @@ import { getSession } from "@/lib/auth";
 import { isInternalBarcode } from "@/lib/constants";
 import { generatePaymentRef } from "@/lib/payment-terminal";
 import {
+  createPointOrder,
+  isMercadoPagoConfigured,
+} from "@/lib/mercadopago-point";
+import {
   applyStockForSale,
   computeSaleLines,
   restoreStockForSale,
@@ -176,6 +180,8 @@ export async function createPendingTerminalSale(
   saleId?: string;
   total?: number;
   paymentRef?: string;
+  mpOrderId?: string;
+  provider?: "mercadopago" | "generic";
   error?: string;
 }> {
   const session = await getSession();
@@ -233,11 +239,60 @@ export async function createPendingTerminalSale(
         },
       });
 
-      return { saleId: sale.id, total, paymentRef };
+      return { saleId: sale.id, total, paymentRef, method };
     });
 
+    if (isMercadoPagoConfigured()) {
+      try {
+        const order = await createPointOrder({
+          externalReference: result.paymentRef,
+          amount: result.total,
+          method: result.method,
+          description: `Adega Faixa Rosa — ${result.paymentRef}`,
+        });
+
+        await prisma.sale.update({
+          where: { id: result.saleId },
+          data: {
+            mpOrderId: order.id,
+            paymentSource: "MERCADOPAGO",
+          },
+        });
+
+        await prisma.auditLog.create({
+          data: {
+            userId: session.userId,
+            action: "MP_ORDER_CRIADA",
+            detail: `Order Mercado Pago ${order.id} criada — ref ${result.paymentRef}`,
+          },
+        });
+
+        revalidateSalePaths();
+        return {
+          saleId: result.saleId,
+          total: result.total,
+          paymentRef: result.paymentRef,
+          mpOrderId: order.id,
+          provider: "mercadopago",
+        };
+      } catch (err) {
+        await cancelPendingSale(result.saleId);
+        return {
+          error:
+            err instanceof Error
+              ? `Mercado Pago: ${err.message}`
+              : "Falha ao enviar ordem para Mercado Pago Point.",
+        };
+      }
+    }
+
     revalidateSalePaths();
-    return result;
+    return {
+      saleId: result.saleId,
+      total: result.total,
+      paymentRef: result.paymentRef,
+      provider: "generic",
+    };
   } catch (err) {
     return {
       error:
