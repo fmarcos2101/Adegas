@@ -4,13 +4,19 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { isInternalBarcode } from "@/lib/constants";
 
 export type FoundProduct = {
   id: string;
   name: string;
   price: number;
   stock: number;
+  barcode: string | null;
 };
+
+function publicBarcode(barcode: string): string | null {
+  return isInternalBarcode(barcode) ? null : barcode;
+}
 
 export async function findProductByBarcode(
   barcode: string,
@@ -36,8 +42,52 @@ export async function findProductByBarcode(
       name: product.name,
       price: product.price,
       stock: product.stock,
+      barcode: publicBarcode(product.barcode),
     },
   };
+}
+
+export async function searchProducts(term: string): Promise<FoundProduct[]> {
+  const session = await getSession();
+  if (!session) return [];
+
+  const q = term.trim();
+  if (q.length < 1) return [];
+
+  const products = await prisma.product.findMany({
+    where: {
+      active: true,
+      OR: [{ name: { contains: q } }, { barcode: { startsWith: q } }],
+    },
+    orderBy: { name: "asc" },
+    take: 8,
+  });
+
+  return products.map((p) => ({
+    id: p.id,
+    name: p.name,
+    price: p.price,
+    stock: p.stock,
+    barcode: publicBarcode(p.barcode),
+  }));
+}
+
+export async function listStock(): Promise<FoundProduct[]> {
+  const session = await getSession();
+  if (!session) return [];
+
+  const products = await prisma.product.findMany({
+    where: { active: true },
+    orderBy: { name: "asc" },
+  });
+
+  return products.map((p) => ({
+    id: p.id,
+    name: p.name,
+    price: p.price,
+    stock: p.stock,
+    barcode: publicBarcode(p.barcode),
+  }));
 }
 
 const saleSchema = z.object({
@@ -138,6 +188,7 @@ export async function finalizeSale(
 
     revalidatePath("/");
     revalidatePath("/produtos");
+    revalidatePath("/estoque");
     return result;
   } catch (err) {
     return {

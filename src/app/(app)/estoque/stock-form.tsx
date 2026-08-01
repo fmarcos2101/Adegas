@@ -10,7 +10,13 @@ type Product = { id: string; name: string; stock: number };
 
 const initial: StockState = {};
 
-export function StockForm({ products }: { products: Product[] }) {
+export function StockForm({
+  products,
+  canManage,
+}: {
+  products: Product[];
+  canManage: boolean;
+}) {
   const [state, action, pending] = useActionState(createMovement, initial);
   const formRef = useRef<HTMLFormElement>(null);
 
@@ -54,9 +60,16 @@ export function StockForm({ products }: { products: Product[] }) {
           className="flex h-10 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm"
         >
           <option value="ENTRADA">Entrada</option>
-          <option value="SAIDA">Saída</option>
-          <option value="AJUSTE">Ajuste (definir total)</option>
+          {canManage ? <option value="SAIDA">Saída</option> : null}
+          {canManage ? (
+            <option value="AJUSTE">Ajuste (definir total)</option>
+          ) : null}
         </select>
+        {!canManage ? (
+          <p className="text-xs text-neutral-500">
+            Seu perfil permite apenas entrada de estoque.
+          </p>
+        ) : null}
       </div>
       <div className="space-y-1">
         <label className="text-sm font-medium">Quantidade</label>

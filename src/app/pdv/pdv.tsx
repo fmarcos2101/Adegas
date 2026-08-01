@@ -1,11 +1,22 @@
 "use client";
 
-import { useRef, useState, useTransition } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { toast } from "sonner";
-import { Barcode, Minus, Plus, Trash2, CheckCircle2 } from "lucide-react";
+import {
+  Barcode,
+  Minus,
+  Plus,
+  Trash2,
+  CheckCircle2,
+  Boxes,
+  Search,
+  X,
+} from "lucide-react";
 import {
   finalizeSale,
   findProductByBarcode,
+  searchProducts,
+  listStock,
   type FoundProduct,
 } from "./actions";
 import { Button } from "@/components/ui/button";
@@ -27,12 +38,34 @@ export function Pdv() {
   const [cart, setCart] = useState<CartLine[]>([]);
   const [discount, setDiscount] = useState(0);
   const [method, setMethod] = useState<Method>("DINHEIRO");
-  const [barcode, setBarcode] = useState("");
+  const [query, setQuery] = useState("");
+  const [predictions, setPredictions] = useState<FoundProduct[]>([]);
+  const [highlight, setHighlight] = useState(-1);
   const [pending, startTransition] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const [stockOpen, setStockOpen] = useState(false);
+  const [stock, setStock] = useState<FoundProduct[]>([]);
+  const [stockFilter, setStockFilter] = useState("");
+
   const subtotal = cart.reduce((s, l) => s + l.price * l.quantity, 0);
   const total = Math.max(0, subtotal - discount);
+
+  // Busca de previsões (autocomplete) conforme o usuário digita as iniciais.
+  useEffect(() => {
+    const q = query.trim();
+    const handle = setTimeout(async () => {
+      if (q.length < 1) {
+        setPredictions([]);
+        setHighlight(-1);
+        return;
+      }
+      const results = await searchProducts(q);
+      setPredictions(results);
+      setHighlight(-1);
+    }, 150);
+    return () => clearTimeout(handle);
+  }, [query]);
 
   function addToCart(product: FoundProduct) {
     setCart((prev) => {
@@ -44,31 +77,52 @@ export function Pdv() {
       }
       return [...prev, { ...product, quantity: 1 }];
     });
+    setQuery("");
+    setPredictions([]);
+    setHighlight(-1);
+    inputRef.current?.focus();
   }
 
-  function handleScan(e: React.FormEvent) {
-    e.preventDefault();
-    const code = barcode.trim();
-    if (!code) return;
+  function scanExact(code: string) {
     startTransition(async () => {
       const res = await findProductByBarcode(code);
       if (res.error || !res.product) {
         toast.error(res.error ?? "Produto não encontrado.");
+        inputRef.current?.focus();
       } else {
         addToCart(res.product);
         toast.success(`${res.product.name} adicionado.`);
       }
-      setBarcode("");
-      inputRef.current?.focus();
     });
+  }
+
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setHighlight((h) => Math.min(h + 1, predictions.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setHighlight((h) => Math.max(h - 1, 0));
+    } else if (e.key === "Enter") {
+      e.preventDefault();
+      const code = query.trim();
+      if (!code) return;
+      if (highlight >= 0 && predictions[highlight]) {
+        const p = predictions[highlight];
+        addToCart(p);
+        toast.success(`${p.name} adicionado.`);
+      } else {
+        scanExact(code);
+      }
+    } else if (e.key === "Escape") {
+      setPredictions([]);
+    }
   }
 
   function changeQty(id: string, delta: number) {
     setCart((prev) =>
       prev
-        .map((l) =>
-          l.id === id ? { ...l, quantity: l.quantity + delta } : l,
-        )
+        .map((l) => (l.id === id ? { ...l, quantity: l.quantity + delta } : l))
         .filter((l) => l.quantity > 0),
     );
   }
@@ -100,32 +154,145 @@ export function Pdv() {
     });
   }
 
+  function toggleStock() {
+    const next = !stockOpen;
+    setStockOpen(next);
+    if (next) {
+      startTransition(async () => {
+        setStock(await listStock());
+      });
+    }
+  }
+
+  const filteredStock = stock.filter((p) =>
+    p.name.toLowerCase().includes(stockFilter.trim().toLowerCase()),
+  );
+
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-      <div className="lg:col-span-2 space-y-4">
+      <div className="space-y-4 lg:col-span-2">
         <Card>
-          <CardHeader>
-            <CardTitle>Leitor de código de barras</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle>Buscar produto (código, leitor ou iniciais)</CardTitle>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={toggleStock}
+            >
+              <Boxes className="h-4 w-4" />
+              {stockOpen ? "Ocultar estoque" : "Consultar estoque"}
+            </Button>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleScan} className="flex gap-2">
-              <div className="relative flex-1">
-                <Barcode className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-neutral-400" />
-                <Input
-                  ref={inputRef}
-                  value={barcode}
-                  onChange={(e) => setBarcode(e.target.value)}
-                  placeholder="Escaneie ou digite o código / nome"
-                  className="pl-9"
-                  autoFocus
-                />
-              </div>
-              <Button type="submit" disabled={pending}>
-                Adicionar
-              </Button>
-            </form>
+            <div className="relative">
+              <Barcode className="absolute left-3 top-3 h-4 w-4 text-neutral-400" />
+              <Input
+                ref={inputRef}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                onKeyDown={handleKeyDown}
+                placeholder="Escaneie, digite o código ou as iniciais do produto"
+                className="pl-9"
+                autoFocus
+                autoComplete="off"
+              />
+              {predictions.length > 0 ? (
+                <ul className="absolute z-10 mt-1 max-h-72 w-full overflow-auto rounded-md border border-neutral-200 bg-white shadow-lg">
+                  {predictions.map((p, i) => (
+                    <li key={p.id}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          addToCart(p);
+                          toast.success(`${p.name} adicionado.`);
+                        }}
+                        onMouseEnter={() => setHighlight(i)}
+                        className={
+                          "flex w-full items-center justify-between px-3 py-2 text-left text-sm " +
+                          (i === highlight ? "bg-emerald-50" : "hover:bg-neutral-50")
+                        }
+                      >
+                        <span className="font-medium text-neutral-800">
+                          {p.name}
+                        </span>
+                        <span className="flex items-center gap-3 text-xs">
+                          <span
+                            className={
+                              p.stock <= 0
+                                ? "text-red-600"
+                                : "text-neutral-500"
+                            }
+                          >
+                            estoque: {p.stock}
+                          </span>
+                          <span className="font-medium text-neutral-700">
+                            {formatBRL(p.price)}
+                          </span>
+                        </span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              ) : null}
+            </div>
+            <p className="mt-2 text-xs text-neutral-500">
+              Use ↑/↓ para navegar nas sugestões e Enter para adicionar.
+            </p>
           </CardContent>
         </Card>
+
+        {stockOpen ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Consulta de estoque</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="relative mb-3">
+                <Search className="absolute left-3 top-3 h-4 w-4 text-neutral-400" />
+                <Input
+                  value={stockFilter}
+                  onChange={(e) => setStockFilter(e.target.value)}
+                  placeholder="Filtrar por nome"
+                  className="pl-9"
+                />
+              </div>
+              <div className="max-h-64 overflow-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-neutral-200 text-left text-neutral-500">
+                      <th className="py-2">Produto</th>
+                      <th className="py-2 text-right">Preço</th>
+                      <th className="py-2 text-right">Estoque</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredStock.map((p) => (
+                      <tr key={p.id} className="border-b border-neutral-100">
+                        <td className="py-2">{p.name}</td>
+                        <td className="py-2 text-right">{formatBRL(p.price)}</td>
+                        <td
+                          className={
+                            p.stock <= 0
+                              ? "py-2 text-right font-medium text-red-600"
+                              : "py-2 text-right"
+                          }
+                        >
+                          {p.stock}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {filteredStock.length === 0 ? (
+                  <p className="py-3 text-sm text-neutral-500">
+                    Nenhum produto.
+                  </p>
+                ) : null}
+              </div>
+            </CardContent>
+          </Card>
+        ) : null}
 
         <Card>
           <CardHeader>
@@ -133,9 +300,7 @@ export function Pdv() {
           </CardHeader>
           <CardContent>
             {cart.length === 0 ? (
-              <p className="text-sm text-neutral-500">
-                Nenhum item no carrinho.
-              </p>
+              <p className="text-sm text-neutral-500">Nenhum item no carrinho.</p>
             ) : (
               <table className="w-full text-sm">
                 <thead>
@@ -247,6 +412,17 @@ export function Pdv() {
               <CheckCircle2 className="h-5 w-5" />
               {pending ? "Processando..." : "Finalizar venda"}
             </Button>
+            {cart.length > 0 ? (
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full text-neutral-500"
+                onClick={() => setCart([])}
+              >
+                <X className="h-4 w-4" />
+                Limpar carrinho
+              </Button>
+            ) : null}
           </CardContent>
         </Card>
       </div>

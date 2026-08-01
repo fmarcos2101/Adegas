@@ -10,7 +10,6 @@ const secret = new TextEncoder().encode(
 const ADMIN_ONLY_PREFIXES = [
   "/produtos",
   "/categorias",
-  "/estoque",
   "/relatorios",
   "/usuarios",
   "/auditoria",
@@ -44,11 +43,13 @@ export async function proxy(request: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  const needsAdmin = ADMIN_ONLY_PREFIXES.some(
-    (p) => pathname === p || pathname.startsWith(`${p}/`),
-  );
+  const needsAdmin =
+    pathname === "/" ||
+    ADMIN_ONLY_PREFIXES.some(
+      (p) => pathname === p || pathname.startsWith(`${p}/`),
+    );
   if (needsAdmin && session.role !== "ADMIN") {
-    return NextResponse.redirect(new URL("/vendas", request.url));
+    return NextResponse.redirect(new URL("/pdv", request.url));
   }
 
   return NextResponse.next();

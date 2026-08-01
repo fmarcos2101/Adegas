@@ -39,5 +39,5 @@ export async function loginAction(
     data: { userId: user.id, action: "LOGIN", detail: `Login de ${user.username}` },
   });
 
-  redirect(user.role === "ADMIN" ? "/" : "/vendas");
+  redirect(user.role === "ADMIN" ? "/" : "/pdv");
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState, useEffect, useRef } from "react";
+import { useActionState, useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { Plus } from "lucide-react";
 import { createProduct, type ProductState } from "./actions";
@@ -14,6 +14,7 @@ const initial: ProductState = {};
 
 export function ProductForm({ categories }: { categories: Category[] }) {
   const [state, action, pending] = useActionState(createProduct, initial);
+  const [noBarcode, setNoBarcode] = useState(false);
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -34,6 +35,7 @@ export function ProductForm({ categories }: { categories: Category[] }) {
         <form
           ref={formRef}
           action={action}
+          onReset={() => setNoBarcode(false)}
           className="grid grid-cols-1 gap-3 sm:grid-cols-2"
         >
           <div className="space-y-1 sm:col-span-2">
@@ -42,7 +44,21 @@ export function ProductForm({ categories }: { categories: Category[] }) {
           </div>
           <div className="space-y-1">
             <label className="text-sm font-medium">Código de barras</label>
-            <Input name="barcode" placeholder="7891000000000" />
+            <Input
+              name="barcode"
+              placeholder={noBarcode ? "Gerado automaticamente" : "7891000000000"}
+              disabled={noBarcode}
+            />
+            <label className="flex items-center gap-2 pt-1 text-sm text-neutral-600">
+              <input
+                type="checkbox"
+                name="noBarcode"
+                checked={noBarcode}
+                onChange={(e) => setNoBarcode(e.target.checked)}
+                className="h-4 w-4 rounded border-neutral-300"
+              />
+              Sem código de barras
+            </label>
           </div>
           <div className="space-y-1">
             <label className="text-sm font-medium">Categoria</label>

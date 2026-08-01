@@ -19,7 +19,7 @@ export async function createMovement(
   formData: FormData,
 ): Promise<StockState> {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") return { error: "Não autorizado." };
+  if (!session) return { error: "Não autorizado." };
 
   const parsed = schema.safeParse({
     productId: formData.get("productId"),
@@ -31,6 +31,13 @@ export async function createMovement(
     return { error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
   }
   const { productId, type, quantity, reason } = parsed.data;
+
+  // Operador de caixa só pode acrescentar (entrada); nunca dar saída/ajuste.
+  if (session.role !== "ADMIN" && type !== "ENTRADA") {
+    return {
+      error: "Apenas administradores podem registrar saída ou ajuste de estoque.",
+    };
+  }
 
   if (type !== "AJUSTE" && quantity <= 0) {
     return { error: "Quantidade deve ser positiva." };

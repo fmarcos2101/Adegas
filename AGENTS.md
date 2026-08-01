@@ -21,7 +21,12 @@ Credenciais de teste criadas pelo seed: `admin`/`admin123` (perfil ADMIN) e `cai
 ### Rodar / verificar
 - Dev server: `npm run dev` (porta 3000). O root `/` redireciona para `/login` quando não autenticado.
 - Lint: `npm run lint` · Type-check: `npm run typecheck`.
-- Fluxo end-to-end: login como `admin` → Dashboard → Produtos (cadastrar) → Vendas/PDV (adicionar por código de barras → Finalizar venda) → Dashboard reflete a venda.
+- Fluxo end-to-end: login como `admin` → Dashboard → Produtos (cadastrar) → PDV (`/pdv`, adicionar por código/iniciais → Finalizar venda) → Dashboard reflete a venda.
+
+### Papéis e rotas
+- **PDV** fica em `/pdv` — tela dedicada em tela cheia (layout próprio, sem sidebar), pensada para abrir em nova aba e ficar em segundo plano. A busca aceita código de barras (leitor), código ou iniciais do nome (autocomplete com estoque), e há um painel "Consultar estoque" para revisar sem sair do PDV.
+- **Perfil CAIXA**: acessa apenas `/pdv` e `/estoque`; no estoque só pode **ENTRADA** (saída/ajuste são bloqueados na UI e no server action). As demais rotas (incl. `/` e `/produtos`, `/relatorios`, `/usuarios`, etc.) são exclusivas de ADMIN e o Proxy redireciona o caixa para `/pdv`.
+- Produtos podem ser cadastrados **sem código de barras** (checkbox): o backend gera um código interno com prefixo `SEM-` (ver `src/lib/constants.ts`), exibido como "sem código" nas listagens.
 
 ### Gotchas não óbvios (específicos destas versões)
 - **Middleware virou Proxy** no Next 16: exporta `export function proxy(req)` (não `middleware`). Como o app fica em `src/`, o arquivo precisa estar em **`src/proxy.ts`** (mesmo nível de `src/app`) — em `proxy.ts` na raiz ele é ignorado. É onde fica a proteção de rotas por perfil.

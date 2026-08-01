@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatBRL } from "@/lib/utils";
+import { isInternalBarcode } from "@/lib/constants";
 import { ProductForm } from "./product-form";
 
 export default async function ProdutosPage() {
@@ -48,7 +49,15 @@ export default async function ProdutosPage() {
                   {products.map((p) => (
                     <tr key={p.id} className="border-b border-neutral-100">
                       <td className="py-2 font-medium">{p.name}</td>
-                      <td className="py-2 text-neutral-500">{p.barcode}</td>
+                      <td className="py-2 text-neutral-500">
+                        {isInternalBarcode(p.barcode) ? (
+                          <span className="italic text-neutral-400">
+                            sem código
+                          </span>
+                        ) : (
+                          p.barcode
+                        )}
+                      </td>
                       <td className="py-2 text-neutral-500">
                         {p.category?.name ?? "—"}
                       </td>

@@ -1,5 +1,6 @@
 import { format } from "date-fns";
 import { prisma } from "@/lib/prisma";
+import { getSession } from "@/lib/auth";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { StockForm } from "./stock-form";
 
@@ -11,7 +12,7 @@ const typeLabels: Record<string, string> = {
 };
 
 export default async function EstoquePage() {
-  const [products, movements] = await Promise.all([
+  const [products, movements, session] = await Promise.all([
     prisma.product.findMany({
       where: { active: true },
       orderBy: { name: "asc" },
@@ -21,7 +22,9 @@ export default async function EstoquePage() {
       take: 50,
       include: { product: true },
     }),
+    getSession(),
   ]);
+  const canManage = session?.role === "ADMIN";
 
   const lowStock = products.filter((p) => p.stock <= p.minStock);
 
@@ -40,6 +43,7 @@ export default async function EstoquePage() {
         </CardHeader>
         <CardContent>
           <StockForm
+            canManage={canManage}
             products={products.map((p) => ({
               id: p.id,
               name: p.name,

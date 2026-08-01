@@ -4,10 +4,12 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { INTERNAL_BARCODE_PREFIX } from "@/lib/constants";
 
 const productSchema = z.object({
   name: z.string().min(2, "Nome muito curto"),
-  barcode: z.string().min(3, "Código de barras inválido"),
+  barcode: z.string().optional(),
+  noBarcode: z.boolean().default(false),
   categoryId: z.string().optional().nullable(),
   cost: z.coerce.number().min(0),
   price: z.coerce.number().min(0),
@@ -16,6 +18,12 @@ const productSchema = z.object({
 });
 
 export type ProductState = { error?: string; success?: boolean };
+
+function generateInternalBarcode(): string {
+  return `${INTERNAL_BARCODE_PREFIX}${Date.now().toString(36)}${Math.random()
+    .toString(36)
+    .slice(2, 8)}`.toUpperCase();
+}
 
 export async function createProduct(
   _prev: ProductState,
@@ -29,6 +37,7 @@ export async function createProduct(
   const parsed = productSchema.safeParse({
     name: formData.get("name"),
     barcode: formData.get("barcode"),
+    noBarcode: formData.get("noBarcode") === "on",
     categoryId: formData.get("categoryId") || null,
     cost: formData.get("cost"),
     price: formData.get("price"),
@@ -41,18 +50,28 @@ export async function createProduct(
   }
 
   const data = parsed.data;
+  const rawBarcode = (data.barcode ?? "").trim();
 
-  const exists = await prisma.product.findUnique({
-    where: { barcode: data.barcode },
-  });
-  if (exists) {
-    return { error: "Já existe um produto com esse código de barras." };
+  let barcode: string;
+  if (data.noBarcode || rawBarcode === "") {
+    barcode = generateInternalBarcode();
+  } else {
+    if (rawBarcode.length < 3) {
+      return { error: "Código de barras inválido (mínimo 3 dígitos)." };
+    }
+    const exists = await prisma.product.findUnique({
+      where: { barcode: rawBarcode },
+    });
+    if (exists) {
+      return { error: "Já existe um produto com esse código de barras." };
+    }
+    barcode = rawBarcode;
   }
 
   const product = await prisma.product.create({
     data: {
       name: data.name,
-      barcode: data.barcode,
+      barcode,
       categoryId: data.categoryId || null,
       cost: data.cost,
       price: data.price,
