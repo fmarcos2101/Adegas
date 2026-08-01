@@ -5,7 +5,7 @@
 - **Administrador:** usuário `admin` / senha `admin123`
 - **Operador de Caixa:** usuário `caixa` / senha `caixa123`
 
-> Essas credenciais foram criadas pelo script de seed (`npm run db:seed`) e servem apenas para testes locais.
+> O seed inicial cria **apenas os usuários** `admin` e `caixa`. Produtos e categorias devem ser cadastrados pelo painel. Para zerar o banco: `npm run db:reset`.
 
 ---
 
@@ -57,15 +57,17 @@ Modelos principais:
 - [x] **Etapa 9 — Gestão de usuários:** CRUD de usuários (somente admin), ativar/inativar, com proteção contra remover o próprio usuário ou o último admin ativo.
 - [x] **Etapa 10 — Auditoria:** tela de consulta de logs de ações sensíveis, com busca por texto.
 - [x] **Etapa 11 — Backup e Restauração:** exportar/importar arquivo do banco SQLite pela interface.
-- [ ] **Etapa 12 — Polimento final:** responsividade, atalhos de teclado no PDV, testes gerais.
+- [x] **Etapa 12 — Polimento final:** responsividade, atalhos de teclado no PDV, integrações de pagamento, suporte WhatsApp.
 
 ### Detalhes da Etapa 12
 
 - [x] **Responsividade:** sidebar colapsável com menu hamburger em telas pequenas (`AppShell` + drawer mobile).
 - [x] **Atalhos de teclado no PDV:** `F8` foco na busca, `F2` finalizar venda, `F4` limpar carrinho, `F3` consultar estoque.
 - [x] **Identidade visual:** favicon e metadados atualizados para "Adega Faixa Rosa".
-- [x] **Integração máquina de cartão:** API HTTP (`/api/pagamentos/terminal/*`), venda pendente no PDV, liberação automática e manual.
+- [x] **Integração Mercado Pago Point:** Orders API + webhook + liberação manual.
+- [x] **Suporte WhatsApp:** botão flutuante (?) em todas as telas.
 - [ ] **Testes automatizados:** pendente (fluxo login → venda → cancelamento).
+- [ ] **Merge na `main`:** código ainda na branch `cursor/fase-final-polimento-6f4f` (PR #3).
 
 ---
 
