@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+}
+
+enum Role {
+  ADMIN
+  CAIXA
+}
+
+model User {
+  id        String   @id @default(cuid())
+  username  String   @unique
+  name      String
+  password  String
+  role      Role     @default(CAIXA)
+  active    Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  sales     Sale[]
+  auditLogs AuditLog[]
+}
+
+model Category {
+  id        String    @id @default(cuid())
+  name      String    @unique
+  createdAt DateTime  @default(now())
+  products  Product[]
+}
+
+model Product {
+  id           String   @id @default(cuid())
+  barcode      String   @unique
+  name         String
+  categoryId   String?
+  category     Category? @relation(fields: [categoryId], references: [id])
+  cost         Float    @default(0)
+  price        Float    @default(0)
+  stock        Int      @default(0)
+  minStock     Int      @default(0)
+  active       Boolean  @default(true)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  movements StockMovement[]
+  saleItems SaleItem[]
+}
+
+enum StockMovementType {
+  ENTRADA
+  SAIDA
+  AJUSTE
+  VENDA
+}
+
+model StockMovement {
+  id        String            @id @default(cuid())
+  productId String
+  product   Product           @relation(fields: [productId], references: [id])
+  type      StockMovementType
+  quantity  Int
+  reason    String?
+  createdAt DateTime          @default(now())
+}
+
+enum SaleStatus {
+  AGUARDANDO_PAGAMENTO
+  CONCLUIDA
+  CANCELADA
+}
+
+enum PaymentSource {
+  IMEDIATO
+  TERMINAL
+  MERCADOPAGO
+  MANUAL
+}
+
+model Sale {
+  id         String     @id @default(cuid())
+  total      Float
+  discount   Float      @default(0)
+  status     SaleStatus @default(CONCLUIDA)
+  userId     String
+  user       User       @relation(fields: [userId], references: [id])
+  cancelReason String?
+  paymentRef   String?   @unique
+  mpOrderId    String?   @unique
+  terminalTxId String?
+  paymentSource PaymentSource?
+  paymentConfirmedAt DateTime?
+  createdAt  DateTime   @default(now())
+
+  items    SaleItem[]
+  payments Payment[]
+}
+
+model SaleItem {
+  id        String  @id @default(cuid())
+  saleId    String
+  sale      Sale    @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id])
+  quantity  Int
+  unitPrice Float
+  total     Float
+}
+
+enum PaymentMethod {
+  DINHEIRO
+  PIX
+  DEBITO
+  CREDITO
+}
+
+model Payment {
+  id     String        @id @default(cuid())
+  saleId String
+  sale   Sale          @relation(fields: [saleId], references: [id], onDelete: Cascade)
+  method PaymentMethod
+  amount Float
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  userId    String?
+  user      User?    @relation(fields: [userId], references: [id])
+  action    String
+  detail    String?
+  createdAt DateTime @default(now())
+}
