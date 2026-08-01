@@ -2,7 +2,21 @@
 
 Sistema de gestão e ponto de venda para distribuidora de bebidas.
 
-## Início rápido
+## Instalação Windows (recomendado para a loja)
+
+1. Instale **Node.js 20 LTS**: https://nodejs.org  
+2. Baixe o projeto (ou clone com Git)  
+3. **Duplo clique** em `Instalar-Adega.bat` (só na primeira vez)  
+4. **Duplo clique** em `Iniciar-Adega.bat` (toda vez que for usar)
+
+O navegador abre automaticamente no PDV e no painel admin.
+
+Para iniciar com o Windows: copie um atalho de `Iniciar-Adega.bat` para a pasta  
+`Inicializar` (Win+R → `shell:startup`).
+
+---
+
+## Início rápido (desenvolvedor)
 
 ```bash
 npm install
