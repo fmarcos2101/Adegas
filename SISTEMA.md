@@ -55,8 +55,15 @@ Modelos principais:
 - [x] **Etapa 8 — Exportação:** PDF (jspdf/jspdf-autotable) e Excel (exceljs) dos relatórios.
 - [x] **Etapa 9 — Gestão de usuários:** CRUD de usuários (somente admin), ativar/inativar, com proteção contra remover o próprio usuário ou o último admin ativo.
 - [x] **Etapa 10 — Auditoria:** tela de consulta de logs de ações sensíveis, com busca por texto.
-- [ ] **Etapa 11 — Backup e Restauração:** exportar/importar arquivo do banco SQLite pela interface.
-- [ ] **Etapa 12 — Polimento final:** responsividade, atalhos de teclado no PDV, testes gerais, empacotamento para uso local no Windows.
+- [x] **Etapa 11 — Backup e Restauração:** exportar/importar arquivo do banco SQLite pela interface.
+- [ ] **Etapa 12 — Polimento final:** responsividade, atalhos de teclado no PDV, testes gerais.
+
+### Detalhes da Etapa 12
+
+- [x] **Responsividade:** sidebar colapsável com menu hamburger em telas pequenas (`AppShell` + drawer mobile).
+- [x] **Atalhos de teclado no PDV:** `F8` foco na busca, `F2` finalizar venda, `F4` limpar carrinho, `F3` consultar estoque.
+- [x] **Identidade visual:** favicon e metadados atualizados para "Adega Faixa Rosa".
+- [ ] **Testes automatizados:** pendente (fluxo login → venda → cancelamento).
 
 > **Nota:** o cadastro de Marcas (Etapa 3) não foi implementado como entidade separada — a categorização de produtos ficou centralizada em Categorias.
 

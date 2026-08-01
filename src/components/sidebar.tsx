@@ -36,12 +36,23 @@ const items: NavItem[] = [
   { href: "/backup", label: "Backup", icon: Database, adminOnly: true },
 ];
 
-export function Sidebar({ role }: { role: "ADMIN" | "CAIXA" }) {
+type SidebarProps = {
+  role: "ADMIN" | "CAIXA";
+  mobileOpen?: boolean;
+  onNavigate?: () => void;
+};
+
+export function Sidebar({ role, mobileOpen = false, onNavigate }: SidebarProps) {
   const pathname = usePathname();
   const visible = items.filter((i) => !i.adminOnly || role === "ADMIN");
 
   return (
-    <aside className="flex w-60 shrink-0 flex-col border-r border-neutral-200 bg-white">
+    <aside
+      className={cn(
+        "fixed inset-y-0 left-0 z-50 flex w-60 shrink-0 flex-col border-r border-neutral-200 bg-white transition-transform duration-200 lg:static lg:translate-x-0",
+        mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
+      )}
+    >
       <div className="flex h-20 items-center gap-2 border-b border-neutral-200 bg-gradient-to-br from-pink-600 to-pink-800 px-5">
         <Crown className="h-5 w-5 text-pink-200" />
         <span className="text-lg font-extrabold uppercase leading-none tracking-tight text-white">
@@ -72,6 +83,7 @@ export function Sidebar({ role }: { role: "ADMIN" | "CAIXA" }) {
                 target="_blank"
                 rel="noopener noreferrer"
                 className={className}
+                onClick={onNavigate}
               >
                 <Icon className="h-4 w-4" />
                 {item.label}
@@ -80,7 +92,12 @@ export function Sidebar({ role }: { role: "ADMIN" | "CAIXA" }) {
           }
 
           return (
-            <Link key={item.href} href={item.href} className={className}>
+            <Link
+              key={item.href}
+              href={item.href}
+              className={className}
+              onClick={onNavigate}
+            >
               <Icon className="h-4 w-4" />
               {item.label}
             </Link>

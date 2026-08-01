@@ -3,8 +3,9 @@ import { Toaster } from "sonner";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Distribuidora de Bebidas",
+  title: "Adega Faixa Rosa — Distribuidora",
   description: "Sistema de gestão e PDV para distribuidora de bebidas",
+  icons: { icon: "/favicon.svg" },
 };
 
 export default function RootLayout({

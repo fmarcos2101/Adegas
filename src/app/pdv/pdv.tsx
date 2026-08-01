@@ -171,6 +171,32 @@ export function Pdv() {
     p.name.toLowerCase().includes(stockFilter.trim().toLowerCase()),
   );
 
+  // Atalhos de teclado globais do PDV (F2/F3/F4/F8).
+  useEffect(() => {
+    function onKeyDown(e: KeyboardEvent) {
+      if (e.key === "F2") {
+        e.preventDefault();
+        if (!pending && cart.length > 0) checkout();
+      } else if (e.key === "F3") {
+        e.preventDefault();
+        toggleStock();
+      } else if (e.key === "F4") {
+        e.preventDefault();
+        if (cart.length > 0) {
+          setCart([]);
+          toast.info("Carrinho limpo.");
+          inputRef.current?.focus();
+        }
+      } else if (e.key === "F8") {
+        e.preventDefault();
+        inputRef.current?.focus();
+        inputRef.current?.select();
+      }
+    }
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [pending, cart, discount, method, stockOpen]);
+
   return (
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       <div className="space-y-4 lg:col-span-2">
@@ -256,7 +282,10 @@ export function Pdv() {
             </div>
             <p className="mt-2 text-xs text-neutral-500">
               Digite a quantidade à esquerda; use ↑/↓ nas sugestões e Enter para
-              adicionar.
+              adicionar. Atalhos: <kbd className="rounded border px-1">F8</kbd> busca,{" "}
+              <kbd className="rounded border px-1">F2</kbd> finalizar,{" "}
+              <kbd className="rounded border px-1">F4</kbd> limpar carrinho,{" "}
+              <kbd className="rounded border px-1">F3</kbd> consultar estoque.
             </p>
           </CardContent>
         </Card>
