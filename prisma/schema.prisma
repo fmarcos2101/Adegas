@@ -77,7 +77,30 @@ enum PaymentSource {
   IMEDIATO
   TERMINAL
   MERCADOPAGO
+  SUMUP
+  TON
   MANUAL
+}
+
+enum PaymentProviderType {
+  GENERIC
+  MERCADOPAGO
+  SUMUP
+  TON
+}
+
+model PaymentSettings {
+  id                String              @id @default("default")
+  activeProvider    PaymentProviderType @default(GENERIC)
+  terminalApiKey    String?
+  mpAccessToken     String?
+  mpTerminalId      String?
+  mpWebhookSecret   String?
+  sumupApiKey       String?
+  sumupMerchantCode String?
+  tonApiKey         String?
+  tonMerchantId     String?
+  updatedAt         DateTime            @updatedAt
 }
 
 model Sale {

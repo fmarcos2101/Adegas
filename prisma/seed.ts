@@ -34,7 +34,13 @@ async function main() {
     },
   });
 
-  console.log("Seed concluído: banco limpo — apenas usuários admin e caixa.");
+  await prisma.paymentSettings.upsert({
+    where: { id: "default" },
+    update: {},
+    create: { id: "default", activeProvider: "GENERIC" },
+  });
+
+  console.log("Seed concluído: banco limpo — usuários admin/caixa e config de pagamentos.");
 }
 
 main()

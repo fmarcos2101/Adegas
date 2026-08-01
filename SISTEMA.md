@@ -71,32 +71,29 @@ Modelos principais:
 
 ---
 
-## 4. API da máquina de cartão
+## 4. Maquininhas de cartão
 
-### Mercado Pago Point (recomendado)
+Configure em **Pagamentos** (`/pagamentos`) — escolha o provedor e cole as credenciais **quando tiver a API**.
 
-Configure no `.env`:
+| Provedor | Status | Como funciona |
+|----------|--------|---------------|
+| **API genérica** | Pronto | Callback HTTP com referência da venda |
+| **Mercado Pago Point** | Pronto (cole token depois) | Order automática na maquininha + webhook |
+| **SumUp** | Webhook pronto (cole API depois) | Referência no PDV + confirmação via webhook |
+| **Ton (Stone)** | Webhook pronto (cole API depois) | Referência no PDV + confirmação via webhook |
 
-```
-MERCADOPAGO_ACCESS_TOKEN=APP_USR-...
-MERCADOPAGO_TERMINAL_ID=NEWLAND_N950__SERIAL
-MERCADOPAGO_WEBHOOK_SECRET=...
-```
+Sem maquininha configurada: use dinheiro, PIX ou **Liberar manualmente** no PDV.
 
-Webhook: `POST /api/pagamentos/mercadopago/webhook` — evento **Order** no painel Mercado Pago.
+---
 
-No PDV, marque **"Cobrar na Mercado Pago Point"** — o sistema cria a order na API e a maquininha carrega automaticamente.
+## 5. Projeto concluído
 
-Documentação completa em **`/pagamentos`**.
+MVP entregue. Pendências opcionais pós-entrega:
 
-### API genérica (fallback)
-
-Porta: mesma do servidor Next.js (padrão **3000**). Autenticação via header `X-Terminal-Key` (variável `TERMINAL_API_KEY` no `.env`).
-
-| Endpoint | Método | Descrição |
-|----------|--------|-----------|
-| `/api/pagamentos/terminal/consulta?ref=XXXX` | GET | Consulta venda pendente pelo código exibido no PDV |
-| `/api/pagamentos/terminal/callback` | POST | Máquina confirma pagamento (`status: APPROVED`) e libera a venda |
+- Testes automatizados
+- Deploy com HTTPS (webhook em produção)
+- Credenciais reais das maquininhas em Pagamentos
+- Troca de senhas padrão
 
 > **Nota:** o cadastro de Marcas (Etapa 3) não foi implementado como entidade separada — a categorização de produtos ficou centralizada em Categorias.
 

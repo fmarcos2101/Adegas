@@ -37,8 +37,14 @@ type AwaitingPayment = {
   total: number;
   paymentRef: string;
   method: Method;
-  provider?: "mercadopago" | "generic";
+  provider?: "mercadopago" | "generic" | "sumup" | "ton";
   mpOrderId?: string;
+};
+
+type TerminalInfo = {
+  label: string;
+  configured: boolean;
+  terminalProvider: "generic" | "mercadopago" | "sumup" | "ton";
 };
 
 const methods: { value: Method; label: string }[] = [
@@ -50,7 +56,7 @@ const methods: { value: Method; label: string }[] = [
 
 const CARD_METHODS: Method[] = ["DEBITO", "CREDITO"];
 
-export function Pdv({ mercadoPagoEnabled = false }: { mercadoPagoEnabled?: boolean }) {
+export function Pdv({ terminal }: { terminal: TerminalInfo }) {
   const [cart, setCart] = useState<CartLine[]>([]);
   const [discount, setDiscount] = useState(0);
   const [method, setMethod] = useState<Method>("DINHEIRO");
@@ -198,8 +204,8 @@ export function Pdv({ mercadoPagoEnabled = false }: { mercadoPagoEnabled?: boole
         setDiscount(0);
         toast.info(
           res.provider === "mercadopago"
-            ? `Ordem enviada para Mercado Pago Point — ref ${res.paymentRef}`
-            : `Aguardando pagamento na máquina — ref ${res.paymentRef}`,
+            ? `Ordem enviada para ${terminal.label} — ref ${res.paymentRef}`
+            : `Aguardando pagamento (${terminal.label}) — ref ${res.paymentRef}`,
         );
         return;
       }
@@ -212,7 +218,7 @@ export function Pdv({ mercadoPagoEnabled = false }: { mercadoPagoEnabled?: boole
       toast.success(`Venda finalizada! Total ${formatBRL(res.total ?? 0)}`);
       resetCheckout();
     });
-  }, [cart, discount, method, useTerminal, canUseTerminal, total]);
+  }, [cart, discount, method, useTerminal, canUseTerminal, total, terminal.label]);
 
   function manualRelease() {
     if (!awaiting) return;
@@ -335,20 +341,21 @@ export function Pdv({ mercadoPagoEnabled = false }: { mercadoPagoEnabled?: boole
               <p className="text-sm text-amber-900/80">
                 {awaiting.provider === "mercadopago" ? (
                   <>
-                    A ordem foi enviada para a <strong>maquininha Mercado Pago Point</strong>.
-                    O cliente paga na máquina; quando aprovado, o PDV libera automaticamente
-                    via webhook. Referência interna: <strong>{awaiting.paymentRef}</strong>
+                    A ordem foi enviada para <strong>{terminal.label}</strong>. O cliente paga na
+                    maquininha; quando aprovado, o PDV libera automaticamente. Referência:{" "}
+                    <strong>{awaiting.paymentRef}</strong>
                     {awaiting.mpOrderId ? (
                       <>
                         {" "}
-                        · Order MP: <code>{awaiting.mpOrderId}</code>
+                        · Order: <code>{awaiting.mpOrderId}</code>
                       </>
                     ) : null}
                   </>
                 ) : (
                   <>
-                    Informe a referência <strong>{awaiting.paymentRef}</strong> na máquina de
-                    cartão ou aguarde a confirmação automática via API.
+                    Referência <strong>{awaiting.paymentRef}</strong> — informe na maquininha (
+                    {terminal.label}) ou aguarde confirmação automática. Use{" "}
+                    <strong>Liberar manualmente</strong> se necessário.
                   </>
                 )}
               </p>
@@ -619,11 +626,7 @@ export function Pdv({ mercadoPagoEnabled = false }: { mercadoPagoEnabled?: boole
                   className="h-4 w-4 accent-pink-600"
                 />
                 <CreditCard className="h-4 w-4 text-pink-700" />
-                <span>
-                  {mercadoPagoEnabled
-                    ? "Cobrar na Mercado Pago Point"
-                    : "Cobrar na máquina de cartão (API)"}
-                </span>
+                <span>Cobrar na maquininha ({terminal.label})</span>
               </label>
             ) : null}
             <div className="flex justify-between border-t border-neutral-200 pt-3 text-lg font-bold">
@@ -642,9 +645,7 @@ export function Pdv({ mercadoPagoEnabled = false }: { mercadoPagoEnabled?: boole
               {pending
                 ? "Processando..."
                 : useTerminal && canUseTerminal
-                  ? mercadoPagoEnabled
-                    ? "Enviar para Mercado Pago"
-                    : "Enviar para máquina"
+                  ? `Enviar para ${terminal.label}`
                   : "Finalizar venda"}
             </Button>
             {cart.length > 0 && !locked ? (

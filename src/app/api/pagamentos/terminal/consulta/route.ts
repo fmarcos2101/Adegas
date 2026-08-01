@@ -1,9 +1,11 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getPaymentSettings } from "@/lib/payment-settings";
 import { validateTerminalApiKey } from "@/lib/payment-terminal";
 
 export async function GET(request: Request) {
-  if (!validateTerminalApiKey(request as unknown as import("next/server").NextRequest)) {
+  const settings = await getPaymentSettings();
+  if (!validateTerminalApiKey(request as unknown as import("next/server").NextRequest, settings.terminalApiKey)) {
     return NextResponse.json({ error: "Chave de API inválida." }, { status: 401 });
   }
 

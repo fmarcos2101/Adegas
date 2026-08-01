@@ -1,10 +1,11 @@
 import { Pdv } from "./pdv";
-import { isMercadoPagoConfigured } from "@/lib/mercadopago-point";
+import { getActiveTerminalProvider } from "@/lib/payment-providers";
 
-export default function PdvPage() {
+export default async function PdvPage() {
+  const terminal = await getActiveTerminalProvider();
   return (
     <div className="mx-auto max-w-6xl">
-      <Pdv mercadoPagoEnabled={isMercadoPagoConfigured()} />
+      <Pdv terminal={terminal} />
     </div>
   );
 }

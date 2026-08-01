@@ -15,10 +15,10 @@ async function main() {
   await prisma.product.deleteMany();
   await prisma.category.deleteMany();
   await prisma.auditLog.deleteMany();
-  // Mantém apenas os usuários padrão (admin/caixa) — recriados pelo seed.
   await prisma.user.deleteMany({
     where: { username: { notIn: ["admin", "caixa"] } },
   });
+  // PaymentSettings mantido — reconfigurado pelo seed.
 
   console.log("Banco zerado: vendas, produtos, categorias e auditoria removidos.");
 }
