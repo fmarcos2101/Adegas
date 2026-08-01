@@ -37,21 +37,33 @@ export type MpTerminal = {
   status?: string;
 };
 
-export function isMercadoPagoConfigured(): boolean {
-  return Boolean(
-    process.env.MERCADOPAGO_ACCESS_TOKEN?.trim() &&
-      process.env.MERCADOPAGO_TERMINAL_ID?.trim(),
-  );
+export function isMercadoPagoConfigured(creds?: {
+  accessToken?: string;
+  terminalId?: string;
+}): boolean {
+  const token = creds?.accessToken ?? process.env.MERCADOPAGO_ACCESS_TOKEN?.trim();
+  const terminal = creds?.terminalId ?? process.env.MERCADOPAGO_TERMINAL_ID?.trim();
+  return Boolean(token && terminal);
 }
 
-export function getMercadoPagoAccessToken(): string {
-  const token = process.env.MERCADOPAGO_ACCESS_TOKEN?.trim();
+function resolveCredentials(creds?: { accessToken?: string; terminalId?: string }) {
+  const accessToken =
+    creds?.accessToken?.trim() ?? process.env.MERCADOPAGO_ACCESS_TOKEN?.trim();
+  const terminalId =
+    creds?.terminalId?.trim() ?? process.env.MERCADOPAGO_TERMINAL_ID?.trim();
+  if (!accessToken) throw new Error("Access Token Mercado Pago não configurado.");
+  if (!terminalId) throw new Error("Terminal ID Mercado Pago não configurado.");
+  return { accessToken, terminalId };
+}
+
+export function getMercadoPagoAccessToken(creds?: { accessToken?: string }): string {
+  const token = creds?.accessToken?.trim() ?? process.env.MERCADOPAGO_ACCESS_TOKEN?.trim();
   if (!token) throw new Error("MERCADOPAGO_ACCESS_TOKEN não configurado.");
   return token;
 }
 
-export function getMercadoPagoTerminalId(): string {
-  const terminalId = process.env.MERCADOPAGO_TERMINAL_ID?.trim();
+export function getMercadoPagoTerminalId(creds?: { terminalId?: string }): string {
+  const terminalId = creds?.terminalId?.trim() ?? process.env.MERCADOPAGO_TERMINAL_ID?.trim();
   if (!terminalId) throw new Error("MERCADOPAGO_TERMINAL_ID não configurado.");
   return terminalId;
 }
@@ -70,12 +82,16 @@ export function formatAmountForMp(amount: number): string {
   return amount.toFixed(2);
 }
 
-async function mpFetch<T>(path: string, init?: RequestInit): Promise<T> {
+async function mpFetch<T>(
+  path: string,
+  accessToken: string,
+  init?: RequestInit,
+): Promise<T> {
   const res = await fetch(`${MP_API}${path}`, {
     ...init,
     headers: {
       "Content-Type": "application/json",
-      Authorization: `Bearer ${getMercadoPagoAccessToken()}`,
+      Authorization: `Bearer ${accessToken}`,
       ...(init?.headers ?? {}),
     },
   });
@@ -98,12 +114,16 @@ async function mpFetch<T>(path: string, init?: RequestInit): Promise<T> {
   return body;
 }
 
-export async function createPointOrder(input: {
-  externalReference: string;
-  amount: number;
-  method: "DEBITO" | "CREDITO";
-  description?: string;
-}): Promise<MpOrder> {
+export async function createPointOrder(
+  input: {
+    externalReference: string;
+    amount: number;
+    method: "DEBITO" | "CREDITO";
+    description?: string;
+  },
+  creds?: { accessToken?: string; terminalId?: string },
+): Promise<MpOrder> {
+  const { accessToken, terminalId } = resolveCredentials(creds);
   const payload = {
     type: "point",
     external_reference: input.externalReference,
@@ -114,7 +134,7 @@ export async function createPointOrder(input: {
     },
     config: {
       point: {
-        terminal_id: getMercadoPagoTerminalId(),
+        terminal_id: terminalId,
         print_on_terminal: "no_ticket",
       },
       payment_method: {
@@ -123,7 +143,7 @@ export async function createPointOrder(input: {
     },
   };
 
-  return mpFetch<MpOrder>("/v1/orders", {
+  return mpFetch<MpOrder>("/v1/orders", accessToken, {
     method: "POST",
     headers: {
       "X-Idempotency-Key": randomUUID(),
@@ -132,13 +152,21 @@ export async function createPointOrder(input: {
   });
 }
 
-export async function getPointOrder(orderId: string): Promise<MpOrder> {
-  return mpFetch<MpOrder>(`/v1/orders/${orderId}`);
+export async function getPointOrder(
+  orderId: string,
+  creds?: { accessToken?: string },
+): Promise<MpOrder> {
+  const accessToken = getMercadoPagoAccessToken(creds);
+  return mpFetch<MpOrder>(`/v1/orders/${orderId}`, accessToken);
 }
 
-export async function listPointTerminals(): Promise<MpTerminal[]> {
+export async function listPointTerminals(creds?: {
+  accessToken?: string;
+}): Promise<MpTerminal[]> {
+  const accessToken = getMercadoPagoAccessToken(creds);
   const data = await mpFetch<{ data?: { terminals?: MpTerminal[] } }>(
     "/terminals/v1/list?limit=50&offset=0",
+    accessToken,
   );
   return data.data?.terminals ?? [];
 }
@@ -155,8 +183,10 @@ export function validateMercadoPagoWebhookSignature(
   signatureHeader: string | null,
   requestId: string | null,
   dataId: string | null,
+  webhookSecret?: string,
 ): boolean {
-  const secret = process.env.MERCADOPAGO_WEBHOOK_SECRET?.trim();
+  const secret =
+    webhookSecret?.trim() ?? process.env.MERCADOPAGO_WEBHOOK_SECRET?.trim();
   if (!secret) return true;
   if (!signatureHeader || !requestId || !dataId) return false;
 

@@ -3,10 +3,17 @@ import type { NextRequest } from "next/server";
 
 const PAYMENT_REF_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
-export function getTerminalApiKey(): string {
-  return process.env.TERMINAL_API_KEY ?? "adega-terminal-dev-key-change-me";
+export function getTerminalApiKey(fallback?: string): string {
+  return fallback?.trim() || process.env.TERMINAL_API_KEY?.trim() || "adega-terminal-dev-key-change-me";
 }
 
+export function validateTerminalApiKey(request: NextRequest, apiKey?: string): boolean {
+  const expected = getTerminalApiKey(apiKey);
+  const headerKey =
+    request.headers.get("x-terminal-key") ??
+    request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
+  return Boolean(headerKey && headerKey === expected);
+}
 export function getTerminalApiPort(): number {
   const port = Number(process.env.PORT ?? process.env.TERMINAL_API_PORT ?? 3000);
   return Number.isFinite(port) ? port : 3000;
@@ -19,13 +26,6 @@ export function getTerminalBaseUrl(request?: NextRequest): string {
     if (host) return `${proto}://${host}`;
   }
   return `http://localhost:${getTerminalApiPort()}`;
-}
-
-export function validateTerminalApiKey(request: NextRequest): boolean {
-  const headerKey =
-    request.headers.get("x-terminal-key") ??
-    request.headers.get("authorization")?.replace(/^Bearer\s+/i, "");
-  return Boolean(headerKey && headerKey === getTerminalApiKey());
 }
 
 export function generatePaymentRef(): string {

@@ -1,42 +1,50 @@
-# Distribuidora de Bebidas — Sistema de PDV e Gestão
+# Adega Faixa Rosa — Sistema PDV
 
-Sistema web para distribuidora de bebidas: autenticação por perfil, dashboard,
-cadastro de produtos/categorias, controle de estoque, PDV (ponto de venda) com
-leitura por código de barras e baixa automática de estoque, auditoria e (em
-evolução) relatórios/backup. As telas e etapas estão descritas em
-[`SISTEMA.md`](SISTEMA.md).
+Sistema de gestão e ponto de venda para distribuidora de bebidas.
 
-## Stack
-
-- **Next.js 16** (App Router, Turbopack) + **React 19** + **TypeScript**
-- **Tailwind CSS v4**
-- **Prisma 7** com **SQLite** (adapter `@prisma/adapter-better-sqlite3`)
-- Autenticação: sessão JWT em cookie (`jose`) + `bcryptjs`
-
-## Como rodar (desenvolvimento)
+## Início rápido
 
 ```bash
-npm install            # instala deps e gera o Prisma Client (postinstall)
-npx prisma db push     # cria o banco SQLite (prisma/dev.db) a partir do schema
-npm run db:seed        # popula usuários, categorias e produtos de exemplo
-npm run dev            # http://localhost:3000
+npm install
+npx prisma db push
+npm run db:seed
+npm run dev
 ```
 
-### Credenciais de teste (seed)
+Acesse http://localhost:3000
 
-- Administrador: `admin` / `admin123`
-- Operador de Caixa: `caixa` / `caixa123`
+| Usuário | Senha | Perfil |
+|---------|-------|--------|
+| `admin` | `admin123` | Administrador |
+| `caixa` | `caixa123` | Caixa |
 
-## Scripts
+> Troque as senhas antes de usar na loja. Banco inicia **limpo** (sem produtos).
 
-| Comando | Descrição |
-|---------|-----------|
-| `npm run dev` | Servidor de desenvolvimento |
-| `npm run build` / `npm start` | Build e execução de produção |
-| `npm run lint` | ESLint |
-| `npm run typecheck` | Verificação de tipos (`tsc --noEmit`) |
-| `npm run db:push` | Sincroniza o schema com o banco SQLite |
-| `npm run db:seed` | Popula dados de exemplo |
+## Funcionalidades
 
-O banco (`prisma/dev.db`) não é versionado; rode `db:push` + `db:seed` após um
-checkout limpo.
+- PDV com leitor de código de barras, autocomplete e atalhos (F2/F3/F4/F8)
+- Produtos, categorias, estoque, relatórios (PDF/Excel)
+- Usuários, auditoria, backup/restauração SQLite
+- Maquininhas: **Mercado Pago Point**, **SumUp**, **Ton (Stone)** ou **API genérica**
+- Suporte WhatsApp (botão ? flutuante)
+
+## Maquininhas (configurar depois)
+
+Admin → **Pagamentos** → escolha a maquininha e cole as credenciais quando tiver.
+
+Não precisa de API no primeiro dia: use **dinheiro/PIX** ou **liberação manual** no PDV.
+
+Documentação completa: `SISTEMA.md`
+
+## Comandos
+
+```bash
+npm run dev          # servidor desenvolvimento
+npm run db:reset     # zera produtos/vendas, mantém usuários
+npm run lint         # ESLint
+npm run typecheck    # TypeScript
+```
+
+## Suporte
+
+WhatsApp: (64) 99290-3947

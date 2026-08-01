@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { getPaymentSettings } from "@/lib/payment-settings";
 import {
   completePendingSaleByMpOrderId,
   completePendingSaleByRef,
@@ -29,8 +30,11 @@ function revalidateSalePaths() {
   revalidatePath("/relatorios");
 }
 
-async function processMercadoPagoOrder(orderId: string) {
-  const order = await getPointOrder(orderId);
+async function processMercadoPagoOrder(
+  orderId: string,
+  creds: { accessToken: string; webhookSecret?: string },
+) {
+  const order = await getPointOrder(orderId, { accessToken: creds.accessToken });
   const paymentRef = order.external_reference?.trim().toUpperCase();
   const paymentId = order.transactions?.payments?.[0]?.id;
   const method = mapMpTypeToMethod(order.config?.payment_method?.default_type);
@@ -85,10 +89,13 @@ export async function POST(request: Request) {
   const dataId = (queryDataId ?? bodyDataId)?.toString() ?? null;
   const type = queryType ?? (parsed.success ? parsed.data.type : undefined);
 
+  const settings = await getPaymentSettings();
+
   const validSignature = validateMercadoPagoWebhookSignature(
     request.headers.get("x-signature"),
     request.headers.get("x-request-id"),
     dataId,
+    settings.mpWebhookSecret,
   );
   if (!validSignature) {
     return NextResponse.json({ error: "Assinatura inválida." }, { status: 401 });
@@ -103,7 +110,13 @@ export async function POST(request: Request) {
   }
 
   try {
-    const result = await processMercadoPagoOrder(dataId);
+    if (!settings.mpAccessToken) {
+      return NextResponse.json({ error: "Mercado Pago não configurado." }, { status: 503 });
+    }
+    const result = await processMercadoPagoOrder(dataId, {
+      accessToken: settings.mpAccessToken,
+      webhookSecret: settings.mpWebhookSecret,
+    });
     return NextResponse.json(result, { status: 200 });
   } catch (err) {
     return NextResponse.json(

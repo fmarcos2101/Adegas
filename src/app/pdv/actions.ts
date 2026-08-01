@@ -6,10 +6,8 @@ import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
 import { isInternalBarcode } from "@/lib/constants";
 import { generatePaymentRef } from "@/lib/payment-terminal";
-import {
-  createPointOrder,
-  isMercadoPagoConfigured,
-} from "@/lib/mercadopago-point";
+import { sendSaleToTerminalProvider } from "@/lib/payment-providers";
+import { getPaymentSettings } from "@/lib/payment-settings";
 import {
   applyStockForSale,
   computeSaleLines,
@@ -181,7 +179,7 @@ export async function createPendingTerminalSale(
   total?: number;
   paymentRef?: string;
   mpOrderId?: string;
-  provider?: "mercadopago" | "generic";
+  provider?: "mercadopago" | "generic" | "sumup" | "ton";
   error?: string;
 }> {
   const session = await getSession();
@@ -242,57 +240,56 @@ export async function createPendingTerminalSale(
       return { saleId: sale.id, total, paymentRef, method };
     });
 
-    if (isMercadoPagoConfigured()) {
-      try {
-        const order = await createPointOrder({
-          externalReference: result.paymentRef,
-          amount: result.total,
-          method: result.method,
-          description: `Adega Faixa Rosa — ${result.paymentRef}`,
-        });
+    const settings = await getPaymentSettings();
 
+    try {
+      const sent = await sendSaleToTerminalProvider({
+        paymentRef: result.paymentRef,
+        total: result.total,
+        method: result.method,
+      });
+
+      if (sent.providerOrderId) {
         await prisma.sale.update({
           where: { id: result.saleId },
           data: {
-            mpOrderId: order.id,
+            mpOrderId: sent.providerOrderId,
             paymentSource: "MERCADOPAGO",
           },
         });
-
         await prisma.auditLog.create({
           data: {
             userId: session.userId,
             action: "MP_ORDER_CRIADA",
-            detail: `Order Mercado Pago ${order.id} criada — ref ${result.paymentRef}`,
+            detail: `Order Mercado Pago ${sent.providerOrderId} — ref ${result.paymentRef}`,
           },
         });
-
-        revalidateSalePaths();
-        return {
-          saleId: result.saleId,
-          total: result.total,
-          paymentRef: result.paymentRef,
-          mpOrderId: order.id,
-          provider: "mercadopago",
-        };
-      } catch (err) {
-        await cancelPendingSale(result.saleId);
-        return {
-          error:
-            err instanceof Error
-              ? `Mercado Pago: ${err.message}`
-              : "Falha ao enviar ordem para Mercado Pago Point.",
-        };
+      } else if (settings.activeProvider === "SUMUP") {
+        await prisma.sale.update({
+          where: { id: result.saleId },
+          data: { paymentSource: "SUMUP" },
+        });
+      } else if (settings.activeProvider === "TON") {
+        await prisma.sale.update({
+          where: { id: result.saleId },
+          data: { paymentSource: "TON" },
+        });
       }
-    }
 
-    revalidateSalePaths();
-    return {
-      saleId: result.saleId,
-      total: result.total,
-      paymentRef: result.paymentRef,
-      provider: "generic",
-    };
+      revalidateSalePaths();
+      return {
+        saleId: result.saleId,
+        total: result.total,
+        paymentRef: result.paymentRef,
+        mpOrderId: sent.providerOrderId,
+        provider: sent.provider,
+      };
+    } catch (err) {
+      await cancelPendingSale(result.saleId);
+      return {
+        error: err instanceof Error ? err.message : "Falha ao enviar para a maquininha.",
+      };
+    }
   } catch (err) {
     return {
       error:
