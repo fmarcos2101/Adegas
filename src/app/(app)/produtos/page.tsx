@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatBRL } from "@/lib/utils";
 import { isInternalBarcode } from "@/lib/constants";
 import { ProductForm } from "./product-form";
+import { ProductActions } from "./product-actions";
 
 export default async function ProdutosPage() {
   const [products, categories] = await Promise.all([
@@ -43,12 +44,27 @@ export default async function ProdutosPage() {
                     <th className="py-2">Categoria</th>
                     <th className="py-2">Preço</th>
                     <th className="py-2">Estoque</th>
+                    <th className="py-2 text-right">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
                   {products.map((p) => (
-                    <tr key={p.id} className="border-b border-neutral-100">
-                      <td className="py-2 font-medium">{p.name}</td>
+                    <tr
+                      key={p.id}
+                      className={
+                        p.active
+                          ? "border-b border-neutral-100"
+                          : "border-b border-neutral-100 opacity-50"
+                      }
+                    >
+                      <td className="py-2 font-medium">
+                        {p.name}
+                        {!p.active ? (
+                          <span className="ml-2 rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-500">
+                            inativo
+                          </span>
+                        ) : null}
+                      </td>
                       <td className="py-2 text-neutral-500">
                         {isInternalBarcode(p.barcode) ? (
                           <span className="italic text-neutral-400">
@@ -70,6 +86,9 @@ export default async function ProdutosPage() {
                         }
                       >
                         {p.stock}
+                      </td>
+                      <td className="py-2 text-right">
+                        <ProductActions id={p.id} name={p.name} stock={p.stock} />
                       </td>
                     </tr>
                   ))}

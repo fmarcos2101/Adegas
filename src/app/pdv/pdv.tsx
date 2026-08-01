@@ -39,6 +39,7 @@ export function Pdv() {
   const [discount, setDiscount] = useState(0);
   const [method, setMethod] = useState<Method>("DINHEIRO");
   const [query, setQuery] = useState("");
+  const [qty, setQty] = useState(1);
   const [predictions, setPredictions] = useState<FoundProduct[]>([]);
   const [highlight, setHighlight] = useState(-1);
   const [pending, startTransition] = useTransition();
@@ -67,31 +68,33 @@ export function Pdv() {
     return () => clearTimeout(handle);
   }, [query]);
 
-  function addToCart(product: FoundProduct) {
+  function addToCart(product: FoundProduct, quantity = 1) {
+    const add = Math.max(1, Math.floor(quantity));
     setCart((prev) => {
       const existing = prev.find((l) => l.id === product.id);
       if (existing) {
         return prev.map((l) =>
-          l.id === product.id ? { ...l, quantity: l.quantity + 1 } : l,
+          l.id === product.id ? { ...l, quantity: l.quantity + add } : l,
         );
       }
-      return [...prev, { ...product, quantity: 1 }];
+      return [...prev, { ...product, quantity: add }];
     });
     setQuery("");
+    setQty(1);
     setPredictions([]);
     setHighlight(-1);
     inputRef.current?.focus();
   }
 
-  function scanExact(code: string) {
+  function scanExact(code: string, quantity: number) {
     startTransition(async () => {
       const res = await findProductByBarcode(code);
       if (res.error || !res.product) {
         toast.error(res.error ?? "Produto não encontrado.");
         inputRef.current?.focus();
       } else {
-        addToCart(res.product);
-        toast.success(`${res.product.name} adicionado.`);
+        addToCart(res.product, quantity);
+        toast.success(`${res.product.name} (x${Math.max(1, quantity)}) adicionado.`);
       }
     });
   }
@@ -109,10 +112,10 @@ export function Pdv() {
       if (!code) return;
       if (highlight >= 0 && predictions[highlight]) {
         const p = predictions[highlight];
-        addToCart(p);
-        toast.success(`${p.name} adicionado.`);
+        addToCart(p, qty);
+        toast.success(`${p.name} (x${qty}) adicionado.`);
       } else {
-        scanExact(code);
+        scanExact(code, qty);
       }
     } else if (e.key === "Escape") {
       setPredictions([]);
@@ -185,27 +188,41 @@ export function Pdv() {
             </Button>
           </CardHeader>
           <CardContent>
-            <div className="relative">
-              <Barcode className="absolute left-3 top-3 h-4 w-4 text-neutral-400" />
-              <Input
-                ref={inputRef}
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-                onKeyDown={handleKeyDown}
-                placeholder="Escaneie, digite o código ou as iniciais do produto"
-                className="pl-9"
-                autoFocus
-                autoComplete="off"
-              />
-              {predictions.length > 0 ? (
+            <div className="flex gap-2">
+              <div className="w-24 shrink-0">
+                <Input
+                  type="number"
+                  min="1"
+                  value={qty}
+                  onChange={(e) =>
+                    setQty(Math.max(1, Math.floor(Number(e.target.value) || 1)))
+                  }
+                  aria-label="Quantidade"
+                  title="Quantidade"
+                  className="text-center"
+                />
+              </div>
+              <div className="relative flex-1">
+                <Barcode className="absolute left-3 top-3 h-4 w-4 text-neutral-400" />
+                <Input
+                  ref={inputRef}
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                  onKeyDown={handleKeyDown}
+                  placeholder="Escaneie, digite o código ou as iniciais do produto"
+                  className="pl-9"
+                  autoFocus
+                  autoComplete="off"
+                />
+                {predictions.length > 0 ? (
                 <ul className="absolute z-10 mt-1 max-h-72 w-full overflow-auto rounded-md border border-neutral-200 bg-white shadow-lg">
                   {predictions.map((p, i) => (
                     <li key={p.id}>
                       <button
                         type="button"
                         onClick={() => {
-                          addToCart(p);
-                          toast.success(`${p.name} adicionado.`);
+                          addToCart(p, qty);
+                          toast.success(`${p.name} (x${qty}) adicionado.`);
                         }}
                         onMouseEnter={() => setHighlight(i)}
                         className={
@@ -233,11 +250,13 @@ export function Pdv() {
                       </button>
                     </li>
                   ))}
-                </ul>
-              ) : null}
+                  </ul>
+                ) : null}
+              </div>
             </div>
             <p className="mt-2 text-xs text-neutral-500">
-              Use ↑/↓ para navegar nas sugestões e Enter para adicionar.
+              Digite a quantidade à esquerda; use ↑/↓ nas sugestões e Enter para
+              adicionar.
             </p>
           </CardContent>
         </Card>

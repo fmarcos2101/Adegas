@@ -95,3 +95,87 @@ export async function createProduct(
   revalidatePath("/");
   return { success: true };
 }
+
+export type ProductActionResult = { error?: string; message?: string };
+
+export async function zeroStock(id: string): Promise<ProductActionResult> {
+  const session = await getSession();
+  if (!session || session.role !== "ADMIN") return { error: "Não autorizado." };
+
+  const product = await prisma.product.findUnique({ where: { id } });
+  if (!product) return { error: "Produto não encontrado." };
+  if (product.stock === 0) return { message: "Estoque já está em zero." };
+
+  const delta = -product.stock;
+  await prisma.$transaction([
+    prisma.product.update({ where: { id }, data: { stock: 0 } }),
+    prisma.stockMovement.create({
+      data: {
+        productId: id,
+        type: "AJUSTE",
+        quantity: delta,
+        reason: "Estoque zerado manualmente",
+      },
+    }),
+    prisma.auditLog.create({
+      data: {
+        userId: session.userId,
+        action: "ZERAR_ESTOQUE",
+        detail: `${product.name}: ${product.stock} -> 0`,
+      },
+    }),
+  ]);
+
+  revalidatePath("/produtos");
+  revalidatePath("/estoque");
+  revalidatePath("/");
+  return { message: "Estoque zerado." };
+}
+
+export async function deleteProduct(id: string): Promise<ProductActionResult> {
+  const session = await getSession();
+  if (!session || session.role !== "ADMIN") return { error: "Não autorizado." };
+
+  const product = await prisma.product.findUnique({
+    where: { id },
+    include: { _count: { select: { saleItems: true } } },
+  });
+  if (!product) return { error: "Produto não encontrado." };
+
+  // Produtos com vendas registradas são inativados (preserva histórico);
+  // produtos sem vendas são excluídos de fato.
+  if (product._count.saleItems > 0) {
+    await prisma.$transaction([
+      prisma.product.update({ where: { id }, data: { active: false } }),
+      prisma.auditLog.create({
+        data: {
+          userId: session.userId,
+          action: "INATIVAR_PRODUTO",
+          detail: `${product.name} inativado (possui vendas)`,
+        },
+      }),
+    ]);
+    revalidatePath("/produtos");
+    revalidatePath("/");
+    return {
+      message: "Produto possui vendas: foi inativado para preservar o histórico.",
+    };
+  }
+
+  await prisma.$transaction([
+    prisma.stockMovement.deleteMany({ where: { productId: id } }),
+    prisma.product.delete({ where: { id } }),
+    prisma.auditLog.create({
+      data: {
+        userId: session.userId,
+        action: "EXCLUIR_PRODUTO",
+        detail: `${product.name} excluído`,
+      },
+    }),
+  ]);
+
+  revalidatePath("/produtos");
+  revalidatePath("/estoque");
+  revalidatePath("/");
+  return { message: "Produto excluído." };
+}
