@@ -1,1 +1,2 @@
-*.bat text eol=crlf
+# Bat files must keep CRLF in the repo so GitHub ZIP downloads work on Windows cmd.exe
+*.bat -text

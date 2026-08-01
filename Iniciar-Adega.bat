@@ -32,17 +32,17 @@ if not exist "prisma\dev.db" (
     call npm run db:seed
 )
 
-echo.
+echo(
 echo ========================================
 echo   Adega Faixa Rosa - Sistema iniciando
 echo ========================================
-echo.
+echo(
 echo Acesse: http://localhost:3000
 echo PDV:    http://localhost:3000/pdv
-echo.
+echo(
 echo Mantenha esta janela aberta enquanto usar o sistema.
 echo Para encerrar: feche esta janela ou pressione Ctrl+C
-echo.
+echo(
 
 start "" "http://localhost:3000/pdv"
 timeout /t 2 /nobreak >nul
