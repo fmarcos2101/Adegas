@@ -1,4 +1,9 @@
 @echo off
+if /i not "%~1"=="__run__" (
+    cmd /k "%~f0" __run__
+    exit /b
+)
+
 setlocal EnableExtensions
 cd /d "%~dp0"
 title Adega Faixa Rosa - Instalacao
@@ -17,8 +22,7 @@ if errorlevel 1 (
     echo   https://nodejs.org
     echo(
     echo Depois execute este arquivo novamente.
-    pause
-    exit /b 1
+    goto :fim_erro
 )
 
 echo [OK] Node.js encontrado:
@@ -37,32 +41,28 @@ echo [2/5] Instalando dependencias (pode demorar alguns minutos)...
 call npm install
 if errorlevel 1 (
     echo [ERRO] Falha no npm install.
-    pause
-    exit /b 1
+    goto :fim_erro
 )
 
 echo [3/5] Preparando banco de dados...
 call npx prisma db push --accept-data-loss
 if errorlevel 1 (
     echo [ERRO] Falha ao criar banco de dados.
-    pause
-    exit /b 1
+    goto :fim_erro
 )
 
 echo [4/5] Criando usuarios iniciais...
 call npm run db:seed
 if errorlevel 1 (
     echo [ERRO] Falha no seed.
-    pause
-    exit /b 1
+    goto :fim_erro
 )
 
 echo [5/5] Gerando versao de producao...
 call npm run build
 if errorlevel 1 (
     echo [ERRO] Falha no build.
-    pause
-    exit /b 1
+    goto :fim_erro
 )
 
 echo(
@@ -78,5 +78,17 @@ echo Troque as senhas antes de usar na loja.
 echo(
 echo Agora de duplo clique em: Iniciar-Adega.bat
 echo(
-pause
+goto :fim_ok
+
+:fim_erro
+echo(
+echo A janela permanecera aberta para voce ler a mensagem.
+goto :fim
+
+:fim_ok
+echo(
+echo Instalacao OK. Voce pode fechar esta janela.
+goto :fim
+
+:fim
 endlocal
