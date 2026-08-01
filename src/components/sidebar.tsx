@@ -11,6 +11,7 @@ import {
   BarChart3,
   Users,
   ScrollText,
+  Database,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -30,6 +31,7 @@ const items: NavItem[] = [
   { href: "/relatorios", label: "Relatórios", icon: BarChart3, adminOnly: true },
   { href: "/usuarios", label: "Usuários", icon: Users, adminOnly: true },
   { href: "/auditoria", label: "Auditoria", icon: ScrollText, adminOnly: true },
+  { href: "/backup", label: "Backup", icon: Database, adminOnly: true },
 ];
 
 export function Sidebar({ role }: { role: "ADMIN" | "CAIXA" }) {

@@ -24,7 +24,7 @@ Credenciais de teste criadas pelo seed: `admin`/`admin123` (perfil ADMIN) e `cai
 - Fluxo end-to-end: login como `admin` → Dashboard → Produtos (cadastrar) → Vendas/PDV (adicionar por código de barras → Finalizar venda) → Dashboard reflete a venda.
 
 ### Gotchas não óbvios (específicos destas versões)
-- **Middleware virou Proxy** no Next 16: o arquivo é `proxy.ts` na raiz e exporta `export function proxy(req)` (não `middleware`). É onde fica a proteção de rotas por perfil.
+- **Middleware virou Proxy** no Next 16: exporta `export function proxy(req)` (não `middleware`). Como o app fica em `src/`, o arquivo precisa estar em **`src/proxy.ts`** (mesmo nível de `src/app`) — em `proxy.ts` na raiz ele é ignorado. É onde fica a proteção de rotas por perfil.
 - **Prisma 7**: o `datasource` no `schema.prisma` NÃO aceita mais `url`. A URL fica em `prisma.config.ts` (campo `datasource.url`, exigido por `prisma db push`/`migrate`). Em runtime, o `PrismaClient` recebe o adapter (`new PrismaBetterSqlite3({ url })`) — veja `src/lib/prisma.ts`. O adapter usa `defaultSafeIntegers`, mas o Prisma converte colunas `Int` para `number` normalmente.
 - **Tailwind v4**: sem `tailwind.config`; o CSS usa `@import "tailwindcss"` em `src/app/globals.css` e o plugin `@tailwindcss/postcss` em `postcss.config.mjs`.
 - **ESLint 9 flat config**: `eslint.config.mjs` importa os arrays de `eslint-config-next/core-web-vitals` e `eslint-config-next/typescript` (não use `.eslintrc`).
