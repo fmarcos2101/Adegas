@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Toaster } from "sonner";
+import { SupportButton } from "@/components/support-button";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -15,6 +16,7 @@ export default function RootLayout({
     <html lang="pt-BR">
       <body>
         {children}
+        <SupportButton />
         <Toaster richColors position="top-right" />
       </body>
     </html>
