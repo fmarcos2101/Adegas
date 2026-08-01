@@ -3,19 +3,19 @@ setlocal EnableExtensions
 cd /d "%~dp0"
 title Adega Faixa Rosa - Instalacao
 
-echo.
+echo(
 echo ========================================
 echo   ADEGA FAIXA ROSA - Instalacao
 echo ========================================
-echo.
+echo(
 
 where node >nul 2>nul
 if errorlevel 1 (
     echo [ERRO] Node.js nao encontrado.
-    echo.
+    echo(
     echo Baixe e instale Node.js 20 LTS em:
     echo   https://nodejs.org
-    echo.
+    echo(
     echo Depois execute este arquivo novamente.
     pause
     exit /b 1
@@ -24,7 +24,7 @@ if errorlevel 1 (
 echo [OK] Node.js encontrado:
 node -v
 npm -v
-echo.
+echo(
 
 if not exist ".env" (
     echo [1/5] Criando arquivo .env...
@@ -65,18 +65,18 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo.
+echo(
 echo ========================================
 echo   Instalacao concluida!
 echo ========================================
-echo.
+echo(
 echo Login inicial:
 echo   admin / admin123  (Administrador)
 echo   caixa / caixa123  (Caixa)
-echo.
+echo(
 echo Troque as senhas antes de usar na loja.
-echo.
+echo(
 echo Agora de duplo clique em: Iniciar-Adega.bat
-echo.
+echo(
 pause
 endlocal
