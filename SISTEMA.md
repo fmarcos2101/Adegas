@@ -1,0 +1,63 @@
+# Sistema para Distribuidora de Bebidas — Documentação e Plano de Trabalho
+
+## Credenciais de acesso (ambiente de desenvolvimento)
+
+- **Administrador:** usuário `admin` / senha `admin123`
+- **Operador de Caixa:** usuário `caixa` / senha `caixa123`
+
+> Essas credenciais foram criadas pelo script de seed (`npm run db:seed`) e servem apenas para testes locais.
+
+---
+
+## 1. Estrutura das telas
+
+- **/login** — Tela de login (usuário/senha), redireciona conforme perfil.
+- **/ (Dashboard)** — Visão geral: vendas do dia, faturamento do mês, produtos ativos, alertas de estoque mínimo, acesso rápido.
+- **/vendas** — PDV (Ponto de Venda): busca por código de barras (leitor USB), carrinho, quantidade, desconto, formas de pagamento, finalizar/cancelar venda.
+- **/produtos** *(admin)* — CRUD de produtos: nome, código de barras, categoria, marca, custo, preço, estoque, estoque mínimo.
+- **/categorias** *(admin)* — CRUD de categorias.
+- **/marcas** *(admin)* — CRUD de marcas.
+- **/estoque** *(admin)* — Movimentações de estoque (entrada, saída, ajuste) e histórico.
+- **/relatorios** *(admin)* — Relatórios diários/semanais/mensais de vendas, estoque, lucro estimado, formas de pagamento. Exportação em PDF/Excel.
+- **/usuarios** *(admin)* — CRUD de usuários (admin/operador de caixa).
+- **/auditoria** *(admin)* — Histórico de ações sensíveis (login, cancelamento de vendas, ajustes de estoque etc.).
+- **/backup** *(admin)* — Geração de backup do banco (.db) e restauração.
+
+Layout: barra lateral fixa com navegação (visível apenas conforme perfil), cabeçalho com usuário logado/logout, área de conteúdo principal.
+
+---
+
+## 2. Estrutura do banco de dados (Prisma Schema)
+
+Já criada em `prisma/schema.prisma`, usando SQLite (arquivo `prisma/dev.db`) através do adapter `@prisma/adapter-better-sqlite3`, preparado para troca futura para PostgreSQL (basta alterar o `datasource` e o adapter).
+
+Modelos principais:
+- **User** — usuários (admin/caixa), senha com hash (bcrypt).
+- **Category / Brand** — categorias e marcas de produtos.
+- **Product** — produtos com código de barras, custo, preço, estoque atual e mínimo.
+- **StockMovement** — histórico de entrada/saída/ajuste/venda de estoque.
+- **Sale / SaleItem / Payment** — vendas, itens vendidos e formas de pagamento (dinheiro, PIX, débito, crédito — apenas registro).
+- **AuditLog** — auditoria de ações (login/logout, cancelamento de venda, ajustes etc.).
+- **BackupLog** — histórico de backups/restaurações realizados.
+
+---
+
+## 3. Etapas de desenvolvimento
+
+- [x] **Etapa 0 — Base do projeto:** Next.js + TypeScript + Tailwind + shadcn/ui, Prisma + SQLite configurado, schema do banco criado e migrado, seed inicial (usuários, categorias, marcas, produtos de exemplo).
+- [x] **Etapa 1 — Autenticação:** login com sessão via cookie assinado (JWT), middleware de proteção de rotas por perfil (admin/caixa), logout, tela de login estilizada.
+- [x] **Etapa 2 — Layout principal:** sidebar dinâmica por perfil, cabeçalho com usuário, dashboard inicial com indicadores.
+- [x] **Etapa 3 — Cadastro de Produtos e Categorias:** CRUD completo com validações (Zod), tabela com busca/filtro, formulários shadcn/ui.
+- [x] **Etapa 4 — Estoque:** entrada, saída, ajuste manual, histórico de movimentações, alerta visual de estoque mínimo.
+- [x] **Etapa 5 — Tela de Vendas (PDV):** leitura via leitor USB (input de código de barras com foco automático), carrinho, quantidade, desconto, múltiplas formas de pagamento, finalização com baixa automática de estoque.
+- [x] **Etapa 6 — Cancelamento de venda:** com motivo obrigatório, reposição de estoque e registro em auditoria.
+- [x] **Etapa 7 — Relatórios:** vendas diárias/semanais/mensais, estoque, lucro estimado, formas de pagamento — com tabelas.
+- [x] **Etapa 8 — Exportação:** PDF (jspdf/jspdf-autotable) e Excel (exceljs) dos relatórios.
+- [x] **Etapa 9 — Gestão de usuários:** CRUD de usuários (somente admin), ativar/inativar, com proteção contra remover o próprio usuário ou o último admin ativo.
+- [x] **Etapa 10 — Auditoria:** tela de consulta de logs de ações sensíveis, com busca por texto.
+- [ ] **Etapa 11 — Backup e Restauração:** exportar/importar arquivo do banco SQLite pela interface.
+- [ ] **Etapa 12 — Polimento final:** responsividade, atalhos de teclado no PDV, testes gerais, empacotamento para uso local no Windows.
+
+> **Nota:** o cadastro de Marcas (Etapa 3) não foi implementado como entidade separada — a categorização de produtos ficou centralizada em Categorias.
+
+Cada etapa será desenvolvida e apresentada para revisão antes de avançar para a próxima.
