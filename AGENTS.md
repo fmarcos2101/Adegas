@@ -24,7 +24,7 @@ Credenciais de teste criadas pelo seed: `admin`/`admin123` (perfil ADMIN) e `cai
 - Fluxo end-to-end: login como `admin` → Dashboard → Produtos (cadastrar) → PDV (`/pdv`, adicionar por código/iniciais → Finalizar venda) → Dashboard reflete a venda.
 
 ### Papéis e rotas
-- **PDV** fica em `/pdv` — tela dedicada em tela cheia (layout próprio, sem sidebar), pensada para abrir em nova aba e ficar em segundo plano. A busca aceita código de barras (leitor), código ou iniciais do nome (autocomplete com estoque), e há um painel "Consultar estoque" para revisar sem sair do PDV.
+- **PDV** fica em `/pdv` — tela dedicada em tela cheia (layout próprio, sem sidebar), pensada para abrir em nova aba e ficar em segundo plano. A busca aceita código de barras (leitor), código ou iniciais do nome (autocomplete com estoque), e há um painel "Consultar estoque" para revisar sem sair do PDV. Para **débito/crédito via máquina**, marque "Cobrar na máquina de cartão (API)" — o PDV gera uma referência, aguarda callback em `/api/pagamentos/terminal/callback` e permite **liberação manual** se necessário. Documentação em `/pagamentos`.
 - **Perfil CAIXA**: acessa apenas `/pdv` e `/estoque`; no estoque só pode **ENTRADA** (saída/ajuste são bloqueados na UI e no server action). As demais rotas (incl. `/` e `/produtos`, `/relatorios`, `/usuarios`, etc.) são exclusivas de ADMIN e o Proxy redireciona o caixa para `/pdv`.
 - Produtos podem ser cadastrados **sem código de barras** (checkbox): o backend gera um código interno com prefixo `SEM-` (ver `src/lib/constants.ts`), exibido como "sem código" nas listagens.
 

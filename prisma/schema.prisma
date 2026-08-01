@@ -68,8 +68,15 @@ model StockMovement {
 }
 
 enum SaleStatus {
+  AGUARDANDO_PAGAMENTO
   CONCLUIDA
   CANCELADA
+}
+
+enum PaymentSource {
+  IMEDIATO
+  TERMINAL
+  MANUAL
 }
 
 model Sale {
@@ -80,6 +87,10 @@ model Sale {
   userId     String
   user       User       @relation(fields: [userId], references: [id])
   cancelReason String?
+  paymentRef   String?   @unique
+  terminalTxId String?
+  paymentSource PaymentSource?
+  paymentConfirmedAt DateTime?
   createdAt  DateTime   @default(now())
 
   items    SaleItem[]

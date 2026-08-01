@@ -75,6 +75,10 @@ export function SalesTable({
                   >
                     Cancelada
                   </span>
+                ) : s.status === "AGUARDANDO_PAGAMENTO" ? (
+                  <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs text-amber-800">
+                    Aguardando pagamento
+                  </span>
                 ) : (
                   <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700">
                     Concluída
@@ -83,7 +87,7 @@ export function SalesTable({
               </td>
               {canCancel ? (
                 <td className="py-2 text-right">
-                  {s.status === "CONCLUIDA" ? (
+                  {s.status === "CONCLUIDA" || s.status === "AGUARDANDO_PAGAMENTO" ? (
                     <Button
                       type="button"
                       variant="ghost"

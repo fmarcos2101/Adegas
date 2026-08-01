@@ -14,6 +14,7 @@ const ADMIN_ONLY_PREFIXES = [
   "/usuarios",
   "/auditoria",
   "/backup",
+  "/pagamentos",
 ];
 
 async function readSession(request: NextRequest) {

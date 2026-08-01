@@ -22,6 +22,7 @@
 - **/usuarios** *(admin)* — CRUD de usuários (admin/operador de caixa).
 - **/auditoria** *(admin)* — Histórico de ações sensíveis (login, cancelamento de vendas, ajustes de estoque etc.).
 - **/backup** *(admin)* — Geração de backup do banco (.db) e restauração.
+- **/pagamentos** *(admin)* — Documentação da API de integração com máquina de cartão.
 
 Layout: barra lateral fixa com navegação (visível apenas conforme perfil), cabeçalho com usuário logado/logout, área de conteúdo principal.
 
@@ -63,7 +64,21 @@ Modelos principais:
 - [x] **Responsividade:** sidebar colapsável com menu hamburger em telas pequenas (`AppShell` + drawer mobile).
 - [x] **Atalhos de teclado no PDV:** `F8` foco na busca, `F2` finalizar venda, `F4` limpar carrinho, `F3` consultar estoque.
 - [x] **Identidade visual:** favicon e metadados atualizados para "Adega Faixa Rosa".
+- [x] **Integração máquina de cartão:** API HTTP (`/api/pagamentos/terminal/*`), venda pendente no PDV, liberação automática e manual.
 - [ ] **Testes automatizados:** pendente (fluxo login → venda → cancelamento).
+
+---
+
+## 4. API da máquina de cartão
+
+Porta: mesma do servidor Next.js (padrão **3000**). Autenticação via header `X-Terminal-Key` (variável `TERMINAL_API_KEY` no `.env`).
+
+| Endpoint | Método | Descrição |
+|----------|--------|-----------|
+| `/api/pagamentos/terminal/consulta?ref=XXXX` | GET | Consulta venda pendente pelo código exibido no PDV |
+| `/api/pagamentos/terminal/callback` | POST | Máquina confirma pagamento (`status: APPROVED`) e libera a venda |
+
+Documentação completa e exemplos cURL na tela **Pagamentos** (`/pagamentos`).
 
 > **Nota:** o cadastro de Marcas (Etapa 3) não foi implementado como entidade separada — a categorização de produtos ficou centralizada em Categorias.
 

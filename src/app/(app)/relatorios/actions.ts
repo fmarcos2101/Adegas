@@ -26,19 +26,21 @@ export async function cancelSale(
         data: { status: "CANCELADA", cancelReason: reason.trim() },
       });
 
-      for (const item of sale.items) {
-        await tx.product.update({
-          where: { id: item.productId },
-          data: { stock: { increment: item.quantity } },
-        });
-        await tx.stockMovement.create({
-          data: {
-            productId: item.productId,
-            type: "ENTRADA",
-            quantity: item.quantity,
-            reason: `Cancelamento da venda ${saleId}`,
-          },
-        });
+      if (sale.status === "CONCLUIDA" || sale.status === "AGUARDANDO_PAGAMENTO") {
+        for (const item of sale.items) {
+          await tx.product.update({
+            where: { id: item.productId },
+            data: { stock: { increment: item.quantity } },
+          });
+          await tx.stockMovement.create({
+            data: {
+              productId: item.productId,
+              type: "ENTRADA",
+              quantity: item.quantity,
+              reason: `Cancelamento da venda ${saleId}`,
+            },
+          });
+        }
       }
 
       await tx.auditLog.create({
@@ -53,6 +55,7 @@ export async function cancelSale(
     revalidatePath("/relatorios");
     revalidatePath("/");
     revalidatePath("/produtos");
+    revalidatePath("/estoque");
     return { success: true };
   } catch (err) {
     return {
