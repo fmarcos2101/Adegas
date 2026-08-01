@@ -12,6 +12,7 @@ import {
   Users,
   ScrollText,
   Database,
+  Crown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -41,8 +42,13 @@ export function Sidebar({ role }: { role: "ADMIN" | "CAIXA" }) {
 
   return (
     <aside className="flex w-60 shrink-0 flex-col border-r border-neutral-200 bg-white">
-      <div className="flex h-16 items-center gap-2 border-b border-neutral-200 px-5">
-        <span className="text-lg font-semibold text-emerald-700">Distribuidora</span>
+      <div className="flex h-20 items-center gap-2 border-b border-neutral-200 bg-gradient-to-br from-pink-600 to-pink-800 px-5">
+        <Crown className="h-5 w-5 text-pink-200" />
+        <span className="text-lg font-extrabold uppercase leading-none tracking-tight text-white">
+          Adega
+          <br />
+          <span className="text-pink-200">Faixa Rosa</span>
+        </span>
       </div>
       <nav className="flex-1 space-y-1 p-3">
         {visible.map((item) => {
@@ -54,8 +60,8 @@ export function Sidebar({ role }: { role: "ADMIN" | "CAIXA" }) {
           const className = cn(
             "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
             active && !item.newTab
-              ? "bg-emerald-600 text-white"
-              : "text-neutral-700 hover:bg-neutral-100",
+              ? "bg-pink-600 text-white"
+              : "text-neutral-700 hover:bg-pink-50",
           );
 
           if (item.newTab) {
