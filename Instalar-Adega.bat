@@ -1,17 +1,17 @@
 @echo off
-chcp 65001 >nul
-title Adega Faixa Rosa — Instalação
+setlocal EnableExtensions
 cd /d "%~dp0"
+title Adega Faixa Rosa - Instalacao
 
 echo.
-echo  ========================================
-echo   ADEGA FAIXA ROSA — Instalação
-echo  ========================================
+echo ========================================
+echo   ADEGA FAIXA ROSA - Instalacao
+echo ========================================
 echo.
 
 where node >nul 2>nul
 if errorlevel 1 (
-    echo [ERRO] Node.js não encontrado.
+    echo [ERRO] Node.js nao encontrado.
     echo.
     echo Baixe e instale Node.js 20 LTS em:
     echo   https://nodejs.org
@@ -30,10 +30,10 @@ if not exist ".env" (
     echo [1/5] Criando arquivo .env...
     copy /Y ".env.example" ".env" >nul
 ) else (
-    echo [1/5] Arquivo .env já existe — mantido.
+    echo [1/5] Arquivo .env ja existe - mantido.
 )
 
-echo [2/5] Instalando dependências (pode demorar alguns minutos)...
+echo [2/5] Instalando dependencias (pode demorar alguns minutos)...
 call npm install
 if errorlevel 1 (
     echo [ERRO] Falha no npm install.
@@ -49,7 +49,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo [4/5] Criando usuários iniciais...
+echo [4/5] Criando usuarios iniciais...
 call npm run db:seed
 if errorlevel 1 (
     echo [ERRO] Falha no seed.
@@ -57,7 +57,7 @@ if errorlevel 1 (
     exit /b 1
 )
 
-echo [5/5] Gerando versão de produção...
+echo [5/5] Gerando versao de producao...
 call npm run build
 if errorlevel 1 (
     echo [ERRO] Falha no build.
@@ -66,16 +66,17 @@ if errorlevel 1 (
 )
 
 echo.
-echo  ========================================
-echo   Instalação concluída!
-echo  ========================================
+echo ========================================
+echo   Instalacao concluida!
+echo ========================================
 echo.
-echo  Login inicial:
-echo    admin / admin123  (Administrador)
-echo    caixa / caixa123  (Caixa)
+echo Login inicial:
+echo   admin / admin123  (Administrador)
+echo   caixa / caixa123  (Caixa)
 echo.
-echo  Troque as senhas antes de usar na loja.
+echo Troque as senhas antes de usar na loja.
 echo.
-echo  Agora dê duplo clique em: Iniciar-Adega.bat
+echo Agora de duplo clique em: Iniciar-Adega.bat
 echo.
 pause
+endlocal
