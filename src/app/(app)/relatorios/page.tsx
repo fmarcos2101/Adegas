@@ -65,7 +65,7 @@ export default async function RelatoriosPage({
         ))}
       </div>
 
-      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
         <Card>
           <CardHeader>
             <CardTitle>Vendas</CardTitle>
@@ -84,27 +84,111 @@ export default async function RelatoriosPage({
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Lucro estimado</CardTitle>
+            <CardTitle>CMV (custo)</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-emerald-700">
-              {formatBRL(report.profit)}
+            <div className="text-2xl font-bold text-neutral-700">
+              {formatBRL(report.cogs)}
             </div>
           </CardContent>
         </Card>
         <Card>
           <CardHeader>
-            <CardTitle>Ticket médio</CardTitle>
+            <CardTitle>Lucro bruto</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">
-              {formatBRL(
-                report.salesCount > 0 ? report.revenue / report.salesCount : 0,
-              )}
+            <div className="text-2xl font-bold text-emerald-700">
+              {formatBRL(report.grossProfit)}
             </div>
+            <p className="mt-1 text-xs text-neutral-500">
+              Margem {report.grossMarginPercent.toFixed(1)}%
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Taxas cartão</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-amber-700">
+              {formatBRL(report.cardFees)}
+            </div>
+            <p className="mt-1 text-xs text-neutral-500">
+              Déb. {report.debitFeePercent}% · Créd. {report.creditFeePercent}%
+            </p>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader>
+            <CardTitle>Lucro líquido</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-emerald-800">
+              {formatBRL(report.netProfit)}
+            </div>
+            <p className="mt-1 text-xs text-neutral-500">
+              Margem {report.netMarginPercent.toFixed(1)}%
+            </p>
           </CardContent>
         </Card>
       </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Lucro por mercadoria</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {report.productProfits.length === 0 ? (
+            <p className="text-sm text-neutral-500">Sem vendas no período.</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-neutral-200 text-left text-neutral-500">
+                    <th className="py-2">Produto</th>
+                    <th className="py-2 text-right">Qtd</th>
+                    <th className="py-2 text-right">Receita</th>
+                    <th className="py-2 text-right">Custo</th>
+                    <th className="py-2 text-right">Lucro bruto</th>
+                    <th className="py-2 text-right">Taxas</th>
+                    <th className="py-2 text-right">Lucro líquido</th>
+                    <th className="py-2 text-right">Margem</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {report.productProfits.map((p) => (
+                    <tr key={p.name} className="border-b border-neutral-100">
+                      <td className="py-2 font-medium">{p.name}</td>
+                      <td className="py-2 text-right text-neutral-500">
+                        {p.quantity}
+                      </td>
+                      <td className="py-2 text-right">{formatBRL(p.revenue)}</td>
+                      <td className="py-2 text-right">{formatBRL(p.cogs)}</td>
+                      <td className="py-2 text-right font-medium text-emerald-700">
+                        {formatBRL(p.grossProfit)}
+                      </td>
+                      <td className="py-2 text-right text-amber-700">
+                        {formatBRL(p.fees)}
+                      </td>
+                      <td className="py-2 text-right font-medium text-emerald-800">
+                        {formatBRL(p.netProfit)}
+                      </td>
+                      <td className="py-2 text-right">
+                        {p.marginPercent.toFixed(1)}%
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+          <p className="mt-3 text-xs text-neutral-500">
+            Lucro bruto = venda − preço de custo. Lucro líquido = lucro bruto −
+            taxas estimadas de cartão (rateadas por produto). Configure as taxas
+            em Pagamentos.
+          </p>
+        </CardContent>
+      </Card>
 
       <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
         <Card>

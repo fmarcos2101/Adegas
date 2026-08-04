@@ -5,22 +5,32 @@ import { toast } from "sonner";
 import { Trash2, Eraser } from "lucide-react";
 import { deleteProduct, zeroStock } from "./actions";
 import { Button } from "@/components/ui/button";
+import { ProductEditForm } from "./product-edit-form";
+
+type Category = { id: string; name: string };
 
 export function ProductActions({
-  id,
-  name,
-  stock,
+  product,
+  categories,
 }: {
-  id: string;
-  name: string;
-  stock: number;
+  product: {
+    id: string;
+    name: string;
+    stock: number;
+    categoryId: string | null;
+    cost: number;
+    price: number;
+    minStock: number;
+    active: boolean;
+  };
+  categories: Category[];
 }) {
   const [pending, startTransition] = useTransition();
 
   function handleZero() {
-    if (!window.confirm(`Zerar o estoque de "${name}"?`)) return;
+    if (!window.confirm(`Zerar o estoque de "${product.name}"?`)) return;
     startTransition(async () => {
-      const res = await zeroStock(id);
+      const res = await zeroStock(product.id);
       if (res.error) toast.error(res.error);
       else toast.success(res.message ?? "Estoque zerado.");
     });
@@ -29,12 +39,12 @@ export function ProductActions({
   function handleDelete() {
     if (
       !window.confirm(
-        `Excluir o produto "${name}"? Esta ação não pode ser desfeita.`,
+        `Excluir o produto "${product.name}"? Esta ação não pode ser desfeita.`,
       )
     )
       return;
     startTransition(async () => {
-      const res = await deleteProduct(id);
+      const res = await deleteProduct(product.id);
       if (res.error) toast.error(res.error);
       else toast.success(res.message ?? "Produto excluído.");
     });
@@ -42,12 +52,13 @@ export function ProductActions({
 
   return (
     <div className="flex items-center justify-end gap-1">
+      <ProductEditForm product={product} categories={categories} />
       <Button
         type="button"
         variant="ghost"
         size="sm"
         className="text-neutral-600"
-        disabled={pending || stock === 0}
+        disabled={pending || product.stock === 0}
         onClick={handleZero}
         title="Zerar estoque"
       >

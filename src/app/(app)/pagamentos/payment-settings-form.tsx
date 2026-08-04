@@ -18,6 +18,8 @@ type FormState = {
   sumupMerchantCode: string;
   tonApiKey: string;
   tonMerchantId: string;
+  debitFeePercent: number;
+  creditFeePercent: number;
 };
 
 const PROVIDERS: { id: PaymentProviderType; label: string; hint: string }[] = [
@@ -197,6 +199,48 @@ export function PaymentSettingsForm({
           </CardContent>
         </Card>
       ) : null}
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Taxas de cartão (lucro líquido)</CardTitle>
+        </CardHeader>
+        <CardContent className="grid gap-3 sm:grid-cols-2">
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-neutral-700">
+              Taxa débito (%)
+            </label>
+            <Input
+              type="number"
+              step="0.01"
+              min="0"
+              max="100"
+              value={form.debitFeePercent}
+              onChange={(e) =>
+                setField("debitFeePercent", Number(e.target.value) || 0)
+              }
+            />
+          </div>
+          <div className="space-y-1">
+            <label className="text-sm font-medium text-neutral-700">
+              Taxa crédito (%)
+            </label>
+            <Input
+              type="number"
+              step="0.01"
+              min="0"
+              max="100"
+              value={form.creditFeePercent}
+              onChange={(e) =>
+                setField("creditFeePercent", Number(e.target.value) || 0)
+              }
+            />
+          </div>
+          <p className="text-xs text-neutral-500 sm:col-span-2">
+            Usadas nos relatórios: lucro líquido = lucro bruto − taxas estimadas
+            sobre vendas no débito/crédito. Dinheiro e PIX não têm taxa.
+          </p>
+        </CardContent>
+      </Card>
 
       <Button type="button" size="lg" disabled={pending} onClick={submit}>
         {pending ? "Salvando..." : "Salvar configurações"}

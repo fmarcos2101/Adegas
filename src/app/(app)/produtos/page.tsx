@@ -19,7 +19,7 @@ export default async function ProdutosPage() {
       <div>
         <h1 className="text-2xl font-semibold text-neutral-900">Produtos</h1>
         <p className="text-sm text-neutral-500">
-          Cadastro e consulta de produtos
+          Cadastre preço de custo e de venda para acompanhar o lucro
         </p>
       </div>
 
@@ -42,56 +42,84 @@ export default async function ProdutosPage() {
                     <th className="py-2">Produto</th>
                     <th className="py-2">Código</th>
                     <th className="py-2">Categoria</th>
-                    <th className="py-2">Preço</th>
+                    <th className="py-2">Custo</th>
+                    <th className="py-2">Venda</th>
+                    <th className="py-2">Margem</th>
                     <th className="py-2">Estoque</th>
                     <th className="py-2 text-right">Ações</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {products.map((p) => (
-                    <tr
-                      key={p.id}
-                      className={
-                        p.active
-                          ? "border-b border-neutral-100"
-                          : "border-b border-neutral-100 opacity-50"
-                      }
-                    >
-                      <td className="py-2 font-medium">
-                        {p.name}
-                        {!p.active ? (
-                          <span className="ml-2 rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-500">
-                            inativo
-                          </span>
-                        ) : null}
-                      </td>
-                      <td className="py-2 text-neutral-500">
-                        {isInternalBarcode(p.barcode) ? (
-                          <span className="italic text-neutral-400">
-                            sem código
-                          </span>
-                        ) : (
-                          p.barcode
-                        )}
-                      </td>
-                      <td className="py-2 text-neutral-500">
-                        {p.category?.name ?? "—"}
-                      </td>
-                      <td className="py-2">{formatBRL(p.price)}</td>
-                      <td
+                  {products.map((p) => {
+                    const margin =
+                      p.price > 0 ? ((p.price - p.cost) / p.price) * 100 : 0;
+                    return (
+                      <tr
+                        key={p.id}
                         className={
-                          p.stock <= p.minStock
-                            ? "py-2 font-medium text-red-600"
-                            : "py-2"
+                          p.active
+                            ? "border-b border-neutral-100"
+                            : "border-b border-neutral-100 opacity-50"
                         }
                       >
-                        {p.stock}
-                      </td>
-                      <td className="py-2 text-right">
-                        <ProductActions id={p.id} name={p.name} stock={p.stock} />
-                      </td>
-                    </tr>
-                  ))}
+                        <td className="py-2 font-medium">
+                          {p.name}
+                          {!p.active ? (
+                            <span className="ml-2 rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-500">
+                              inativo
+                            </span>
+                          ) : null}
+                        </td>
+                        <td className="py-2 text-neutral-500">
+                          {isInternalBarcode(p.barcode) ? (
+                            <span className="italic text-neutral-400">
+                              sem código
+                            </span>
+                          ) : (
+                            p.barcode
+                          )}
+                        </td>
+                        <td className="py-2 text-neutral-500">
+                          {p.category?.name ?? "—"}
+                        </td>
+                        <td className="py-2">{formatBRL(p.cost)}</td>
+                        <td className="py-2">{formatBRL(p.price)}</td>
+                        <td
+                          className={
+                            margin >= 0
+                              ? "py-2 text-emerald-700"
+                              : "py-2 text-red-600"
+                          }
+                        >
+                          {margin.toFixed(1)}%
+                        </td>
+                        <td
+                          className={
+                            p.stock <= p.minStock
+                              ? "py-2 font-medium text-red-600"
+                              : "py-2"
+                          }
+                        >
+                          {p.stock}
+                        </td>
+                        <td className="py-2 text-right">
+                          <ProductActions
+                            product={{
+                              id: p.id,
+                              name: p.name,
+                              stock: p.stock,
+                              categoryId: p.categoryId,
+                              cost: p.cost,
+                              price: p.price,
+                              minStock: p.minStock,
+                              active: p.active,
+                            }}
+                            categories={categories}
+                          />
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>

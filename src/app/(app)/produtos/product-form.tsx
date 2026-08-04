@@ -76,12 +76,31 @@ export function ProductForm({ categories }: { categories: Category[] }) {
             </select>
           </div>
           <div className="space-y-1">
-            <label className="text-sm font-medium">Custo (R$)</label>
-            <Input name="cost" type="number" step="0.01" defaultValue="0" />
+            <label className="text-sm font-medium">Preço de custo (R$)</label>
+            <Input
+              name="cost"
+              type="number"
+              step="0.01"
+              min="0"
+              defaultValue="0"
+              required
+              placeholder="Quanto você paga"
+            />
+            <p className="text-xs text-neutral-500">
+              Usado no cálculo de lucro bruto e líquido nos relatórios.
+            </p>
           </div>
           <div className="space-y-1">
-            <label className="text-sm font-medium">Preço (R$)</label>
-            <Input name="price" type="number" step="0.01" defaultValue="0" />
+            <label className="text-sm font-medium">Preço de venda (R$)</label>
+            <Input
+              name="price"
+              type="number"
+              step="0.01"
+              min="0"
+              defaultValue="0"
+              required
+              placeholder="Quanto o cliente paga"
+            />
           </div>
           <div className="space-y-1">
             <label className="text-sm font-medium">Estoque inicial</label>

@@ -9,6 +9,7 @@ export type ComputedSaleLine = {
   productId: string;
   quantity: number;
   unitPrice: number;
+  unitCost: number;
   total: number;
 };
 
@@ -33,6 +34,7 @@ export async function computeSaleLines(
       productId: product.id,
       quantity: item.quantity,
       unitPrice: product.price,
+      unitCost: product.cost,
       total: lineTotal,
     });
   }

@@ -16,6 +16,8 @@ const settingsSchema = z.object({
   sumupMerchantCode: z.string().optional(),
   tonApiKey: z.string().optional(),
   tonMerchantId: z.string().optional(),
+  debitFeePercent: z.coerce.number().min(0).max(100).optional(),
+  creditFeePercent: z.coerce.number().min(0).max(100).optional(),
 });
 
 function emptyToNull(value: string | undefined) {
@@ -50,6 +52,8 @@ export async function savePaymentSettings(
       sumupMerchantCode: emptyToNull(data.sumupMerchantCode),
       tonApiKey: emptyToNull(data.tonApiKey),
       tonMerchantId: emptyToNull(data.tonMerchantId),
+      debitFeePercent: data.debitFeePercent ?? 1.5,
+      creditFeePercent: data.creditFeePercent ?? 3.0,
     },
     update: {
       activeProvider: data.activeProvider as PaymentProviderType,
@@ -63,6 +67,8 @@ export async function savePaymentSettings(
         data.sumupMerchantCode !== undefined ? emptyToNull(data.sumupMerchantCode) : undefined,
       tonApiKey: data.tonApiKey !== undefined ? emptyToNull(data.tonApiKey) : undefined,
       tonMerchantId: data.tonMerchantId !== undefined ? emptyToNull(data.tonMerchantId) : undefined,
+      debitFeePercent: data.debitFeePercent,
+      creditFeePercent: data.creditFeePercent,
     },
   });
 
@@ -94,5 +100,7 @@ export async function getPaymentSettingsForForm() {
     sumupMerchantCode: row?.sumupMerchantCode ?? "",
     tonApiKey: row?.tonApiKey ?? "",
     tonMerchantId: row?.tonMerchantId ?? "",
+    debitFeePercent: row?.debitFeePercent ?? 1.5,
+    creditFeePercent: row?.creditFeePercent ?? 3.0,
   };
 }
