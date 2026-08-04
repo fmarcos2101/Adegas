@@ -20,7 +20,7 @@ export default async function EstoquePage() {
     prisma.stockMovement.findMany({
       orderBy: { createdAt: "desc" },
       take: 50,
-      include: { product: true },
+      include: { product: { select: { name: true } } },
     }),
     getSession(),
   ]);
@@ -98,7 +98,13 @@ export default async function EstoquePage() {
                       <td className="py-2 text-neutral-500">
                         {format(m.createdAt, "dd/MM/yyyy HH:mm")}
                       </td>
-                      <td className="py-2 font-medium">{m.product.name}</td>
+                      <td className="py-2 font-medium">
+                        {m.product?.name ?? (
+                          <span className="italic text-neutral-400">
+                            Produto removido
+                          </span>
+                        )}
+                      </td>
                       <td className="py-2">{typeLabels[m.type] ?? m.type}</td>
                       <td
                         className={
