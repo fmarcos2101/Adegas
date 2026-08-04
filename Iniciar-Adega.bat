@@ -37,13 +37,13 @@ echo ========================================
 echo   Adega Faixa Rosa - Sistema iniciando
 echo ========================================
 echo(
-echo Acesse: http://localhost:3000/pdv
+echo Acesse: http://localhost:3000/login
 echo Login: admin / admin123
 echo(
 echo Nao feche esta janela enquanto usar o sistema.
 echo(
 
-start "" "http://localhost:3000/pdv"
+start "" "http://localhost:3000/login"
 call npm start
 if errorlevel 1 goto erro
 goto fim
