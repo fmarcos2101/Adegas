@@ -5,6 +5,13 @@ setlocal EnableExtensions
 cd /d "%~dp0"
 title Adega Faixa Rosa - PDV
 
+echo %CD% | findstr /i "onedrive" >nul
+if errorlevel 1 goto avisopasta_ok
+echo [AVISO] Esta pasta esta dentro do OneDrive.
+echo Se der erro na instalacao, copie a pasta para C:\Adega e tente de la.
+echo(
+:avisopasta_ok
+
 where node >nul 2>nul
 if errorlevel 1 goto erro
 
