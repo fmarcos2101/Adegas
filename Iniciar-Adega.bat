@@ -9,7 +9,7 @@ where node >nul 2>nul
 if errorlevel 1 goto erro
 
 if not exist "node_modules\" goto instalar
-goto banco
+goto liberaporta
 
 :instalar
 echo Sistema nao instalado. Executando instalacao...
@@ -17,6 +17,11 @@ call "%~dp0Instalar-Adega.bat" __run__
 if errorlevel 1 goto erro
 if not exist "node_modules\" goto erro
 goto iniciar
+
+:liberaporta
+echo Verificando se a porta 3000 esta livre...
+for /f "tokens=5" %%P in ('netstat -ano ^| findstr ":3000" ^| findstr "LISTENING"') do taskkill /F /PID %%P >nul 2>nul
+goto banco
 
 :banco
 set NOVO_BANCO=0
@@ -26,12 +31,16 @@ echo Verificando banco de dados...
 call npx prisma db push --accept-data-loss
 if errorlevel 1 goto erro
 
-if not "%NOVO_BANCO%"=="1" goto rebuild
+if not "%NOVO_BANCO%"=="1" goto seed_ok
 echo Criando usuarios iniciais...
 call npm run db:seed
 if errorlevel 1 goto erro
 
-:rebuild
+:seed_ok
+echo Atualizando cliente do banco de dados...
+call npx prisma generate
+if errorlevel 1 goto erro
+
 echo Atualizando versao do sistema...
 call npm run build
 if errorlevel 1 goto erro
@@ -54,9 +63,11 @@ if errorlevel 1 goto erro
 goto fim
 
 :erro
-echo [ERRO] Nao foi possivel iniciar. Veja a mensagem acima.
 echo(
-echo Se aparecer "Internal Server Error", execute Reparar-Adega.bat
+echo [ERRO] Nao foi possivel iniciar. Veja a mensagem detalhada acima.
+echo(
+echo Se aparecer "Internal Server Error" no navegador, execute Reparar-Adega.bat
+echo Se precisar de ajuda, tire um print desta janela com a mensagem de erro.
 echo(
 goto fim
 
