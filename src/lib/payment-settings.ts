@@ -11,6 +11,8 @@ export type PaymentSettingsData = {
   sumupMerchantCode: string;
   tonApiKey: string;
   tonMerchantId: string;
+  debitFeePercent: number;
+  creditFeePercent: number;
 };
 
 const DEFAULTS: PaymentSettingsData = {
@@ -23,6 +25,8 @@ const DEFAULTS: PaymentSettingsData = {
   sumupMerchantCode: "",
   tonApiKey: "",
   tonMerchantId: "",
+  debitFeePercent: 1.5,
+  creditFeePercent: 3.0,
 };
 
 export const PROVIDER_LABELS: Record<PaymentProviderType, string> = {
@@ -41,9 +45,19 @@ function fromEnv(): Partial<PaymentSettingsData> {
   };
 }
 
-function rowToData(
-  row: Awaited<ReturnType<typeof prisma.paymentSettings.findUnique>>,
-): PaymentSettingsData {
+function rowToData(row: {
+  activeProvider: PaymentProviderType;
+  terminalApiKey: string | null;
+  mpAccessToken: string | null;
+  mpTerminalId: string | null;
+  mpWebhookSecret: string | null;
+  sumupApiKey: string | null;
+  sumupMerchantCode: string | null;
+  tonApiKey: string | null;
+  tonMerchantId: string | null;
+  debitFeePercent: number;
+  creditFeePercent: number;
+} | null): PaymentSettingsData {
   const env = fromEnv();
   if (!row) {
     return {
@@ -64,12 +78,21 @@ function rowToData(
     sumupMerchantCode: row.sumupMerchantCode ?? "",
     tonApiKey: row.tonApiKey ?? "",
     tonMerchantId: row.tonMerchantId ?? "",
+    debitFeePercent: row.debitFeePercent ?? DEFAULTS.debitFeePercent,
+    creditFeePercent: row.creditFeePercent ?? DEFAULTS.creditFeePercent,
   };
 }
 
 export async function getPaymentSettings(): Promise<PaymentSettingsData> {
-  const row = await prisma.paymentSettings.findUnique({ where: { id: "default" } });
-  return rowToData(row);
+  try {
+    const row = await prisma.paymentSettings.findUnique({
+      where: { id: "default" },
+    });
+    return rowToData(row);
+  } catch {
+    // Banco ainda não migrado / tabela ausente — evita Internal Server Error no PDV
+    return rowToData(null);
+  }
 }
 
 export function isProviderConfigured(

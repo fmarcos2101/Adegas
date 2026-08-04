@@ -96,6 +96,71 @@ export async function createProduct(
   return { success: true };
 }
 
+const updateProductSchema = z.object({
+  id: z.string().min(1),
+  name: z.string().min(2, "Nome muito curto"),
+  categoryId: z.string().optional().nullable(),
+  cost: z.coerce.number().min(0),
+  price: z.coerce.number().min(0),
+  minStock: z.coerce.number().int().min(0),
+  active: z.boolean().default(true),
+});
+
+export async function updateProduct(
+  _prev: ProductState,
+  formData: FormData,
+): Promise<ProductState> {
+  const session = await getSession();
+  if (!session || session.role !== "ADMIN") {
+    return { error: "Não autorizado." };
+  }
+
+  const parsed = updateProductSchema.safeParse({
+    id: formData.get("id"),
+    name: formData.get("name"),
+    categoryId: formData.get("categoryId") || null,
+    cost: formData.get("cost"),
+    price: formData.get("price"),
+    minStock: formData.get("minStock"),
+    active: formData.get("active") === "on",
+  });
+
+  if (!parsed.success) {
+    return { error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
+  }
+
+  const data = parsed.data;
+  const existing = await prisma.product.findUnique({ where: { id: data.id } });
+  if (!existing) return { error: "Produto não encontrado." };
+
+  await prisma.$transaction([
+    prisma.product.update({
+      where: { id: data.id },
+      data: {
+        name: data.name,
+        categoryId: data.categoryId || null,
+        cost: data.cost,
+        price: data.price,
+        minStock: data.minStock,
+        active: data.active,
+      },
+    }),
+    prisma.auditLog.create({
+      data: {
+        userId: session.userId,
+        action: "EDITAR_PRODUTO",
+        detail: `${data.name}: custo ${data.cost.toFixed(2)} / venda ${data.price.toFixed(2)}`,
+      },
+    }),
+  ]);
+
+  revalidatePath("/produtos");
+  revalidatePath("/pdv");
+  revalidatePath("/relatorios");
+  revalidatePath("/");
+  return { success: true };
+}
+
 export type ProductActionResult = { error?: string; message?: string };
 
 export async function zeroStock(id: string): Promise<ProductActionResult> {

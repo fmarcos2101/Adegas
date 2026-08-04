@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { getPaymentSettings } from "@/lib/payment-settings";
 
 export type Periodo = "dia" | "semana" | "mes";
 
@@ -29,12 +30,36 @@ export function periodoStart(periodo: Periodo): Date {
   return d;
 }
 
+export type ProductProfitRow = {
+  name: string;
+  quantity: number;
+  revenue: number;
+  cogs: number;
+  grossProfit: number;
+  fees: number;
+  netProfit: number;
+  marginPercent: number;
+};
+
 export interface ReportData {
   periodo: Periodo;
   label: string;
   start: Date;
   salesCount: number;
   revenue: number;
+  /** Custo das mercadorias vendidas */
+  cogs: number;
+  /** Lucro bruto = receita − CMV */
+  grossProfit: number;
+  /** Taxas estimadas de cartão (débito/crédito) */
+  cardFees: number;
+  /** Lucro líquido = lucro bruto − taxas de cartão */
+  netProfit: number;
+  grossMarginPercent: number;
+  netMarginPercent: number;
+  debitFeePercent: number;
+  creditFeePercent: number;
+  /** @deprecated use grossProfit */
   profit: number;
   byMethod: { method: string; total: number }[];
   sales: {
@@ -47,6 +72,7 @@ export interface ReportData {
     cancelReason: string | null;
   }[];
   topProducts: { name: string; quantity: number; total: number }[];
+  productProfits: ProductProfitRow[];
 }
 
 const METHOD_LABEL: Record<string, string> = {
@@ -56,6 +82,15 @@ const METHOD_LABEL: Record<string, string> = {
   CREDITO: "Crédito",
 };
 
+function lineCost(it: {
+  unitCost: number | null;
+  product: { cost: number };
+  quantity: number;
+}) {
+  const unit = it.unitCost ?? it.product.cost;
+  return unit * it.quantity;
+}
+
 export async function getReport(periodo: Periodo): Promise<ReportData> {
   const start = periodoStart(periodo);
   const inRangeConcluida = {
@@ -63,7 +98,7 @@ export async function getReport(periodo: Periodo): Promise<ReportData> {
     createdAt: { gte: start },
   };
 
-  const [agg, items, payments, sales] = await Promise.all([
+  const [agg, items, payments, sales, settings] = await Promise.all([
     prisma.sale.aggregate({
       where: inRangeConcluida,
       _sum: { total: true },
@@ -87,32 +122,82 @@ export async function getReport(periodo: Periodo): Promise<ReportData> {
       },
       take: 200,
     }),
+    getPaymentSettings(),
   ]);
 
-  const profit = items.reduce(
-    (sum, it) => sum + (it.unitPrice - it.product.cost) * it.quantity,
-    0,
-  );
-
-  const productMap = new Map<string, { quantity: number; total: number }>();
+  const revenue = agg._sum.total ?? 0;
+  let cogs = 0;
   for (const it of items) {
-    const cur = productMap.get(it.product.name) ?? { quantity: 0, total: 0 };
+    cogs += lineCost(it);
+  }
+  const grossProfit = revenue - cogs;
+
+  const debitTotal =
+    payments.find((p) => p.method === "DEBITO")?._sum.amount ?? 0;
+  const creditTotal =
+    payments.find((p) => p.method === "CREDITO")?._sum.amount ?? 0;
+  const cardFees =
+    (debitTotal * settings.debitFeePercent) / 100 +
+    (creditTotal * settings.creditFeePercent) / 100;
+  const netProfit = grossProfit - cardFees;
+
+  const feeRate = revenue > 0 ? cardFees / revenue : 0;
+
+  const productMap = new Map<
+    string,
+    { quantity: number; revenue: number; cogs: number }
+  >();
+  for (const it of items) {
+    const cur = productMap.get(it.product.name) ?? {
+      quantity: 0,
+      revenue: 0,
+      cogs: 0,
+    };
     cur.quantity += it.quantity;
-    cur.total += it.total;
+    cur.revenue += it.total;
+    cur.cogs += lineCost(it);
     productMap.set(it.product.name, cur);
   }
-  const topProducts = [...productMap.entries()]
-    .map(([name, v]) => ({ name, ...v }))
+
+  const productProfits: ProductProfitRow[] = [...productMap.entries()]
+    .map(([name, v]) => {
+      const gross = v.revenue - v.cogs;
+      const fees = v.revenue * feeRate;
+      const net = gross - fees;
+      return {
+        name,
+        quantity: v.quantity,
+        revenue: v.revenue,
+        cogs: v.cogs,
+        grossProfit: gross,
+        fees,
+        netProfit: net,
+        marginPercent: v.revenue > 0 ? (gross / v.revenue) * 100 : 0,
+      };
+    })
+    .sort((a, b) => b.grossProfit - a.grossProfit);
+
+  const topProducts = productProfits
+    .slice()
     .sort((a, b) => b.quantity - a.quantity)
-    .slice(0, 10);
+    .slice(0, 10)
+    .map((p) => ({ name: p.name, quantity: p.quantity, total: p.revenue }));
 
   return {
     periodo,
     label: PERIODO_LABEL[periodo],
     start,
     salesCount: agg._count,
-    revenue: agg._sum.total ?? 0,
-    profit,
+    revenue,
+    cogs,
+    grossProfit,
+    cardFees,
+    netProfit,
+    grossMarginPercent: revenue > 0 ? (grossProfit / revenue) * 100 : 0,
+    netMarginPercent: revenue > 0 ? (netProfit / revenue) * 100 : 0,
+    debitFeePercent: settings.debitFeePercent,
+    creditFeePercent: settings.creditFeePercent,
+    profit: grossProfit,
     byMethod: payments.map((p) => ({
       method: METHOD_LABEL[p.method] ?? p.method,
       total: p._sum.amount ?? 0,
@@ -127,5 +212,6 @@ export async function getReport(periodo: Periodo): Promise<ReportData> {
       cancelReason: s.cancelReason,
     })),
     topProducts,
+    productProfits,
   };
 }
