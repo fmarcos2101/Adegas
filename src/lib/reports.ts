@@ -91,6 +91,47 @@ function lineCost(it: {
   return unit * it.quantity;
 }
 
+type SaleItemForReport = {
+  unitCost: number | null;
+  unitPrice: number;
+  quantity: number;
+  total: number;
+  product: { cost: number; name: string };
+};
+
+/**
+ * Busca os itens de venda para relatório. Se o banco ainda não tiver a
+ * coluna `unitCost` (sistema recém-atualizado sem `prisma db push`), refaz a
+ * consulta sem ela em vez de derrubar a página com Internal Server Error.
+ */
+async function getSaleItemsForReport(
+  where: Record<string, unknown>,
+): Promise<SaleItemForReport[]> {
+  try {
+    return await prisma.saleItem.findMany({
+      where,
+      select: {
+        unitCost: true,
+        unitPrice: true,
+        quantity: true,
+        total: true,
+        product: { select: { cost: true, name: true } },
+      },
+    });
+  } catch {
+    const legacy = await prisma.saleItem.findMany({
+      where,
+      select: {
+        unitPrice: true,
+        quantity: true,
+        total: true,
+        product: { select: { cost: true, name: true } },
+      },
+    });
+    return legacy.map((it) => ({ ...it, unitCost: null }));
+  }
+}
+
 export async function getReport(periodo: Periodo): Promise<ReportData> {
   const start = periodoStart(periodo);
   const inRangeConcluida = {
@@ -104,10 +145,7 @@ export async function getReport(periodo: Periodo): Promise<ReportData> {
       _sum: { total: true },
       _count: true,
     }),
-    prisma.saleItem.findMany({
-      where: { sale: inRangeConcluida },
-      include: { product: { select: { cost: true, name: true } } },
-    }),
+    getSaleItemsForReport({ sale: inRangeConcluida }),
     prisma.payment.groupBy({
       by: ["method"],
       where: { sale: inRangeConcluida },

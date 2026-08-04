@@ -89,7 +89,15 @@ export async function getPaymentSettingsForForm() {
   const session = await getSession();
   if (!session || session.role !== "ADMIN") return null;
 
-  const row = await prisma.paymentSettings.findUnique({ where: { id: "default" } });
+  // Banco pode estar desatualizado (colunas novas) logo após uma atualização
+  // do sistema; nesse caso usamos os valores padrão em vez de derrubar a página.
+  let row: Awaited<ReturnType<typeof prisma.paymentSettings.findUnique>> = null;
+  try {
+    row = await prisma.paymentSettings.findUnique({ where: { id: "default" } });
+  } catch {
+    row = null;
+  }
+
   return {
     activeProvider: row?.activeProvider ?? "GENERIC",
     terminalApiKey: row?.terminalApiKey ?? "",
