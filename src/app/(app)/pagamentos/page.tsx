@@ -61,6 +61,8 @@ export default async function PagamentosPage() {
           <p className="mt-2 text-neutral-600">
             No PDV: débito/crédito → marque &quot;Cobrar na maquininha&quot; → referência aparece na tela →
             pagamento confirma automaticamente ou via <strong>Liberar manualmente</strong>.
+            Em <strong>pagamento duplo</strong> (ex.: PIX + cartão), o callback/`amount` deve ser só a
+            parte cobrada na máquina.
           </p>
         </CardContent>
       </Card>

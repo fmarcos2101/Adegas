@@ -33,11 +33,17 @@ export async function completePendingSale(
     },
   });
 
-  if (options.method && sale.payments[0] && sale.payments[0].method !== options.method) {
-    await tx.payment.update({
-      where: { id: sale.payments[0].id },
-      data: { method: options.method },
-    });
+  if (options.method) {
+    const cardPayment =
+      sale.payments.find(
+        (p) => p.method === "DEBITO" || p.method === "CREDITO",
+      ) ?? sale.payments[0];
+    if (cardPayment && cardPayment.method !== options.method) {
+      await tx.payment.update({
+        where: { id: cardPayment.id },
+        data: { method: options.method },
+      });
+    }
   }
 
   await tx.auditLog.create({
