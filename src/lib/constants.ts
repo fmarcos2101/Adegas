@@ -14,8 +14,11 @@ export const APP_DESCRIPTION =
 /** Slug reservado — não pode ser usado por clientes. */
 export const PLATFORM_SLUG = "plataforma";
 
+/** Dias de teste grátis para novas lojas. */
+export { TRIAL_DAYS } from "@/lib/trial";
+
 export const SUBSCRIPTION_PLAN_LABEL: Record<string, string> = {
-  TRIAL: "Trial",
+  TRIAL: "Trial (7 dias)",
   BASIC: "Básico",
   PRO: "Pro",
 };

@@ -107,15 +107,18 @@ export function MpCheckoutForm({
           </div>
           <div className="space-y-1">
             <label className="text-sm font-medium" htmlFor="freeTrialDays">
-              Trial (dias, opcional)
+              Trial no MP (dias)
             </label>
             <Input
               id="freeTrialDays"
               name="freeTrialDays"
               type="number"
               min="0"
-              defaultValue={0}
+              placeholder="Auto (restante do trial de 7 dias)"
             />
+            <p className="text-xs text-slate-500">
+              Vazio = usa os dias restantes do teste grátis. 0 = cobra já.
+            </p>
           </div>
 
           {state.error ? (

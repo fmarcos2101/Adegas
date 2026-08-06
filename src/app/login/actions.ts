@@ -5,7 +5,11 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { createSession } from "@/lib/auth";
 import { PLATFORM_SLUG } from "@/lib/constants";
-import { isSubscriptionAccessAllowed } from "@/lib/tenant";
+import {
+  expireTrialIfNeeded,
+  mustCompleteSubscription,
+  TRIAL_DAYS,
+} from "@/lib/trial";
 
 export type LoginState = { error?: string };
 
@@ -23,7 +27,6 @@ export async function loginAction(
     return { error: "Informe usuário e senha." };
   }
 
-  // Acesso à plataforma: código vazio ou "plataforma"
   if (!storeCode || storeCode === PLATFORM_SLUG) {
     const user = await prisma.user.findFirst({
       where: { username, isPlatformAdmin: true, active: true },
@@ -64,19 +67,29 @@ export async function loginAction(
 
   const tenant = await prisma.tenant.findUnique({
     where: { slug: storeCode },
-    include: { subscription: true },
   });
 
   if (!tenant) {
     return { error: "Loja não encontrada. Verifique o código." };
   }
 
+  if (!tenant.active) {
+    return { error: "Esta loja está inativa. Fale com o suporte." };
+  }
+
+  // Expira trial de 7 dias se passou do prazo (TRIALING → PAST_DUE)
+  const subscription = await expireTrialIfNeeded(tenant.id);
+  if (!subscription) {
+    return { error: "Loja sem assinatura configurada. Fale com o suporte." };
+  }
+
   if (
-    !isSubscriptionAccessAllowed(tenant.subscription?.status, tenant.active)
+    subscription.status === "SUSPENDED" ||
+    subscription.status === "CANCELLED"
   ) {
     return {
       error:
-        "Esta loja está inativa ou com assinatura suspensa. Fale com o suporte.",
+        "Esta loja está com assinatura suspensa ou cancelada. Fale com o suporte.",
     };
   }
 
@@ -93,6 +106,14 @@ export async function loginAction(
   const ok = await bcrypt.compare(password, user.password);
   if (!ok) {
     return { error: "Usuário ou senha inválidos." };
+  }
+
+  const needsPay = mustCompleteSubscription(subscription);
+
+  if (needsPay && user.role !== "ADMIN") {
+    return {
+      error: `Período de teste de ${TRIAL_DAYS} dias encerrado. O administrador precisa assinar o plano.`,
+    };
   }
 
   await createSession({
@@ -115,6 +136,10 @@ export async function loginAction(
       detail: `Login de ${user.username} na loja ${tenant.slug}`,
     },
   });
+
+  if (needsPay) {
+    redirect("/assinatura");
+  }
 
   redirect(user.role === "ADMIN" ? "/" : "/pdv");
 }

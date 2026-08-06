@@ -27,7 +27,8 @@ Acesse http://localhost:3000
 - **Painel `/plataforma`** — criar clientes, planos, status de assinatura, uso (vendas/mês) e **entrar como suporte**
 - **Cobrança automática** via Mercado Pago Assinaturas (`/plataforma/cobranca`)
 - **PDV** em `/pdv` — tela cheia para o caixa
-- Assinaturas: Trial / Básico / Pro com status (ativa, atrasada, suspensa…)
+- Assinaturas: **7 dias de teste grátis**, depois Básico / Pro (Mercado Pago)
+- Após o trial, admin é levado a `/assinatura`; caixa fica bloqueado até assinar
 
 ## Cobrança Mercado Pago (SaaS)
 

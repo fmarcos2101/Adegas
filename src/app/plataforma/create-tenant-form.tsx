@@ -53,10 +53,14 @@ export function CreateTenantForm() {
               required
             />
           </div>
+          <p className="rounded-md bg-teal-50 px-3 py-2 text-xs text-teal-800">
+            Toda loja nova ganha <strong>7 dias de teste grátis</strong>. Depois
+            precisa assinar (Mercado Pago).
+          </p>
           <div className="grid grid-cols-2 gap-2">
             <div className="space-y-1">
               <label className="text-sm font-medium" htmlFor="plan">
-                Plano
+                Plano previsto
               </label>
               <select
                 id="plan"
@@ -64,9 +68,9 @@ export function CreateTenantForm() {
                 className="flex h-9 w-full rounded-md border border-neutral-200 bg-white px-3 text-sm"
                 defaultValue="TRIAL"
               >
-                <option value="TRIAL">Trial</option>
-                <option value="BASIC">Básico</option>
-                <option value="PRO">Pro</option>
+                <option value="TRIAL">Trial → depois escolher</option>
+                <option value="BASIC">Básico (após trial)</option>
+                <option value="PRO">Pro (após trial)</option>
               </select>
             </div>
             <div className="space-y-1">

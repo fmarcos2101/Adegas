@@ -1,11 +1,7 @@
 import { redirect } from "next/navigation";
 import type { SubscriptionStatus } from "@prisma/client";
 import { getSession, type SessionPayload } from "@/lib/auth";
-
-const BLOCKED_SUBSCRIPTION: SubscriptionStatus[] = [
-  "SUSPENDED",
-  "CANCELLED",
-];
+import { isSubscriptionAccessAllowed as trialAccessAllowed } from "@/lib/trial";
 
 export type TenantSession = SessionPayload & { tenantId: string };
 
@@ -36,11 +32,15 @@ export async function requireTenantSession(): Promise<TenantSession> {
   return session as TenantSession;
 }
 
+/** @deprecated use isSubscriptionAccessAllowed de @/lib/trial */
 export function isSubscriptionAccessAllowed(
   status: SubscriptionStatus | undefined | null,
   activeTenant: boolean,
+  trialEndsAt?: Date | null,
 ): boolean {
-  if (!activeTenant) return false;
   if (!status) return false;
-  return !BLOCKED_SUBSCRIPTION.includes(status);
+  return trialAccessAllowed(
+    { status, trialEndsAt: trialEndsAt ?? null },
+    activeTenant,
+  );
 }

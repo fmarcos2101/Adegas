@@ -20,6 +20,9 @@ type Props = {
   lastPaymentAt: string | null;
   lastPaymentAmount: number | null;
   billingConfigured: boolean;
+  trialExpired: boolean;
+  trialDaysLeft: number;
+  trialEndsLabel: string | null;
 };
 
 export function AssinaturaCheckoutForm({
@@ -33,6 +36,9 @@ export function AssinaturaCheckoutForm({
   lastPaymentAt,
   lastPaymentAmount,
   billingConfigured,
+  trialExpired,
+  trialDaysLeft,
+  trialEndsLabel,
 }: Props) {
   const [state, formAction, pending] = useActionState(
     startTenantCheckoutAction,
@@ -54,6 +60,19 @@ export function AssinaturaCheckoutForm({
           <p>
             Status: <strong>{currentStatus}</strong>
           </p>
+          {trialExpired ? (
+            <p className="rounded-md bg-amber-50 px-3 py-2 text-amber-900">
+              Seu teste grátis de 7 dias acabou. Escolha um plano abaixo para
+              continuar usando o sistema.
+            </p>
+          ) : trialDaysLeft > 0 && trialEndsLabel ? (
+            <p className="text-teal-800">
+              Teste grátis: {trialDaysLeft}{" "}
+              {trialDaysLeft === 1 ? "dia" : "dias"} restantes (até{" "}
+              {trialEndsLabel}). Ao assinar agora, a 1ª cobrança fica para depois
+              do trial.
+            </p>
+          ) : null}
           {mpStatus ? (
             <p className="text-neutral-500">Mercado Pago: {mpStatus}</p>
           ) : null}

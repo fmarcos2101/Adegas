@@ -6,6 +6,7 @@ import { prisma } from "@/lib/prisma";
 import { requireTenantSession } from "@/lib/tenant";
 import { startMercadoPagoCheckout } from "@/lib/platform-billing";
 import { getTerminalApiPort } from "@/lib/payment-terminal";
+import { isTrialStillValid, trialDaysRemaining } from "@/lib/trial";
 
 export type AssinaturaState = { error?: string; success?: string; initPoint?: string };
 
@@ -33,12 +34,22 @@ export async function startTenantCheckoutAction(
   }
 
   try {
+    const sub = await prisma.subscription.findUnique({
+      where: { tenantId: session.tenantId },
+    });
+    // Se ainda está no trial, o MP só cobra após os dias restantes
+    const freeTrialDays =
+      sub && isTrialStillValid(sub)
+        ? Math.max(1, trialDaysRemaining(sub.trialEndsAt))
+        : undefined;
+
     const baseUrl = await resolveBaseUrl();
     const result = await startMercadoPagoCheckout({
       tenantId: session.tenantId,
       plan,
       payerEmail,
       backUrl: `${baseUrl}/assinatura/retorno`,
+      freeTrialDays,
     });
 
     await prisma.auditLog.create({

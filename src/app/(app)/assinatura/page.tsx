@@ -9,6 +9,12 @@ import {
   SUBSCRIPTION_PLAN_LABEL,
   SUBSCRIPTION_STATUS_LABEL,
 } from "@/lib/constants";
+import {
+  expireTrialIfNeeded,
+  isTrialStillValid,
+  mustCompleteSubscription,
+  trialDaysRemaining,
+} from "@/lib/trial";
 import { AssinaturaCheckoutForm } from "./assinatura-form";
 
 export default async function AssinaturaPage() {
@@ -21,8 +27,13 @@ export default async function AssinaturaPage() {
     );
   }
 
-  const [sub, billing, payments] = await Promise.all([
-    prisma.subscription.findUnique({ where: { tenantId: session.tenantId } }),
+  const sub = session.supportMode
+    ? await prisma.subscription.findUnique({
+        where: { tenantId: session.tenantId },
+      })
+    : await expireTrialIfNeeded(session.tenantId);
+
+  const [billing, payments] = await Promise.all([
     getPlatformBilling(),
     prisma.subscriptionPayment.findMany({
       where: { subscription: { tenantId: session.tenantId } },
@@ -31,12 +42,15 @@ export default async function AssinaturaPage() {
     }),
   ]);
 
+  const trialActive = isTrialStillValid(sub);
+  const trialExpired = mustCompleteSubscription(sub);
+
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
         <h1 className="text-2xl font-semibold text-neutral-900">Assinatura</h1>
         <p className="text-sm text-neutral-500">
-          Cobrança automática via Mercado Pago
+          Teste grátis de 7 dias · cobrança automática via Mercado Pago
         </p>
       </div>
 
@@ -59,6 +73,11 @@ export default async function AssinaturaPage() {
         }
         lastPaymentAmount={sub?.lastPaymentAmount ?? null}
         billingConfigured={isPlatformBillingConfigured(billing)}
+        trialExpired={trialExpired}
+        trialDaysLeft={trialActive ? trialDaysRemaining(sub?.trialEndsAt) : 0}
+        trialEndsLabel={
+          sub?.trialEndsAt ? format(sub.trialEndsAt, "dd/MM/yyyy") : null
+        }
       />
 
       {payments.length > 0 ? (

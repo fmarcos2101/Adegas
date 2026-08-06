@@ -9,6 +9,7 @@ import { prisma } from "@/lib/prisma";
 import { createSession } from "@/lib/auth";
 import { requirePlatformAdmin } from "@/lib/tenant";
 import { PLATFORM_SLUG } from "@/lib/constants";
+import { computeTrialEnd, TRIAL_DAYS } from "@/lib/trial";
 
 export type PlatformActionState = { error?: string; success?: string };
 
@@ -48,9 +49,10 @@ export async function createTenantAction(
   const exists = await prisma.tenant.findUnique({ where: { slug } });
   if (exists) return { error: "Já existe uma loja com este código." };
 
-  const trialEnd = new Date();
-  trialEnd.setDate(trialEnd.getDate() + 14);
+  // Toda loja nova começa com teste grátis de 7 dias
+  const trialEnd = computeTrialEnd();
   const passwordHash = await bcrypt.hash(adminPass, 10);
+  const intendedPlan = plan === "TRIAL" ? "TRIAL" : plan;
 
   const tenant = await prisma.tenant.create({
     data: {
@@ -59,12 +61,13 @@ export async function createTenantAction(
       active: true,
       subscription: {
         create: {
-          plan,
-          status: plan === "TRIAL" ? "TRIALING" : "ACTIVE",
+          plan: intendedPlan,
+          status: "TRIALING",
           priceMonthly: Number.isFinite(priceMonthly) ? priceMonthly : 0,
-          trialEndsAt: plan === "TRIAL" ? trialEnd : null,
+          trialEndsAt: trialEnd,
           currentPeriodStart: new Date(),
-          currentPeriodEnd: plan === "TRIAL" ? trialEnd : addMonths(new Date(), 1),
+          currentPeriodEnd: trialEnd,
+          notes: `Teste grátis de ${TRIAL_DAYS} dias`,
         },
       },
       paymentSettings: { create: { activeProvider: "GENERIC" } },
@@ -88,7 +91,9 @@ export async function createTenantAction(
   });
 
   revalidatePath("/plataforma");
-  return { success: `Loja "${tenant.name}" criada. Código: ${tenant.slug}` };
+  return {
+    success: `Loja "${tenant.name}" criada. Código: ${tenant.slug}. Teste grátis de ${TRIAL_DAYS} dias até ${trialEnd.toLocaleDateString("pt-BR")}.`,
+  };
 }
 
 function addMonths(date: Date, months: number) {

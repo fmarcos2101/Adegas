@@ -5,6 +5,10 @@ import { getSession } from "@/lib/auth";
 import { BrandHeader } from "@/components/brand-header";
 import { Button } from "@/components/ui/button";
 import { logoutAction } from "@/app/(app)/actions";
+import {
+  expireTrialIfNeeded,
+  mustCompleteSubscription,
+} from "@/lib/trial";
 
 export default async function PdvLayout({
   children,
@@ -13,6 +17,13 @@ export default async function PdvLayout({
 }) {
   const session = await getSession();
   if (!session?.tenantId) redirect("/login");
+
+  if (!session.supportMode) {
+    const subscription = await expireTrialIfNeeded(session.tenantId);
+    if (mustCompleteSubscription(subscription)) {
+      redirect(session.role === "ADMIN" ? "/assinatura" : "/login");
+    }
+  }
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-neutral-100">

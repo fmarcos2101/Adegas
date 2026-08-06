@@ -14,6 +14,7 @@ import {
   PLATFORM_MP_WEBHOOK_PATH,
 } from "@/lib/mercadopago-subscriptions";
 import { getTerminalApiPort } from "@/lib/payment-terminal";
+import { isTrialStillValid, trialDaysRemaining } from "@/lib/trial";
 
 export type BillingActionState = { error?: string; success?: string };
 
@@ -104,15 +105,41 @@ export async function generateCheckoutLinkAction(
   const tenantId = String(formData.get("tenantId") ?? "");
   const plan = String(formData.get("plan") ?? "BASIC");
   const payerEmail = String(formData.get("payerEmail") ?? "").trim();
-  const freeTrialDays = Number(formData.get("freeTrialDays") ?? 0);
+  const freeTrialDaysRaw = formData.get("freeTrialDays");
+  const freeTrialDaysInput =
+    freeTrialDaysRaw === null || freeTrialDaysRaw === ""
+      ? null
+      : Number(freeTrialDaysRaw);
 
   if (!tenantId) return { error: "Loja inválida." };
   if (plan !== "BASIC" && plan !== "PRO") {
     return { error: "Selecione o plano Básico ou Pro." };
   }
 
-  const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
+  const tenant = await prisma.tenant.findUnique({
+    where: { id: tenantId },
+    include: { subscription: true },
+  });
   if (!tenant) return { error: "Loja não encontrada." };
+
+  // Default: dias restantes do trial (ou 7 se ainda não começou a contar no MP)
+  let freeTrialDays: number | undefined;
+  if (
+    freeTrialDaysInput != null &&
+    Number.isFinite(freeTrialDaysInput) &&
+    freeTrialDaysInput >= 0
+  ) {
+    freeTrialDays =
+      freeTrialDaysInput > 0 ? freeTrialDaysInput : undefined;
+  } else if (
+    tenant.subscription &&
+    isTrialStillValid(tenant.subscription)
+  ) {
+    freeTrialDays = Math.max(
+      1,
+      trialDaysRemaining(tenant.subscription.trialEndsAt),
+    );
+  }
 
   try {
     const baseUrl = await resolveBaseUrl();
@@ -121,10 +148,7 @@ export async function generateCheckoutLinkAction(
       plan,
       payerEmail,
       backUrl: `${baseUrl}/assinatura/retorno`,
-      freeTrialDays:
-        Number.isFinite(freeTrialDays) && freeTrialDays > 0
-          ? freeTrialDays
-          : undefined,
+      freeTrialDays,
     });
 
     await prisma.auditLog.create({

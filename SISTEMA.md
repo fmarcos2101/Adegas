@@ -41,6 +41,8 @@ Modelos novos:
 
 Login bloqueia lojas inativas ou com assinatura SUSPENDED/CANCELLED.
 
+**Teste grátis:** toda loja nova ganha **7 dias** (`TRIALING` + `trialEndsAt`). Banner no painel mostra os dias restantes. Ao expirar, vira `PAST_DUE`: caixa é bloqueado; admin só acessa `/assinatura` para assinar. No checkout Mercado Pago, o trial restante é enviado como `free_trial` (1ª cobrança depois do teste).
+
 O dono da plataforma pode entrar em qualquer loja em **modo suporte** (papel ADMIN na loja) e voltar ao painel.
 
 ---

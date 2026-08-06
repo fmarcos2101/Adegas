@@ -56,12 +56,19 @@ async function main() {
     },
   });
 
+  const TRIAL_DAYS = 7;
   const trialEnd = new Date();
-  trialEnd.setDate(trialEnd.getDate() + 14);
+  trialEnd.setDate(trialEnd.getDate() + TRIAL_DAYS);
+  trialEnd.setHours(23, 59, 59, 999);
 
   await prisma.subscription.upsert({
     where: { tenantId: demo.id },
-    update: {},
+    update: {
+      status: "TRIALING",
+      trialEndsAt: trialEnd,
+      currentPeriodEnd: trialEnd,
+      notes: `Teste grátis de ${TRIAL_DAYS} dias`,
+    },
     create: {
       tenantId: demo.id,
       plan: "TRIAL",
@@ -70,6 +77,7 @@ async function main() {
       trialEndsAt: trialEnd,
       currentPeriodStart: new Date(),
       currentPeriodEnd: trialEnd,
+      notes: `Teste grátis de ${TRIAL_DAYS} dias`,
     },
   });
 
