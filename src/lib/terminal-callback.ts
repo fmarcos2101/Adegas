@@ -42,7 +42,10 @@ export async function handleTerminalCallback(
   const { paymentRef, amount, method, status, terminalTxId } = parsed.data;
   const ref = paymentRef.trim().toUpperCase();
 
-  const sale = await prisma.sale.findUnique({ where: { paymentRef: ref } });
+  const sale = await prisma.sale.findUnique({
+    where: { paymentRef: ref },
+    include: { payments: true },
+  });
   if (!sale) {
     return NextResponse.json(
       { error: "Venda não encontrada para esta referência." },
@@ -60,10 +63,16 @@ export async function handleTerminalCallback(
     });
   }
 
-  if (Math.abs(sale.total - amount) > 0.01) {
+  // Em pagamento duplo, a máquina cobre só a parte em cartão
+  const cardAmount =
+    sale.payments
+      .filter((p) => p.method === "DEBITO" || p.method === "CREDITO")
+      .reduce((s, p) => s + p.amount, 0) || sale.total;
+
+  if (Math.abs(cardAmount - amount) > 0.01) {
     return NextResponse.json(
       {
-        error: `Valor divergente. Esperado ${sale.total.toFixed(2)}, recebido ${amount.toFixed(2)}.`,
+        error: `Valor divergente. Esperado ${cardAmount.toFixed(2)}, recebido ${amount.toFixed(2)}.`,
       },
       { status: 409 },
     );

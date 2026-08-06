@@ -27,6 +27,7 @@ export async function GET(
     total: sale.total,
     paymentRef: sale.paymentRef,
     method: sale.payments[0]?.method ?? null,
+    payments: sale.payments.map((p) => ({ method: p.method, amount: p.amount })),
     paymentSource: sale.paymentSource,
     paymentConfirmedAt: sale.paymentConfirmedAt?.toISOString() ?? null,
   });
