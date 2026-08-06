@@ -1,6 +1,7 @@
 import { format } from "date-fns";
 import { Search } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { requireTenantSession } from "@/lib/tenant";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -10,18 +11,22 @@ export default async function AuditoriaPage({
 }: {
   searchParams: Promise<{ q?: string }>;
 }) {
+  const session = await requireTenantSession();
   const { q } = await searchParams;
   const term = (q ?? "").trim();
 
   const logs = await prisma.auditLog.findMany({
-    where: term
-      ? {
-          OR: [
-            { action: { contains: term } },
-            { detail: { contains: term } },
-          ],
-        }
-      : undefined,
+    where: {
+      tenantId: session.tenantId,
+      ...(term
+        ? {
+            OR: [
+              { action: { contains: term } },
+              { detail: { contains: term } },
+            ],
+          }
+        : {}),
+    },
     orderBy: { createdAt: "desc" },
     take: 200,
     include: { user: { select: { name: true } } },

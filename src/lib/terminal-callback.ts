@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { completePendingSaleByRef } from "@/lib/complete-pending-sale";
+import { getPaymentSettings } from "@/lib/payment-settings";
 import type { PaymentSource } from "@prisma/client";
 
 const callbackSchema = z.object({
@@ -17,13 +18,13 @@ export async function handleTerminalCallback(
   options: {
     paymentSource: PaymentSource;
     auditAction: string;
-    validateKey: (request: Request) => boolean;
+    /** Valida a chave usando as settings da loja da venda */
+    validateKey: (
+      request: Request,
+      settings: Awaited<ReturnType<typeof getPaymentSettings>>,
+    ) => boolean;
   },
 ) {
-  if (!options.validateKey(request)) {
-    return NextResponse.json({ error: "Chave de API inválida." }, { status: 401 });
-  }
-
   let body: unknown;
   try {
     body = await request.json();
@@ -50,6 +51,11 @@ export async function handleTerminalCallback(
     );
   }
 
+  const settings = await getPaymentSettings(sale.tenantId);
+  if (!options.validateKey(request, settings)) {
+    return NextResponse.json({ error: "Chave de API inválida." }, { status: 401 });
+  }
+
   if (sale.status !== "AGUARDANDO_PAGAMENTO") {
     return NextResponse.json({
       ok: true,
@@ -72,6 +78,7 @@ export async function handleTerminalCallback(
   if (status === "DECLINED") {
     await prisma.auditLog.create({
       data: {
+        tenantId: sale.tenantId,
         action: "PAGAMENTO_RECUSADO",
         detail: `Pagamento recusado ref ${ref} (tx ${terminalTxId ?? "-"})`,
       },

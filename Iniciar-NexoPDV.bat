@@ -3,12 +3,12 @@ if /i not "%~1"=="__run__" cmd /k "%~f0" __run__ & exit /b
 
 setlocal EnableExtensions
 cd /d "%~dp0"
-title Adega Faixa Rosa - PDV
+title NexoPDV - PDV
 
 echo %CD% | findstr /i "onedrive" >nul
 if errorlevel 1 goto avisopasta_ok
 echo [AVISO] Esta pasta esta dentro do OneDrive.
-echo Se der erro na instalacao, copie a pasta para C:\Adega e tente de la.
+echo Se der erro na instalacao, copie a pasta para C:\NexoPDV e tente de la.
 echo(
 :avisopasta_ok
 
@@ -20,7 +20,7 @@ goto liberaporta
 
 :instalar
 echo Sistema nao instalado. Executando instalacao...
-call "%~dp0Instalar-Adega.bat" __run__
+call "%~dp0Instalar-NexoPDV.bat" __run__
 if errorlevel 1 goto erro
 if not exist "node_modules\" goto erro
 goto iniciar
@@ -55,7 +55,7 @@ if errorlevel 1 goto erro
 :iniciar
 echo(
 echo ========================================
-echo   Adega Faixa Rosa - Sistema iniciando
+echo   NexoPDV - Sistema iniciando
 echo ========================================
 echo(
 echo Acesse: http://localhost:3000/login
@@ -73,7 +73,7 @@ goto fim
 echo(
 echo [ERRO] Nao foi possivel iniciar. Veja a mensagem detalhada acima.
 echo(
-echo Se aparecer "Internal Server Error" no navegador, execute Reparar-Adega.bat
+echo Se aparecer "Internal Server Error" no navegador, execute Reparar-NexoPDV.bat
 echo Se precisar de ajuda, tire um print desta janela com a mensagem de erro.
 echo(
 goto fim

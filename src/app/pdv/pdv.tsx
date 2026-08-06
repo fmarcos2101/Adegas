@@ -617,15 +617,15 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
               </select>
             </div>
             {canUseTerminal ? (
-              <label className="flex cursor-pointer items-center gap-2 rounded-md border border-pink-200 bg-pink-50 px-3 py-2 text-sm">
+              <label className="flex cursor-pointer items-center gap-2 rounded-md border border-teal-200 bg-teal-50 px-3 py-2 text-sm">
                 <input
                   type="checkbox"
                   checked={useTerminal}
                   disabled={locked}
                   onChange={(e) => setUseTerminal(e.target.checked)}
-                  className="h-4 w-4 accent-pink-600"
+                  className="h-4 w-4 accent-teal-700"
                 />
-                <CreditCard className="h-4 w-4 text-pink-700" />
+                <CreditCard className="h-4 w-4 text-teal-700" />
                 <span>Cobrar na maquininha ({terminal.label})</span>
               </label>
             ) : null}

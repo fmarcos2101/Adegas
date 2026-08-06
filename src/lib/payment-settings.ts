@@ -83,14 +83,15 @@ function rowToData(row: {
   };
 }
 
-export async function getPaymentSettings(): Promise<PaymentSettingsData> {
+export async function getPaymentSettings(
+  tenantId: string,
+): Promise<PaymentSettingsData> {
   try {
     const row = await prisma.paymentSettings.findUnique({
-      where: { id: "default" },
+      where: { tenantId },
     });
     return rowToData(row);
   } catch {
-    // Banco ainda não migrado / tabela ausente — evita Internal Server Error no PDV
     return rowToData(null);
   }
 }

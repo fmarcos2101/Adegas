@@ -1,12 +1,15 @@
 import { Trash2 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { requireTenantSession } from "@/lib/tenant";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { CategoryForm } from "./category-form";
 import { deleteCategory } from "./actions";
 
 export default async function CategoriasPage() {
+  const session = await requireTenantSession();
   const categories = await prisma.category.findMany({
+    where: { tenantId: session.tenantId },
     orderBy: { name: "asc" },
     include: { _count: { select: { products: true } } },
   });

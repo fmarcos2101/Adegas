@@ -16,13 +16,13 @@ export type SendToTerminalResult = {
   providerOrderId?: string;
 };
 
-export async function getActiveTerminalProvider(): Promise<{
+export async function getActiveTerminalProvider(tenantId: string): Promise<{
   type: PaymentProviderType;
   label: string;
   configured: boolean;
   terminalProvider: TerminalProvider;
 }> {
-  const settings = await getPaymentSettings();
+  const settings = await getPaymentSettings(tenantId);
   const type = settings.activeProvider;
   const configured = isProviderConfigured(settings, type);
   const terminalProvider = type.toLowerCase() as TerminalProvider;
@@ -41,11 +41,12 @@ export async function getActiveTerminalProvider(): Promise<{
 }
 
 export async function sendSaleToTerminalProvider(input: {
+  tenantId: string;
   paymentRef: string;
   total: number;
   method: "DEBITO" | "CREDITO";
 }): Promise<SendToTerminalResult> {
-  const settings = await getPaymentSettings();
+  const settings = await getPaymentSettings(input.tenantId);
   const { activeProvider } = settings;
 
   switch (activeProvider) {
@@ -75,7 +76,7 @@ async function sendMercadoPago(
       externalReference: input.paymentRef,
       amount: input.total,
       method: input.method,
-      description: `Adega Faixa Rosa — ${input.paymentRef}`,
+      description: `NexoPDV — ${input.paymentRef}`,
     },
     {
       accessToken: settings.mpAccessToken,

@@ -24,11 +24,11 @@ export function createProviderCallbackHandler(
   headers: string[],
 ) {
   return async function POST(request: Request) {
-    const settings = await getPaymentSettings();
     return handleTerminalCallback(request, {
       paymentSource,
       auditAction,
-      validateKey: (req) => validateProviderKey(req, getKey(settings), headers),
+      validateKey: (req, settings) =>
+        validateProviderKey(req, getKey(settings), headers),
     });
   };
 }

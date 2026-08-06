@@ -29,7 +29,10 @@ export async function savePaymentSettings(
   input: z.infer<typeof settingsSchema>,
 ): Promise<{ success?: boolean; error?: string }> {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") return { error: "Não autorizado." };
+  if (!session?.tenantId || session.role !== "ADMIN") {
+    return { error: "Não autorizado." };
+  }
+  const tenantId = session.tenantId;
 
   const parsed = settingsSchema.safeParse(input);
   if (!parsed.success) {
@@ -37,12 +40,14 @@ export async function savePaymentSettings(
   }
 
   const data = parsed.data;
-  const existing = await prisma.paymentSettings.findUnique({ where: { id: "default" } });
+  const existing = await prisma.paymentSettings.findUnique({
+    where: { tenantId },
+  });
 
   await prisma.paymentSettings.upsert({
-    where: { id: "default" },
+    where: { tenantId },
     create: {
-      id: "default",
+      tenantId,
       activeProvider: data.activeProvider as PaymentProviderType,
       terminalApiKey: emptyToNull(data.terminalApiKey),
       mpAccessToken: emptyToNull(data.mpAccessToken),
@@ -57,16 +62,36 @@ export async function savePaymentSettings(
     },
     update: {
       activeProvider: data.activeProvider as PaymentProviderType,
-      terminalApiKey: data.terminalApiKey !== undefined ? emptyToNull(data.terminalApiKey) : undefined,
-      mpAccessToken: data.mpAccessToken !== undefined ? emptyToNull(data.mpAccessToken) : undefined,
-      mpTerminalId: data.mpTerminalId !== undefined ? emptyToNull(data.mpTerminalId) : undefined,
+      terminalApiKey:
+        data.terminalApiKey !== undefined
+          ? emptyToNull(data.terminalApiKey)
+          : undefined,
+      mpAccessToken:
+        data.mpAccessToken !== undefined
+          ? emptyToNull(data.mpAccessToken)
+          : undefined,
+      mpTerminalId:
+        data.mpTerminalId !== undefined
+          ? emptyToNull(data.mpTerminalId)
+          : undefined,
       mpWebhookSecret:
-        data.mpWebhookSecret !== undefined ? emptyToNull(data.mpWebhookSecret) : undefined,
-      sumupApiKey: data.sumupApiKey !== undefined ? emptyToNull(data.sumupApiKey) : undefined,
+        data.mpWebhookSecret !== undefined
+          ? emptyToNull(data.mpWebhookSecret)
+          : undefined,
+      sumupApiKey:
+        data.sumupApiKey !== undefined
+          ? emptyToNull(data.sumupApiKey)
+          : undefined,
       sumupMerchantCode:
-        data.sumupMerchantCode !== undefined ? emptyToNull(data.sumupMerchantCode) : undefined,
-      tonApiKey: data.tonApiKey !== undefined ? emptyToNull(data.tonApiKey) : undefined,
-      tonMerchantId: data.tonMerchantId !== undefined ? emptyToNull(data.tonMerchantId) : undefined,
+        data.sumupMerchantCode !== undefined
+          ? emptyToNull(data.sumupMerchantCode)
+          : undefined,
+      tonApiKey:
+        data.tonApiKey !== undefined ? emptyToNull(data.tonApiKey) : undefined,
+      tonMerchantId:
+        data.tonMerchantId !== undefined
+          ? emptyToNull(data.tonMerchantId)
+          : undefined,
       debitFeePercent: data.debitFeePercent,
       creditFeePercent: data.creditFeePercent,
     },
@@ -74,6 +99,7 @@ export async function savePaymentSettings(
 
   await prisma.auditLog.create({
     data: {
+      tenantId,
       userId: session.userId,
       action: "CONFIG_PAGAMENTOS",
       detail: `Provedor ativo: ${data.activeProvider}${existing ? ` (antes: ${existing.activeProvider})` : ""}`,
@@ -87,13 +113,12 @@ export async function savePaymentSettings(
 
 export async function getPaymentSettingsForForm() {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") return null;
+  if (!session?.tenantId || session.role !== "ADMIN") return null;
+  const tenantId = session.tenantId;
 
-  // Banco pode estar desatualizado (colunas novas) logo após uma atualização
-  // do sistema; nesse caso usamos os valores padrão em vez de derrubar a página.
   let row: Awaited<ReturnType<typeof prisma.paymentSettings.findUnique>> = null;
   try {
-    row = await prisma.paymentSettings.findUnique({ where: { id: "default" } });
+    row = await prisma.paymentSettings.findUnique({ where: { tenantId } });
   } catch {
     row = null;
   }

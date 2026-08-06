@@ -80,8 +80,8 @@ export function PaymentSettingsForm({
               className={
                 "cursor-pointer rounded-lg border p-4 transition-colors " +
                 (form.activeProvider === p.id
-                  ? "border-pink-500 bg-pink-50 ring-1 ring-pink-500"
-                  : "border-neutral-200 hover:border-pink-200")
+                  ? "border-teal-600 bg-teal-50 ring-1 ring-teal-600"
+                  : "border-neutral-200 hover:border-teal-200")
               }
             >
               <div className="flex items-start gap-2">
@@ -90,7 +90,7 @@ export function PaymentSettingsForm({
                   name="provider"
                   checked={form.activeProvider === p.id}
                   onChange={() => setField("activeProvider", p.id)}
-                  className="mt-1 accent-pink-600"
+                  className="mt-1 accent-teal-700"
                 />
                 <div>
                   <p className="font-medium text-neutral-900">{p.label}</p>

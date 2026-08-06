@@ -12,11 +12,14 @@ export default async function PdvLayout({
   children: React.ReactNode;
 }) {
   const session = await getSession();
-  if (!session) redirect("/login");
+  if (!session?.tenantId) redirect("/login");
 
   return (
     <div className="flex h-screen flex-col overflow-hidden bg-neutral-100">
-      <BrandHeader subtitle="PDV — Ponto de Venda">
+      <BrandHeader
+        brandName={session.tenantName ?? undefined}
+        subtitle="PDV — Ponto de Venda"
+      >
         <Link href="/estoque" target="_blank">
           <Button
             variant="outline"

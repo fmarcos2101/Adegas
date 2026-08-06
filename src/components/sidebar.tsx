@@ -12,10 +12,11 @@ import {
   Users,
   ScrollText,
   Database,
-  Crown,
+  Store,
   CreditCard,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { APP_NAME } from "@/lib/constants";
 
 type NavItem = {
   href: string;
@@ -40,11 +41,17 @@ const items: NavItem[] = [
 
 type SidebarProps = {
   role: "ADMIN" | "CAIXA";
+  storeName?: string | null;
   mobileOpen?: boolean;
   onNavigate?: () => void;
 };
 
-export function Sidebar({ role, mobileOpen = false, onNavigate }: SidebarProps) {
+export function Sidebar({
+  role,
+  storeName,
+  mobileOpen = false,
+  onNavigate,
+}: SidebarProps) {
   const pathname = usePathname();
   const visible = items.filter((i) => !i.adminOnly || role === "ADMIN");
 
@@ -55,12 +62,18 @@ export function Sidebar({ role, mobileOpen = false, onNavigate }: SidebarProps) 
         mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
       )}
     >
-      <div className="flex h-20 items-center gap-2 border-b border-neutral-200 bg-gradient-to-br from-pink-600 to-pink-800 px-5">
-        <Crown className="h-5 w-5 text-pink-200" />
-        <span className="text-lg font-extrabold uppercase leading-none tracking-tight text-white">
-          Adega
-          <br />
-          <span className="text-pink-200">Faixa Rosa</span>
+      <div className="flex h-20 items-center gap-2 border-b border-neutral-200 bg-gradient-to-br from-teal-700 to-slate-900 px-5">
+        <Store className="h-5 w-5 text-teal-200" />
+        <span className="text-lg font-extrabold leading-none tracking-tight text-white">
+          {APP_NAME}
+          {storeName ? (
+            <>
+              <br />
+              <span className="text-xs font-medium normal-case tracking-normal text-teal-200/90">
+                {storeName}
+              </span>
+            </>
+          ) : null}
         </span>
       </div>
       <nav className="flex-1 space-y-1 p-3">
@@ -73,8 +86,8 @@ export function Sidebar({ role, mobileOpen = false, onNavigate }: SidebarProps) 
           const className = cn(
             "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
             active && !item.newTab
-              ? "bg-pink-600 text-white"
-              : "text-neutral-700 hover:bg-pink-50",
+              ? "bg-teal-700 text-white"
+              : "text-neutral-700 hover:bg-teal-50",
           );
 
           if (item.newTab) {

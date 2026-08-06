@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { getSession } from "@/lib/auth";
 import { getPaymentSettingsForForm } from "./actions";
 import { PaymentSettingsForm } from "./payment-settings-form";
 import { CopyBlock } from "./copy-block";
@@ -12,12 +13,15 @@ import { MERCADOPAGO_WEBHOOK_PATH } from "@/lib/mercadopago-point";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function PagamentosPage() {
+  const session = await getSession();
+  if (!session?.tenantId) return null;
+
   const hdrs = await headers();
   const host = hdrs.get("host");
   const proto = hdrs.get("x-forwarded-proto") ?? "http";
   const baseUrl = host ? `${proto}://${host}` : `http://localhost:${getTerminalApiPort()}`;
 
-  const settings = await getPaymentSettings();
+  const settings = await getPaymentSettings(session.tenantId);
   const formData = await getPaymentSettingsForForm();
   const active = settings.activeProvider;
   const configured = isProviderConfigured(settings, active);

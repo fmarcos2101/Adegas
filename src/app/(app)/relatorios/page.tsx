@@ -20,8 +20,10 @@ export default async function RelatoriosPage({
 }) {
   const sp = await searchParams;
   const periodo = normalizePeriodo(sp.periodo);
-  const [report, session] = await Promise.all([getReport(periodo), getSession()]);
-  const canCancel = session?.role === "ADMIN";
+  const session = await getSession();
+  if (!session?.tenantId) return null;
+  const report = await getReport(periodo, session.tenantId);
+  const canCancel = session.role === "ADMIN";
 
   return (
     <div className="space-y-6">

@@ -11,14 +11,14 @@ export const runtime = "nodejs";
 
 export async function GET(request: Request) {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session?.tenantId || session.role !== "ADMIN") {
     return new NextResponse("Não autorizado", { status: 403 });
   }
 
   const url = new URL(request.url);
   const fmt = url.searchParams.get("format") === "excel" ? "excel" : "pdf";
   const periodo = normalizePeriodo(url.searchParams.get("periodo"));
-  const report = await getReport(periodo);
+  const report = await getReport(periodo, session.tenantId);
   const stamp = format(new Date(), "yyyyMMdd_HHmm");
 
   if (fmt === "excel") {

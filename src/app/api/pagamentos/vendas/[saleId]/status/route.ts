@@ -7,13 +7,13 @@ export async function GET(
   { params }: { params: Promise<{ saleId: string }> },
 ) {
   const session = await getSession();
-  if (!session) {
+  if (!session?.tenantId) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
   }
 
   const { saleId } = await params;
-  const sale = await prisma.sale.findUnique({
-    where: { id: saleId },
+  const sale = await prisma.sale.findFirst({
+    where: { id: saleId, tenantId: session.tenantId },
     include: { payments: true },
   });
 

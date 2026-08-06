@@ -20,7 +20,10 @@ export async function createUser(
   formData: FormData,
 ): Promise<UserState> {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") return { error: "Não autorizado." };
+  if (!session?.tenantId || session.role !== "ADMIN") {
+    return { error: "Não autorizado." };
+  }
+  const tenantId = session.tenantId;
 
   const parsed = schema.safeParse({
     name: formData.get("name"),
@@ -33,15 +36,24 @@ export async function createUser(
   }
   const { name, username, password, role } = parsed.data;
 
-  const exists = await prisma.user.findUnique({ where: { username } });
+  const exists = await prisma.user.findUnique({
+    where: { tenantId_username: { tenantId, username } },
+  });
   if (exists) return { error: "Nome de usuário já existe." };
 
   await prisma.user.create({
-    data: { name, username, password: await bcrypt.hash(password, 10), role },
+    data: {
+      tenantId,
+      name,
+      username,
+      password: await bcrypt.hash(password, 10),
+      role,
+    },
   });
 
   await prisma.auditLog.create({
     data: {
+      tenantId,
       userId: session.userId,
       action: "CRIAR_USUARIO",
       detail: `Usuário ${username} (${role}) criado`,
@@ -54,20 +66,21 @@ export async function createUser(
 
 export async function toggleUserActive(formData: FormData): Promise<void> {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") return;
+  if (!session?.tenantId || session.role !== "ADMIN") return;
+  const tenantId = session.tenantId;
 
   const id = String(formData.get("id") ?? "");
   if (!id) return;
-  if (id === session.userId) return; // não pode inativar a si mesmo
+  if (id === session.userId) return;
 
-  const user = await prisma.user.findUnique({ where: { id } });
+  const user = await prisma.user.findFirst({ where: { id, tenantId } });
   if (!user) return;
 
   if (user.active && user.role === "ADMIN") {
     const activeAdmins = await prisma.user.count({
-      where: { role: "ADMIN", active: true },
+      where: { tenantId, role: "ADMIN", active: true },
     });
-    if (activeAdmins <= 1) return; // não remover o último admin ativo
+    if (activeAdmins <= 1) return;
   }
 
   await prisma.user.update({
@@ -77,6 +90,7 @@ export async function toggleUserActive(formData: FormData): Promise<void> {
 
   await prisma.auditLog.create({
     data: {
+      tenantId,
       userId: session.userId,
       action: user.active ? "INATIVAR_USUARIO" : "ATIVAR_USUARIO",
       detail: `Usuário ${user.username}`,

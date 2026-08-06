@@ -6,10 +6,13 @@ import { UserForm } from "./user-form";
 import { toggleUserActive } from "./actions";
 
 export default async function UsuariosPage() {
-  const [users, session] = await Promise.all([
-    prisma.user.findMany({ orderBy: { createdAt: "asc" } }),
-    getSession(),
-  ]);
+  const session = await getSession();
+  if (!session?.tenantId) return null;
+
+  const users = await prisma.user.findMany({
+    where: { tenantId: session.tenantId },
+    orderBy: { createdAt: "asc" },
+  });
 
   return (
     <div className="space-y-6">

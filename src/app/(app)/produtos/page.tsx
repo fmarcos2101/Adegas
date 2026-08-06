@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import { requireTenantSession } from "@/lib/tenant";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatBRL } from "@/lib/utils";
 import { isInternalBarcode } from "@/lib/constants";
@@ -6,12 +7,19 @@ import { ProductForm } from "./product-form";
 import { ProductActions } from "./product-actions";
 
 export default async function ProdutosPage() {
+  const session = await requireTenantSession();
+  const tenantId = session.tenantId;
+
   const [products, categories] = await Promise.all([
     prisma.product.findMany({
+      where: { tenantId },
       orderBy: { createdAt: "desc" },
       include: { category: true },
     }),
-    prisma.category.findMany({ orderBy: { name: "asc" } }),
+    prisma.category.findMany({
+      where: { tenantId },
+      orderBy: { name: "asc" },
+    }),
   ]);
 
   return (

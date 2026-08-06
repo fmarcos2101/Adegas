@@ -9,13 +9,16 @@ export async function cancelSale(
   reason: string,
 ): Promise<{ success?: boolean; error?: string }> {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") return { error: "Não autorizado." };
+  if (!session?.tenantId || session.role !== "ADMIN") {
+    return { error: "Não autorizado." };
+  }
+  const tenantId = session.tenantId;
   if (!reason.trim()) return { error: "Informe o motivo do cancelamento." };
 
   try {
     await prisma.$transaction(async (tx) => {
-      const sale = await tx.sale.findUnique({
-        where: { id: saleId },
+      const sale = await tx.sale.findFirst({
+        where: { id: saleId, tenantId },
         include: { items: true },
       });
       if (!sale) throw new Error("Venda não encontrada.");
@@ -34,6 +37,7 @@ export async function cancelSale(
           });
           await tx.stockMovement.create({
             data: {
+              tenantId,
               productId: item.productId,
               type: "ENTRADA",
               quantity: item.quantity,
@@ -45,6 +49,7 @@ export async function cancelSale(
 
       await tx.auditLog.create({
         data: {
+          tenantId,
           userId: session.userId,
           action: "CANCELAMENTO_VENDA",
           detail: `Venda ${saleId} cancelada. Motivo: ${reason.trim()}`,

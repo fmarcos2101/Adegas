@@ -1,22 +1,10 @@
-# Adega Faixa Rosa — Sistema PDV
+# NexoPDV — PDV Online (SaaS multi-loja)
 
-Sistema de gestão e ponto de venda para distribuidora de bebidas.
+Sistema de ponto de venda e gestão com isolamento por cliente (tenant), painel da plataforma para assinaturas e acesso de suporte.
 
-## Instalação Windows (recomendado para a loja)
+Derivado do PDV da Adega Faixa Rosa, com identidade genérica para exposição online.
 
-1. Instale **Node.js 20 LTS**: https://nodejs.org  
-2. Baixe o projeto (ou clone com Git)  
-3. **Duplo clique** em `Instalar-Adega.bat` (só na primeira vez)  
-4. **Duplo clique** em `Iniciar-Adega.bat` (toda vez que for usar)
-
-O navegador abre automaticamente no PDV e no painel admin.
-
-Para iniciar com o Windows: copie um atalho de `Iniciar-Adega.bat` para a pasta  
-`Inicializar` (Win+R → `shell:startup`).
-
----
-
-## Início rápido (desenvolvedor)
+## Início rápido
 
 ```bash
 npm install
@@ -27,38 +15,39 @@ npm run dev
 
 Acesse http://localhost:3000
 
-| Usuário | Senha | Perfil |
-|---------|-------|--------|
-| `admin` | `admin123` | Administrador |
-| `caixa` | `caixa123` | Caixa |
+| Acesso | Código da loja | Usuário | Senha |
+|--------|----------------|---------|-------|
+| Plataforma (dono) | *(deixe em branco)* | `owner` | `owner123` |
+| Loja demo (admin) | `demo` | `admin` | `admin123` |
+| Loja demo (caixa) | `demo` | `caixa` | `caixa123` |
 
-> Troque as senhas antes de usar na loja. Banco inicia **limpo** (sem produtos).
+## O que é
 
-## Funcionalidades
+- **Cada loja** tem seus produtos, estoque, vendas e usuários isolados
+- **Painel `/plataforma`** — criar clientes, planos, status de assinatura, uso (vendas/mês) e **entrar como suporte**
+- **PDV** em `/pdv` — tela cheia para o caixa
+- Assinaturas: Trial / Básico / Pro com status (ativa, atrasada, suspensa…)
 
-- PDV com leitor de código de barras, autocomplete e atalhos (F2/F3/F4/F8)
+## Funcionalidades da loja
+
+- PDV com leitor, autocomplete e atalhos
 - Produtos, categorias, estoque, relatórios (PDF/Excel)
-- Usuários, auditoria, backup/restauração SQLite
-- Maquininhas: **Mercado Pago Point**, **SumUp**, **Ton (Stone)** ou **API genérica**
-- Suporte WhatsApp (botão ? flutuante)
-
-## Maquininhas (configurar depois)
-
-Admin → **Pagamentos** → escolha a maquininha e cole as credenciais quando tiver.
-
-Não precisa de API no primeiro dia: use **dinheiro/PIX** ou **liberação manual** no PDV.
-
-Documentação completa: `SISTEMA.md`
+- Usuários, auditoria, backup SQLite
+- Maquininhas: Mercado Pago Point, SumUp, Ton ou API genérica
 
 ## Comandos
 
 ```bash
-npm run dev          # servidor desenvolvimento
-npm run db:reset     # zera produtos/vendas, mantém usuários
-npm run lint         # ESLint
-npm run typecheck    # TypeScript
+npm run dev          # desenvolvimento
+npm run db:reset     # zera produtos/vendas da demo
+npm run lint
+npm run typecheck
 ```
 
-## Suporte
+## Documentação
 
-WhatsApp: (64) 99290-3947
+Veja `SISTEMA.md` para telas, papéis e modelo de dados.
+
+## Suporte WhatsApp (opcional)
+
+Defina `NEXT_PUBLIC_SUPPORT_WHATSAPP` (ex.: `5564999999999`) no `.env` para exibir o botão flutuante.

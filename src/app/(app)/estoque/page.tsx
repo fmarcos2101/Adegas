@@ -12,19 +12,23 @@ const typeLabels: Record<string, string> = {
 };
 
 export default async function EstoquePage() {
-  const [products, movements, session] = await Promise.all([
+  const session = await getSession();
+  if (!session?.tenantId) return null;
+  const tenantId = session.tenantId;
+
+  const [products, movements] = await Promise.all([
     prisma.product.findMany({
-      where: { active: true },
+      where: { tenantId, active: true },
       orderBy: { name: "asc" },
     }),
     prisma.stockMovement.findMany({
+      where: { tenantId },
       orderBy: { createdAt: "desc" },
       take: 50,
       include: { product: { select: { name: true } } },
     }),
-    getSession(),
   ]);
-  const canManage = session?.role === "ADMIN";
+  const canManage = session.role === "ADMIN";
 
   const lowStock = products.filter((p) => p.stock <= p.minStock);
 

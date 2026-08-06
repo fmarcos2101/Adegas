@@ -1,5 +1,6 @@
 import { AlertTriangle, DollarSign, Package, ShoppingCart } from "lucide-react";
 import { prisma } from "@/lib/prisma";
+import { requireTenantSession } from "@/lib/tenant";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatBRL } from "@/lib/utils";
 
@@ -15,19 +16,30 @@ function startOfMonth() {
 }
 
 export default async function DashboardPage() {
+  const session = await requireTenantSession();
+  const tenantId = session.tenantId;
+
   const [salesToday, monthRevenue, activeProducts, lowStock] = await Promise.all([
     prisma.sale.aggregate({
-      where: { status: "CONCLUIDA", createdAt: { gte: startOfToday() } },
+      where: {
+        tenantId,
+        status: "CONCLUIDA",
+        createdAt: { gte: startOfToday() },
+      },
       _sum: { total: true },
       _count: true,
     }),
     prisma.sale.aggregate({
-      where: { status: "CONCLUIDA", createdAt: { gte: startOfMonth() } },
+      where: {
+        tenantId,
+        status: "CONCLUIDA",
+        createdAt: { gte: startOfMonth() },
+      },
       _sum: { total: true },
     }),
-    prisma.product.count({ where: { active: true } }),
+    prisma.product.count({ where: { tenantId, active: true } }),
     prisma.product.findMany({
-      where: { active: true },
+      where: { tenantId, active: true },
       orderBy: { stock: "asc" },
     }),
   ]);
@@ -63,7 +75,9 @@ export default async function DashboardPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-semibold text-neutral-900">Dashboard</h1>
-        <p className="text-sm text-neutral-500">Visão geral da operação</p>
+        <p className="text-sm text-neutral-500">
+          Visão geral — {session.tenantName}
+        </p>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
