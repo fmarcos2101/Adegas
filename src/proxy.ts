@@ -15,6 +15,7 @@ const ADMIN_ONLY_PREFIXES = [
   "/auditoria",
   "/backup",
   "/pagamentos",
+  "/assinatura",
 ];
 
 const PUBLIC_PATHS = ["/login"];

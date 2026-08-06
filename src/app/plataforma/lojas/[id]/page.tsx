@@ -13,6 +13,11 @@ import {
 } from "@/lib/constants";
 import { enterTenantSupportAction } from "../../actions";
 import { SubscriptionForm } from "./subscription-form";
+import { MpCheckoutForm } from "./mp-checkout-form";
+import {
+  getPlatformBilling,
+  isPlatformBillingConfigured,
+} from "@/lib/platform-billing";
 
 function startOfMonth() {
   const d = new Date();
@@ -39,7 +44,7 @@ export default async function TenantDetailPage({
   if (!tenant) notFound();
 
   const monthStart = startOfMonth();
-  const [monthSales, totalRevenue] = await Promise.all([
+  const [monthSales, totalRevenue, billing, recentPayments] = await Promise.all([
     prisma.sale.aggregate({
       where: {
         tenantId: tenant.id,
@@ -53,6 +58,12 @@ export default async function TenantDetailPage({
       where: { tenantId: tenant.id, status: "CONCLUIDA" },
       _sum: { total: true },
       _count: true,
+    }),
+    getPlatformBilling(),
+    prisma.subscriptionPayment.findMany({
+      where: { subscription: { tenantId: tenant.id } },
+      orderBy: { createdAt: "desc" },
+      take: 10,
     }),
   ]);
 
@@ -140,6 +151,48 @@ export default async function TenantDetailPage({
               : "—"
           }
         />
+
+        <MpCheckoutForm
+          tenantId={tenant.id}
+          defaultPlan={
+            tenant.subscription?.plan === "PRO" ? "PRO" : "BASIC"
+          }
+          payerEmail={tenant.subscription?.payerEmail ?? ""}
+          mpInitPoint={tenant.subscription?.mpInitPoint ?? null}
+          mpStatus={tenant.subscription?.mpStatus ?? null}
+          mpPreapprovalId={tenant.subscription?.mpPreapprovalId ?? null}
+          billingConfigured={isPlatformBillingConfigured(billing)}
+        />
+
+        {recentPayments.length > 0 ? (
+          <Card>
+            <CardHeader>
+              <CardTitle>Cobranças Mercado Pago</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-slate-200 text-left text-slate-500">
+                    <th className="py-2">Data</th>
+                    <th className="py-2">Valor</th>
+                    <th className="py-2">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentPayments.map((p) => (
+                    <tr key={p.id} className="border-b border-slate-100">
+                      <td className="py-2">
+                        {p.createdAt.toLocaleString("pt-BR")}
+                      </td>
+                      <td className="py-2">{formatBRL(p.amount)}</td>
+                      <td className="py-2">{p.status}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </CardContent>
+          </Card>
+        ) : null}
 
         <Card>
           <CardHeader>

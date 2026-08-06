@@ -14,6 +14,7 @@ import {
   Database,
   Store,
   CreditCard,
+  Receipt,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { APP_NAME } from "@/lib/constants";
@@ -34,6 +35,7 @@ const items: NavItem[] = [
   { href: "/estoque", label: "Estoque", icon: Boxes },
   { href: "/relatorios", label: "Relatórios", icon: BarChart3, adminOnly: true },
   { href: "/pagamentos", label: "Pagamentos", icon: CreditCard, adminOnly: true },
+  { href: "/assinatura", label: "Assinatura", icon: Receipt, adminOnly: true },
   { href: "/usuarios", label: "Usuários", icon: Users, adminOnly: true },
   { href: "/auditoria", label: "Auditoria", icon: ScrollText, adminOnly: true },
   { href: "/backup", label: "Backup", icon: Database, adminOnly: true },

@@ -57,8 +57,52 @@ model Subscription {
   currentPeriodStart DateTime?
   currentPeriodEnd   DateTime?
   notes              String?
+  /// E-mail do pagador no Mercado Pago (assinatura SaaS)
+  payerEmail         String?
+  /// ID da assinatura (preapproval) no Mercado Pago
+  mpPreapprovalId    String?            @unique
+  /// ID do plano (preapproval_plan) associado
+  mpPreapprovalPlanId String?
+  /// Status bruto retornado pelo MP (pending, authorized, paused, cancelled…)
+  mpStatus           String?
+  /// URL de checkout para o cliente autorizar o cartão
+  mpInitPoint        String?
+  lastPaymentAt      DateTime?
+  lastPaymentAmount  Float?
   createdAt          DateTime           @default(now())
   updatedAt          DateTime           @updatedAt
+
+  payments SubscriptionPayment[]
+}
+
+/// Histórico de cobranças recorrentes (Mercado Pago authorized_payments)
+model SubscriptionPayment {
+  id                 String       @id @default(cuid())
+  subscriptionId     String
+  subscription       Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  mpAuthorizedPaymentId String    @unique
+  mpPaymentId        String?
+  amount             Float
+  status             String
+  summarized         String?
+  debitDate          DateTime?
+  rawDetail          String?
+  createdAt          DateTime     @default(now())
+}
+
+/// Configuração de cobrança SaaS da plataforma (Mercado Pago Assinaturas).
+model PlatformBillingSettings {
+  id              String   @id @default("default")
+  mpAccessToken   String?
+  mpWebhookSecret String?
+  basicPrice      Float    @default(79.9)
+  proPrice        Float    @default(149.9)
+  /// IDs de planos cacheados no MP (recriados se o preço mudar)
+  mpPlanBasicId   String?
+  mpPlanBasicPrice Float?
+  mpPlanProId     String?
+  mpPlanProPrice  Float?
+  updatedAt       DateTime @updatedAt
 }
 
 model User {

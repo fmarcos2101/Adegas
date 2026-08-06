@@ -106,11 +106,24 @@ async function main() {
     },
   });
 
+  await prisma.platformBillingSettings.upsert({
+    where: { id: "default" },
+    update: {},
+    create: {
+      id: "default",
+      basicPrice: 79.9,
+      proPrice: 149.9,
+      mpAccessToken: process.env.PLATFORM_MP_ACCESS_TOKEN?.trim() || null,
+      mpWebhookSecret: process.env.PLATFORM_MP_WEBHOOK_SECRET?.trim() || null,
+    },
+  });
+
   console.log("Seed NexoPDV concluído:");
   console.log(
     "  Plataforma → usuário owner / senha owner123 (deixe o código da loja em branco)",
   );
   console.log("  Loja demo  → código 'demo' + admin/admin123 ou caixa/caixa123");
+  console.log("  Cobrança   → configure em /plataforma/cobranca (Mercado Pago)");
 }
 
 main()

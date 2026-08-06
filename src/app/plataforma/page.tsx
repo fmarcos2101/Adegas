@@ -123,13 +123,21 @@ export default async function PlataformaPage() {
       </BrandHeader>
 
       <main className="mx-auto w-full max-w-6xl flex-1 space-y-8 p-4 sm:p-8">
-        <div>
-          <h1 className="text-2xl font-semibold text-slate-900">
-            Controle SaaS — {APP_NAME}
-          </h1>
-          <p className="text-sm text-slate-500">
-            Gerencie clientes, assinaturas e entre em qualquer loja para suporte.
-          </p>
+        <div className="flex flex-wrap items-end justify-between gap-3">
+          <div>
+            <h1 className="text-2xl font-semibold text-slate-900">
+              Controle SaaS — {APP_NAME}
+            </h1>
+            <p className="text-sm text-slate-500">
+              Gerencie clientes, assinaturas e entre em qualquer loja para suporte.
+            </p>
+          </div>
+          <Link
+            href="/plataforma/cobranca"
+            className="inline-flex h-9 items-center rounded-md bg-teal-700 px-3 text-sm font-medium text-white hover:bg-teal-600"
+          >
+            Cobrança Mercado Pago
+          </Link>
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">

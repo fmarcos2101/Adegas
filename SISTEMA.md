@@ -17,7 +17,10 @@
 ### Plataforma (super-admin)
 
 - **/plataforma** — lista de clientes, MRR estimado, uso do mês, formulário de nova loja
-- **/plataforma/lojas/[id]** — detalhe do cliente, assinatura (plano/status/valor), usuários, **Entrar como suporte**
+- **/plataforma/cobranca** — Access Token Mercado Pago, preços Básico/Pro, URL do webhook
+- **/plataforma/lojas/[id]** — detalhe do cliente, assinatura, **gerar link de cobrança MP**, usuários, **Entrar como suporte**
+- **/assinatura** (admin da loja) — plano, checkout Mercado Pago e histórico de cobranças
+- Webhook: `POST /api/assinaturas/mercadopago/webhook` (tópicos `subscription_preapproval` e `subscription_authorized_payment`)
 
 ### Loja (tenant)
 
