@@ -3,16 +3,18 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/auth";
+import { requireActiveTenantSession } from "@/lib/session-guard";
 import { isInternalBarcode } from "@/lib/constants";
 import { generatePaymentRef } from "@/lib/payment-terminal";
 import { sendSaleToTerminalProvider } from "@/lib/payment-providers";
 import { getPaymentSettings } from "@/lib/payment-settings";
 import {
+  applyDiscountLimit,
   applyStockForSale,
   computeSaleLines,
   restoreStockForSale,
 } from "@/lib/sale-service";
+import { expireStalePendingSales } from "@/lib/pending-sale-expiry";
 
 export type FoundProduct = {
   id: string;
@@ -29,9 +31,12 @@ function publicBarcode(barcode: string): string | null {
 export async function findProductByBarcode(
   barcode: string,
 ): Promise<{ product?: FoundProduct; error?: string }> {
-  const session = await getSession();
-  if (!session?.tenantId) return { error: "Não autorizado." };
-  const tenantId = session.tenantId;
+  let tenantId: string;
+  try {
+    tenantId = (await requireActiveTenantSession()).tenantId;
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Não autorizado." };
+  }
 
   const code = barcode.trim();
   if (!code) return { error: "Código vazio." };
@@ -58,9 +63,12 @@ export async function findProductByBarcode(
 }
 
 export async function searchProducts(term: string): Promise<FoundProduct[]> {
-  const session = await getSession();
-  if (!session?.tenantId) return [];
-  const tenantId = session.tenantId;
+  let tenantId: string;
+  try {
+    tenantId = (await requireActiveTenantSession()).tenantId;
+  } catch {
+    return [];
+  }
 
   const q = term.trim();
   if (q.length < 1) return [];
@@ -85,9 +93,12 @@ export async function searchProducts(term: string): Promise<FoundProduct[]> {
 }
 
 export async function listStock(): Promise<FoundProduct[]> {
-  const session = await getSession();
-  if (!session?.tenantId) return [];
-  const tenantId = session.tenantId;
+  let tenantId: string;
+  try {
+    tenantId = (await requireActiveTenantSession()).tenantId;
+  } catch {
+    return [];
+  }
 
   const products = await prisma.product.findMany({
     where: { tenantId, active: true },
@@ -128,20 +139,24 @@ function revalidateSalePaths() {
 export async function finalizeSale(
   input: FinalizeInput,
 ): Promise<{ saleId?: string; total?: number; error?: string }> {
-  const session = await getSession();
-  if (!session?.tenantId) return { error: "Não autorizado." };
+  let session: Awaited<ReturnType<typeof requireActiveTenantSession>>;
+  try {
+    session = await requireActiveTenantSession();
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Não autorizado." };
+  }
   const tenantId = session.tenantId;
 
   const parsed = saleSchema.safeParse(input);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
   }
-  const { items, discount, method } = parsed.data;
+  const { items, discount: rawDiscount, method } = parsed.data;
 
   try {
     const result = await prisma.$transaction(async (tx) => {
       const { computed, subtotal } = await computeSaleLines(tx, items, tenantId);
-      const total = Math.max(0, subtotal - discount);
+      const { total, discount } = applyDiscountLimit(rawDiscount, subtotal, session.role);
 
       const sale = await tx.sale.create({
         data: {
@@ -190,15 +205,19 @@ export async function createPendingTerminalSale(
   provider?: "mercadopago" | "generic" | "sumup" | "ton";
   error?: string;
 }> {
-  const session = await getSession();
-  if (!session?.tenantId) return { error: "Não autorizado." };
+  let session: Awaited<ReturnType<typeof requireActiveTenantSession>>;
+  try {
+    session = await requireActiveTenantSession();
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Não autorizado." };
+  }
   const tenantId = session.tenantId;
 
   const parsed = saleSchema.safeParse(input);
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
   }
-  const { items, discount, method } = parsed.data;
+  const { items, discount: rawDiscount, method } = parsed.data;
 
   if (method !== "DEBITO" && method !== "CREDITO") {
     return {
@@ -206,10 +225,14 @@ export async function createPendingTerminalSale(
     };
   }
 
+  // Libera estoque de vendas antigas ainda "aguardando pagamento" antes de
+  // reservar mais estoque para esta nova venda.
+  await expireStalePendingSales(tenantId);
+
   try {
     const result = await prisma.$transaction(async (tx) => {
       const { computed, subtotal } = await computeSaleLines(tx, items, tenantId);
-      const total = Math.max(0, subtotal - discount);
+      const { total, discount } = applyDiscountLimit(rawDiscount, subtotal, session.role);
 
       let paymentRef = generatePaymentRef();
       for (let attempt = 0; attempt < 5; attempt++) {
@@ -315,8 +338,12 @@ export async function createPendingTerminalSale(
 export async function confirmSaleManually(
   saleId: string,
 ): Promise<{ success?: boolean; error?: string }> {
-  const session = await getSession();
-  if (!session?.tenantId) return { error: "Não autorizado." };
+  let session: Awaited<ReturnType<typeof requireActiveTenantSession>>;
+  try {
+    session = await requireActiveTenantSession();
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Não autorizado." };
+  }
   const tenantId = session.tenantId;
 
   try {
@@ -362,8 +389,12 @@ export async function confirmSaleManually(
 export async function cancelPendingSale(
   saleId: string,
 ): Promise<{ success?: boolean; error?: string }> {
-  const session = await getSession();
-  if (!session?.tenantId) return { error: "Não autorizado." };
+  let session: Awaited<ReturnType<typeof requireActiveTenantSession>>;
+  try {
+    session = await requireActiveTenantSession();
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Não autorizado." };
+  }
   const tenantId = session.tenantId;
 
   try {
@@ -420,11 +451,17 @@ export async function getSalePaymentStatus(saleId: string): Promise<{
   method?: string;
   error?: string;
 }> {
-  const session = await getSession();
-  if (!session?.tenantId) return { error: "Não autorizado." };
+  let tenantId: string;
+  try {
+    tenantId = (await requireActiveTenantSession()).tenantId;
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Não autorizado." };
+  }
+
+  await expireStalePendingSales(tenantId);
 
   const sale = await prisma.sale.findFirst({
-    where: { id: saleId, tenantId: session.tenantId },
+    where: { id: saleId, tenantId },
     include: { payments: true },
   });
   if (!sale) return { error: "Venda não encontrada." };

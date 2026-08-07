@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { getSession } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { expireStalePendingSales } from "@/lib/pending-sale-expiry";
 
 export async function GET(
   _request: Request,
@@ -10,6 +11,8 @@ export async function GET(
   if (!session?.tenantId) {
     return NextResponse.json({ error: "Não autorizado." }, { status: 401 });
   }
+
+  await expireStalePendingSales(session.tenantId);
 
   const { saleId } = await params;
   const sale = await prisma.sale.findFirst({
