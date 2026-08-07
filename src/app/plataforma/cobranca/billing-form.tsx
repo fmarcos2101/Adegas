@@ -98,7 +98,7 @@ export function BillingSettingsForm({
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium" htmlFor="proPrice">
-                Preço Pro (R$/mês)
+                Preço Plus/Pro (R$/mês)
               </label>
               <Input
                 id="proPrice"

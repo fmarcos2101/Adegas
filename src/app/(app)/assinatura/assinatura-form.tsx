@@ -99,20 +99,39 @@ export function AssinaturaCheckoutForm({
             </p>
           ) : (
             <form action={formAction} className="space-y-4">
-              <div className="grid gap-3 sm:grid-cols-2">
+              <div className="grid gap-3 sm:grid-cols-3">
                 <label className="flex cursor-pointer flex-col rounded-md border border-neutral-200 p-4 has-[:checked]:border-teal-600 has-[:checked]:bg-teal-50">
                   <span className="flex items-center gap-2 font-medium">
                     <input
                       type="radio"
                       name="plan"
                       value="BASIC"
-                      defaultChecked={currentPlan !== "Pro"}
+                      defaultChecked={currentPlan.includes("Básico")}
                       className="accent-teal-700"
                     />
                     Básico
                   </span>
                   <span className="mt-1 text-sm text-neutral-500">
                     {formatBRL(basicPrice)} / mês
+                  </span>
+                  <span className="mt-1 text-xs text-neutral-400">1 PDV</span>
+                </label>
+                <label className="flex cursor-pointer flex-col rounded-md border border-neutral-200 p-4 has-[:checked]:border-teal-600 has-[:checked]:bg-teal-50">
+                  <span className="flex items-center gap-2 font-medium">
+                    <input
+                      type="radio"
+                      name="plan"
+                      value="PLUS"
+                      defaultChecked={currentPlan.includes("Plus")}
+                      className="accent-teal-700"
+                    />
+                    Plus
+                  </span>
+                  <span className="mt-1 text-sm text-neutral-500">
+                    {formatBRL(proPrice)} / mês
+                  </span>
+                  <span className="mt-1 text-xs text-neutral-400">
+                    Até 3 PDVs
                   </span>
                 </label>
                 <label className="flex cursor-pointer flex-col rounded-md border border-neutral-200 p-4 has-[:checked]:border-teal-600 has-[:checked]:bg-teal-50">
@@ -121,13 +140,16 @@ export function AssinaturaCheckoutForm({
                       type="radio"
                       name="plan"
                       value="PRO"
-                      defaultChecked={currentPlan === "Pro"}
+                      defaultChecked={currentPlan.includes("Pro")}
                       className="accent-teal-700"
                     />
                     Pro
                   </span>
                   <span className="mt-1 text-sm text-neutral-500">
                     {formatBRL(proPrice)} / mês
+                  </span>
+                  <span className="mt-1 text-xs text-neutral-400">
+                    Até 3 PDVs
                   </span>
                 </label>
               </div>

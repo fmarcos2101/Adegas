@@ -14,10 +14,12 @@ import {
 import { enterTenantSupportAction } from "../../actions";
 import { SubscriptionForm } from "./subscription-form";
 import { MpCheckoutForm } from "./mp-checkout-form";
+import { PlatformUsersPanel } from "./platform-users-panel";
 import {
   getPlatformBilling,
   isPlatformBillingConfigured,
 } from "@/lib/platform-billing";
+import { getPdvUsage } from "@/lib/plan-limits";
 
 function startOfMonth() {
   const d = new Date();
@@ -44,28 +46,30 @@ export default async function TenantDetailPage({
   if (!tenant) notFound();
 
   const monthStart = startOfMonth();
-  const [monthSales, totalRevenue, billing, recentPayments] = await Promise.all([
-    prisma.sale.aggregate({
-      where: {
-        tenantId: tenant.id,
-        status: "CONCLUIDA",
-        createdAt: { gte: monthStart },
-      },
-      _count: true,
-      _sum: { total: true },
-    }),
-    prisma.sale.aggregate({
-      where: { tenantId: tenant.id, status: "CONCLUIDA" },
-      _sum: { total: true },
-      _count: true,
-    }),
-    getPlatformBilling(),
-    prisma.subscriptionPayment.findMany({
-      where: { subscription: { tenantId: tenant.id } },
-      orderBy: { createdAt: "desc" },
-      take: 10,
-    }),
-  ]);
+  const [monthSales, totalRevenue, billing, recentPayments, pdvUsage] =
+    await Promise.all([
+      prisma.sale.aggregate({
+        where: {
+          tenantId: tenant.id,
+          status: "CONCLUIDA",
+          createdAt: { gte: monthStart },
+        },
+        _count: true,
+        _sum: { total: true },
+      }),
+      prisma.sale.aggregate({
+        where: { tenantId: tenant.id, status: "CONCLUIDA" },
+        _sum: { total: true },
+        _count: true,
+      }),
+      getPlatformBilling(),
+      prisma.subscriptionPayment.findMany({
+        where: { subscription: { tenantId: tenant.id } },
+        orderBy: { createdAt: "desc" },
+        take: 10,
+      }),
+      getPdvUsage(tenant.id),
+    ]);
 
   return (
     <div className="flex min-h-screen flex-col bg-slate-100">
@@ -155,7 +159,10 @@ export default async function TenantDetailPage({
         <MpCheckoutForm
           tenantId={tenant.id}
           defaultPlan={
-            tenant.subscription?.plan === "PRO" ? "PRO" : "BASIC"
+            tenant.subscription?.plan === "PLUS" ||
+            tenant.subscription?.plan === "PRO"
+              ? tenant.subscription.plan
+              : "BASIC"
           }
           payerEmail={tenant.subscription?.payerEmail ?? ""}
           mpInitPoint={tenant.subscription?.mpInitPoint ?? null}
@@ -194,33 +201,23 @@ export default async function TenantDetailPage({
           </Card>
         ) : null}
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Usuários da loja</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-slate-200 text-left text-slate-500">
-                  <th className="py-2">Nome</th>
-                  <th className="py-2">Usuário</th>
-                  <th className="py-2">Perfil</th>
-                  <th className="py-2">Ativo</th>
-                </tr>
-              </thead>
-              <tbody>
-                {tenant.users.map((u) => (
-                  <tr key={u.id} className="border-b border-slate-100">
-                    <td className="py-2">{u.name}</td>
-                    <td className="py-2 font-mono text-xs">{u.username}</td>
-                    <td className="py-2">{u.role}</td>
-                    <td className="py-2">{u.active ? "Sim" : "Não"}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </CardContent>
-        </Card>
+        <PlatformUsersPanel
+          tenantId={tenant.id}
+          users={tenant.users.map((u) => ({
+            id: u.id,
+            name: u.name,
+            username: u.username,
+            role: u.role,
+            active: u.active,
+          }))}
+          pdvUsed={pdvUsage.used}
+          pdvMax={pdvUsage.max}
+          planLabel={
+            tenant.subscription
+              ? SUBSCRIPTION_PLAN_LABEL[tenant.subscription.plan]
+              : "—"
+          }
+        />
       </main>
     </div>
   );

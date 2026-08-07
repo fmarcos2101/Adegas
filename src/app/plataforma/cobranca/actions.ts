@@ -112,8 +112,8 @@ export async function generateCheckoutLinkAction(
       : Number(freeTrialDaysRaw);
 
   if (!tenantId) return { error: "Loja inválida." };
-  if (plan !== "BASIC" && plan !== "PRO") {
-    return { error: "Selecione o plano Básico ou Pro." };
+  if (plan !== "BASIC" && plan !== "PLUS" && plan !== "PRO") {
+    return { error: "Selecione o plano Básico, Plus ou Pro." };
   }
 
   const tenant = await prisma.tenant.findUnique({

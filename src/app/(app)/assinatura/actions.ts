@@ -29,8 +29,8 @@ export async function startTenantCheckoutAction(
 
   const plan = String(formData.get("plan") ?? "BASIC");
   const payerEmail = String(formData.get("payerEmail") ?? "").trim();
-  if (plan !== "BASIC" && plan !== "PRO") {
-    return { error: "Selecione Básico ou Pro." };
+  if (plan !== "BASIC" && plan !== "PLUS" && plan !== "PRO") {
+    return { error: "Selecione Básico, Plus ou Pro." };
   }
 
   try {

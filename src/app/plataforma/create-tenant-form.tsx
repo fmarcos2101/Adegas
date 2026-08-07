@@ -69,8 +69,9 @@ export function CreateTenantForm() {
                 defaultValue="TRIAL"
               >
                 <option value="TRIAL">Trial → depois escolher</option>
-                <option value="BASIC">Básico (após trial)</option>
-                <option value="PRO">Pro (após trial)</option>
+                <option value="BASIC">Básico · 1 PDV</option>
+                <option value="PLUS">Plus · até 3 PDVs</option>
+                <option value="PRO">Pro · até 3 PDVs</option>
               </select>
             </div>
             <div className="space-y-1">

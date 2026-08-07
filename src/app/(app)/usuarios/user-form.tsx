@@ -47,7 +47,7 @@ export function UserForm() {
           defaultValue="CAIXA"
           className="flex h-10 w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm"
         >
-          <option value="CAIXA">Operador de Caixa</option>
+          <option value="CAIXA">Caixa (1 PDV)</option>
           <option value="ADMIN">Administrador</option>
         </select>
       </div>

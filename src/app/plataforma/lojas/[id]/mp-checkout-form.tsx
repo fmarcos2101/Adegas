@@ -98,11 +98,16 @@ export function MpCheckoutForm({
             <select
               id="plan"
               name="plan"
-              defaultValue={defaultPlan === "PRO" ? "PRO" : "BASIC"}
+              defaultValue={
+                defaultPlan === "PLUS" || defaultPlan === "PRO"
+                  ? defaultPlan
+                  : "BASIC"
+              }
               className="flex h-9 w-full rounded-md border border-neutral-200 bg-white px-3 text-sm"
             >
-              <option value="BASIC">Básico</option>
-              <option value="PRO">Pro</option>
+              <option value="BASIC">Básico (1 PDV)</option>
+              <option value="PLUS">Plus (até 3 PDVs)</option>
+              <option value="PRO">Pro (até 3 PDVs)</option>
             </select>
           </div>
           <div className="space-y-1">

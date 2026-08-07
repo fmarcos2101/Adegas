@@ -52,18 +52,25 @@ export function isPlatformBillingConfigured(billing: PlatformBilling): boolean {
   return Boolean(billing.mpAccessToken);
 }
 
+export type PaidPlan = Exclude<SubscriptionPlan, "TRIAL">;
+
 export function priceForPlan(
   billing: PlatformBilling,
   plan: SubscriptionPlan,
 ): number {
-  if (plan === "PRO") return billing.proPrice;
+  if (plan === "PRO" || plan === "PLUS") return billing.proPrice;
   if (plan === "BASIC") return billing.basicPrice;
   return 0;
 }
 
+/** Plus e Pro compartilham o preço "pro" no MP; Básico tem preço próprio. */
+function isProTier(plan: PaidPlan): boolean {
+  return plan === "PRO" || plan === "PLUS";
+}
+
 /** Garante plano MP sincronizado com o preço local (recria se mudou). */
 export async function ensureMpPlan(
-  plan: "BASIC" | "PRO",
+  plan: PaidPlan,
   backUrl: string,
 ): Promise<{ planId: string; amount: number }> {
   const billing = await getPlatformBilling();
@@ -73,11 +80,12 @@ export async function ensureMpPlan(
     );
   }
 
-  const amount = plan === "PRO" ? billing.proPrice : billing.basicPrice;
-  const cachedId =
-    plan === "PRO" ? billing.mpPlanProId : billing.mpPlanBasicId;
-  const cachedPrice =
-    plan === "PRO" ? billing.mpPlanProPrice : billing.mpPlanBasicPrice;
+  const proTier = isProTier(plan);
+  const amount = proTier ? billing.proPrice : billing.basicPrice;
+  const cachedId = proTier ? billing.mpPlanProId : billing.mpPlanBasicId;
+  const cachedPrice = proTier
+    ? billing.mpPlanProPrice
+    : billing.mpPlanBasicPrice;
 
   if (cachedId && cachedPrice != null && Math.abs(cachedPrice - amount) < 0.001) {
     return { planId: cachedId, amount };
@@ -98,14 +106,13 @@ export async function ensureMpPlan(
       mpWebhookSecret: billing.mpWebhookSecret || null,
       basicPrice: billing.basicPrice,
       proPrice: billing.proPrice,
-      ...(plan === "PRO"
+      ...(proTier
         ? { mpPlanProId: created.id, mpPlanProPrice: amount }
         : { mpPlanBasicId: created.id, mpPlanBasicPrice: amount }),
     },
-    update:
-      plan === "PRO"
-        ? { mpPlanProId: created.id, mpPlanProPrice: amount }
-        : { mpPlanBasicId: created.id, mpPlanBasicPrice: amount },
+    update: proTier
+      ? { mpPlanProId: created.id, mpPlanProPrice: amount }
+      : { mpPlanBasicId: created.id, mpPlanBasicPrice: amount },
   });
 
   return { planId: created.id, amount };
@@ -113,24 +120,26 @@ export async function ensureMpPlan(
 
 export function buildExternalReference(
   tenantId: string,
-  plan: "BASIC" | "PRO",
+  plan: PaidPlan,
 ): string {
   return `nexopdv:${tenantId}:${plan}`;
 }
 
 export function parseExternalReference(
   ref: string | undefined | null,
-): { tenantId: string; plan: "BASIC" | "PRO" } | null {
+): { tenantId: string; plan: PaidPlan } | null {
   if (!ref) return null;
   const parts = String(ref).split(":");
   if (parts.length !== 3 || parts[0] !== "nexopdv") return null;
-  if (parts[2] !== "BASIC" && parts[2] !== "PRO") return null;
-  return { tenantId: parts[1], plan: parts[2] };
+  if (parts[2] !== "BASIC" && parts[2] !== "PLUS" && parts[2] !== "PRO") {
+    return null;
+  }
+  return { tenantId: parts[1], plan: parts[2] as PaidPlan };
 }
 
 export async function startMercadoPagoCheckout(input: {
   tenantId: string;
-  plan: "BASIC" | "PRO";
+  plan: PaidPlan;
   payerEmail: string;
   backUrl: string;
   freeTrialDays?: number;

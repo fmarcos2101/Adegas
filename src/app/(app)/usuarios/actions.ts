@@ -5,6 +5,7 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { canAddPdvUser } from "@/lib/plan-limits";
 
 const schema = z.object({
   name: z.string().min(2, "Nome muito curto"),
@@ -35,6 +36,11 @@ export async function createUser(
     return { error: parsed.error.issues[0]?.message ?? "Dados inválidos." };
   }
   const { name, username, password, role } = parsed.data;
+
+  if (role === "CAIXA") {
+    const seat = await canAddPdvUser(tenantId);
+    if (!seat.ok) return { error: seat.error };
+  }
 
   const exists = await prisma.user.findUnique({
     where: { tenantId_username: { tenantId, username } },
@@ -76,6 +82,11 @@ export async function toggleUserActive(formData: FormData): Promise<void> {
   const user = await prisma.user.findFirst({ where: { id, tenantId } });
   if (!user) return;
 
+  if (!user.active && user.role === "CAIXA") {
+    const seat = await canAddPdvUser(tenantId);
+    if (!seat.ok) return;
+  }
+
   if (user.active && user.role === "ADMIN") {
     const activeAdmins = await prisma.user.count({
       where: { tenantId, role: "ADMIN", active: true },
@@ -98,4 +109,42 @@ export async function toggleUserActive(formData: FormData): Promise<void> {
   });
 
   revalidatePath("/usuarios");
+}
+
+export async function resetUserPassword(
+  _prev: UserState,
+  formData: FormData,
+): Promise<UserState> {
+  const session = await getSession();
+  if (!session?.tenantId || session.role !== "ADMIN") {
+    return { error: "Não autorizado." };
+  }
+  const tenantId = session.tenantId;
+  const userId = String(formData.get("userId") ?? "");
+  const password = String(formData.get("password") ?? "");
+
+  if (!userId) return { error: "Usuário inválido." };
+  if (password.length < 4) {
+    return { error: "Senha deve ter ao menos 4 caracteres." };
+  }
+
+  const user = await prisma.user.findFirst({ where: { id: userId, tenantId } });
+  if (!user) return { error: "Usuário não encontrado." };
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { password: await bcrypt.hash(password, 10) },
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      tenantId,
+      userId: session.userId,
+      action: "RESET_SENHA",
+      detail: `Senha de ${user.username} redefinida`,
+    },
+  });
+
+  revalidatePath("/usuarios");
+  return { success: true };
 }

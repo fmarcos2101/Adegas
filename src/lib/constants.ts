@@ -18,9 +18,10 @@ export const PLATFORM_SLUG = "plataforma";
 export { TRIAL_DAYS } from "@/lib/trial";
 
 export const SUBSCRIPTION_PLAN_LABEL: Record<string, string> = {
-  TRIAL: "Trial (7 dias)",
-  BASIC: "Básico",
-  PRO: "Pro",
+  TRIAL: "Trial (7 dias · 1 PDV)",
+  BASIC: "Básico (1 PDV)",
+  PLUS: "Plus (até 3 PDVs)",
+  PRO: "Pro (até 3 PDVs)",
 };
 
 export const SUBSCRIPTION_STATUS_LABEL: Record<string, string> = {

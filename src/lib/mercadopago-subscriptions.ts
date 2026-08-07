@@ -82,7 +82,9 @@ async function mpFetch<T>(
 }
 
 export function planReason(plan: Exclude<SubscriptionPlan, "TRIAL">): string {
-  return plan === "PRO" ? `${APP_NAME} Pro` : `${APP_NAME} Básico`;
+  if (plan === "PLUS") return `${APP_NAME} Plus`;
+  if (plan === "PRO") return `${APP_NAME} Pro`;
+  return `${APP_NAME} Básico`;
 }
 
 /** Cria (ou recria) um plano mensal no Mercado Pago. */

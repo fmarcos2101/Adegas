@@ -34,4 +34,5 @@ Credenciais: plataforma `owner`/`owner123` (código da loja em branco); loja `de
 - Tailwind v4: `@import "tailwindcss"` em `globals.css`.
 - ESLint 9 flat: `eslint.config.mjs`.
 - Login exige **código da loja** (slug), exceto super-admin.
+- **Trial de 7 dias** (`TRIAL_DAYS` em `src/lib/trial.ts`): loja nova começa em TRIALING; ao expirar vira PAST_DUE e admin só acessa `/assinatura`.
 - Após mudar schema: `npx prisma generate` e reinicie o dev server.
