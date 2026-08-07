@@ -3,8 +3,20 @@ import { CadastroForm } from "./cadastro-form";
 import { APP_NAME, TRIAL_DAYS } from "@/lib/constants";
 import { getPlatformBilling } from "@/lib/platform-billing";
 
-export default async function CadastroPage() {
-  const billing = await getPlatformBilling();
+export default async function CadastroPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ plano?: string }>;
+}) {
+  const [billing, params] = await Promise.all([
+    getPlatformBilling(),
+    searchParams,
+  ]);
+  const planRaw = (params.plano ?? "BASIC").toUpperCase();
+  const defaultPlan =
+    planRaw === "PRO" || planRaw === "PLUS" || planRaw === "BASIC"
+      ? planRaw
+      : "BASIC";
 
   return (
     <div className="relative min-h-screen overflow-hidden">
@@ -18,7 +30,7 @@ export default async function CadastroPage() {
           className="mb-6 inline-flex items-center gap-2 text-sm font-medium text-zinc-700 hover:text-zinc-900"
         >
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-maf.png" alt="" className="h-7 w-auto" />
+          <img src="/logo-maf-icon.png" alt="" className="h-7 w-auto" />
           <span className="font-display tracking-[0.14em]">{APP_NAME}</span>
         </Link>
         <div className="rounded-xl border border-zinc-200 bg-white p-6 shadow-xl shadow-zinc-900/10 sm:p-8">
@@ -32,6 +44,7 @@ export default async function CadastroPage() {
             <CadastroForm
               basicPrice={billing.basicPrice}
               proPrice={billing.proPrice}
+              defaultPlan={defaultPlan}
             />
           </div>
         </div>

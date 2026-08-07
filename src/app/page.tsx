@@ -1,10 +1,9 @@
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
 import { LandingHeroArt } from "@/components/marketing/landing-hero-art";
+import { LandingPlans } from "@/components/marketing/landing-plans";
 import { SpecialistForm } from "@/components/marketing/specialist-form";
 import { APP_NAME, TRIAL_DAYS } from "@/lib/constants";
 import { getPlatformBilling } from "@/lib/platform-billing";
-import { formatBRL } from "@/lib/utils";
 import { getSession } from "@/lib/auth";
 
 export default async function LandingPage() {
@@ -65,42 +64,40 @@ export default async function LandingPage() {
         </nav>
       </header>
 
-      <section className="relative min-h-[100svh] overflow-hidden">
+      <section className="relative overflow-hidden px-6 pb-14 pt-28 sm:px-10 sm:pb-20 sm:pt-32">
         <LandingHeroArt />
-        <div className="relative z-10 flex min-h-[100svh] items-end px-6 pb-16 pt-28 sm:items-center sm:px-10 sm:pb-24 lg:max-w-[54%]">
+        <div className="relative z-10 mx-auto grid max-w-6xl gap-10 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] lg:items-start lg:gap-12">
           <div className="max-w-xl">
-            <p className="animate-maf-fade font-display text-4xl font-bold tracking-[0.12em] sm:text-5xl md:text-6xl">
+            <p className="animate-maf-fade font-display text-4xl font-bold tracking-[0.12em] sm:text-5xl">
               <span className="maf-chrome-text">{APP_NAME}</span>
             </p>
-            <h1 className="animate-maf-rise mt-5 font-display text-3xl font-semibold leading-[1.12] tracking-tight text-zinc-900 sm:text-4xl md:text-[2.65rem]">
+            <h1 className="animate-maf-rise mt-5 font-display text-3xl font-semibold leading-[1.12] tracking-tight text-zinc-900 sm:text-4xl">
               Seu PDV online, pronto para vender hoje.
             </h1>
             <p className="animate-maf-rise-delay mt-5 max-w-md text-base leading-relaxed text-zinc-600 sm:text-lg">
-              Estoque, caixa e relatórios em um só lugar — comece com{" "}
-              {TRIAL_DAYS} dias grátis, sem cartão na hora.
+              Escolha o plano na hora — os dois começam com {TRIAL_DAYS} dias
+              grátis, sem cartão.
             </p>
-            <div className="animate-maf-rise-delay-2 mt-8 flex flex-wrap items-center gap-3">
-              <Link
-                href="/cadastro"
-                className="maf-chrome-btn inline-flex items-center gap-2 rounded-md px-5 py-3 text-sm font-semibold"
-              >
-                Criar minha loja
-                <ArrowRight className="h-4 w-4" />
-              </Link>
+            <div className="animate-maf-rise-delay mt-8 flex flex-wrap items-center gap-4 text-sm">
               <Link
                 href="/login"
-                className="inline-flex items-center rounded-md px-5 py-3 text-sm font-medium text-zinc-700 ring-1 ring-zinc-300 transition hover:bg-white"
+                className="font-medium text-zinc-700 underline-offset-4 hover:text-zinc-900 hover:underline"
               >
                 Já tenho conta
               </Link>
               <a
                 href="#especialistas"
-                className="inline-flex items-center rounded-md px-5 py-3 text-sm font-medium text-zinc-600 underline-offset-4 hover:text-zinc-900 hover:underline"
+                className="font-medium text-zinc-600 underline-offset-4 hover:text-zinc-900 hover:underline"
               >
                 Falar com especialistas
               </a>
             </div>
           </div>
+
+          <LandingPlans
+            basicPrice={billing.basicPrice}
+            proPrice={billing.proPrice}
+          />
         </div>
       </section>
 
@@ -155,49 +152,6 @@ export default async function LandingPage() {
         </ul>
       </section>
 
-      <section
-        id="precos"
-        className="border-y border-zinc-200 bg-white px-6 py-20 sm:px-10"
-      >
-        <div className="mx-auto max-w-5xl">
-          <h2 className="font-display text-3xl font-semibold tracking-tight text-zinc-900">
-            Planos transparentes
-          </h2>
-          <p className="mt-3 max-w-xl text-zinc-600">
-            Comece no trial. Faça upgrade quando o movimento pedir mais caixas.
-          </p>
-          <div className="mt-12 grid gap-8 md:grid-cols-3">
-            <PricingBlock
-              name="Trial"
-              price="Grátis"
-              detail={`${TRIAL_DAYS} dias · 1 PDV`}
-              highlight={false}
-            />
-            <PricingBlock
-              name="Básico"
-              price={formatBRL(billing.basicPrice)}
-              detail="por mês · 1 PDV"
-              highlight
-            />
-            <PricingBlock
-              name="Plus / Pro"
-              price={formatBRL(billing.proPrice)}
-              detail="por mês · até 3 PDVs"
-              highlight={false}
-            />
-          </div>
-          <div className="mt-10">
-            <Link
-              href="/cadastro"
-              className="maf-chrome-btn inline-flex items-center gap-2 rounded-md px-5 py-3 text-sm font-semibold"
-            >
-              Começar teste grátis
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
-
       <footer className="mx-auto flex max-w-5xl flex-col gap-3 border-t border-zinc-200 px-6 py-10 text-sm text-zinc-500 sm:flex-row sm:items-center sm:justify-between sm:px-10">
         <span className="inline-flex items-center gap-2 font-display font-semibold tracking-[0.14em] text-zinc-800">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -211,41 +165,14 @@ export default async function LandingPage() {
           <Link href="/cadastro" className="hover:text-zinc-900">
             Cadastro
           </Link>
+          <a href="#precos" className="hover:text-zinc-900">
+            Planos
+          </a>
           <a href="#especialistas" className="hover:text-zinc-900">
             Especialistas
           </a>
         </div>
       </footer>
-    </div>
-  );
-}
-
-function PricingBlock({
-  name,
-  price,
-  detail,
-  highlight,
-}: {
-  name: string;
-  price: string;
-  detail: string;
-  highlight: boolean;
-}) {
-  return (
-    <div
-      className={
-        highlight
-          ? "border-l-2 border-zinc-800 pl-5"
-          : "border-l-2 border-zinc-200 pl-5"
-      }
-    >
-      <p className="font-display text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">
-        {name}
-      </p>
-      <p className="mt-2 font-display text-3xl font-bold tracking-tight text-zinc-900">
-        {price}
-      </p>
-      <p className="mt-1 text-sm text-zinc-600">{detail}</p>
     </div>
   );
 }

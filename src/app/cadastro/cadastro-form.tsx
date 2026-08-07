@@ -13,6 +13,7 @@ const initialState: CadastroState = {};
 type Props = {
   basicPrice: number;
   proPrice: number;
+  defaultPlan?: "BASIC" | "PLUS" | "PRO";
 };
 
 function slugify(value: string) {
@@ -25,7 +26,11 @@ function slugify(value: string) {
     .slice(0, 40);
 }
 
-export function CadastroForm({ basicPrice, proPrice }: Props) {
+export function CadastroForm({
+  basicPrice,
+  proPrice,
+  defaultPlan = "BASIC",
+}: Props) {
   const [state, formAction, pending] = useActionState(cadastroAction, initialState);
   const [slug, setSlug] = useState("");
   const [slugTouched, setSlugTouched] = useState(false);
@@ -132,22 +137,21 @@ export function CadastroForm({ basicPrice, proPrice }: Props) {
         {(
           [
             {
-              value: "BASIC",
+              value: "BASIC" as const,
               title: `Básico — ${formatBRL(basicPrice)}/mês`,
               detail: "1 PDV (caixa ativo)",
-              defaultChecked: true,
             },
             {
-              value: "PLUS",
+              value: "PLUS" as const,
               title: `Plus — ${formatBRL(proPrice)}/mês`,
               detail: "Até 3 PDVs",
             },
             {
-              value: "PRO",
+              value: "PRO" as const,
               title: `Pro — ${formatBRL(proPrice)}/mês`,
               detail: "Até 3 PDVs",
             },
-          ] as const
+          ]
         ).map((plan) => (
           <label
             key={plan.value}
@@ -157,7 +161,7 @@ export function CadastroForm({ basicPrice, proPrice }: Props) {
               type="radio"
               name="plan"
               value={plan.value}
-              defaultChecked={"defaultChecked" in plan && plan.defaultChecked}
+              defaultChecked={plan.value === defaultPlan}
               className="mt-1 accent-zinc-800"
             />
             <span>
