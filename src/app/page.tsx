@@ -201,7 +201,7 @@ export default async function LandingPage() {
       <footer className="mx-auto flex max-w-5xl flex-col gap-3 border-t border-zinc-200 px-6 py-10 text-sm text-zinc-500 sm:flex-row sm:items-center sm:justify-between sm:px-10">
         <span className="inline-flex items-center gap-2 font-display font-semibold tracking-[0.14em] text-zinc-800">
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo-maf.png" alt="" className="h-7 w-auto" />
+          <img src="/logo-maf-icon.png" alt="" className="h-7 w-auto" />
           {APP_NAME}
         </span>
         <div className="flex gap-4">
