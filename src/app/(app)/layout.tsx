@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation";
 import { format } from "date-fns";
-import { getSession } from "@/lib/auth";
+import { destroySession, getSession } from "@/lib/auth";
 import { AppShell } from "@/components/app-shell";
 import { SubscriptionGate } from "@/components/subscription-gate";
 import { TrialBanner } from "@/components/trial-banner";
@@ -21,11 +21,40 @@ export default async function AppLayout({
   if (!session) redirect("/login");
   if (!session.tenantId) redirect("/plataforma");
 
+  // Revalida contra o banco: um JWT emitido antes de o usuário ser
+  // desativado/excluído ou a loja ser suspensa não deve continuar
+  // liberando o acesso pelas próximas horas até expirar.
+  if (!session.supportMode) {
+    const [user, tenant] = await Promise.all([
+      prisma.user.findUnique({ where: { id: session.userId } }),
+      prisma.tenant.findUnique({ where: { id: session.tenantId } }),
+    ]);
+    if (
+      !user ||
+      !user.active ||
+      user.tenantId !== session.tenantId ||
+      user.role !== session.role ||
+      !tenant ||
+      !tenant.active
+    ) {
+      await destroySession();
+      redirect("/login");
+    }
+  }
+
   const subscription = session.supportMode
     ? await prisma.subscription.findUnique({
         where: { tenantId: session.tenantId },
       })
     : await expireTrialIfNeeded(session.tenantId);
+
+  if (
+    !session.supportMode &&
+    (subscription?.status === "SUSPENDED" || subscription?.status === "CANCELLED")
+  ) {
+    await destroySession();
+    redirect("/login");
+  }
 
   const needsPay =
     !session.supportMode && mustCompleteSubscription(subscription);

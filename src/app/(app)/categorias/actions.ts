@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/auth";
+import { requireActiveTenantAdmin } from "@/lib/session-guard";
 
 const schema = z.object({ name: z.string().min(2, "Nome muito curto") });
 
@@ -13,11 +13,12 @@ export async function createCategory(
   _prev: CategoryState,
   formData: FormData,
 ): Promise<CategoryState> {
-  const session = await getSession();
-  if (!session?.tenantId || session.role !== "ADMIN") {
-    return { error: "Não autorizado." };
+  let tenantId: string;
+  try {
+    tenantId = (await requireActiveTenantAdmin()).tenantId;
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Não autorizado." };
   }
-  const tenantId = session.tenantId;
 
   const parsed = schema.safeParse({ name: formData.get("name") });
   if (!parsed.success) {
@@ -37,9 +38,12 @@ export async function createCategory(
 }
 
 export async function deleteCategory(formData: FormData): Promise<void> {
-  const session = await getSession();
-  if (!session?.tenantId || session.role !== "ADMIN") return;
-  const tenantId = session.tenantId;
+  let tenantId: string;
+  try {
+    tenantId = (await requireActiveTenantAdmin()).tenantId;
+  } catch {
+    return;
+  }
 
   const id = String(formData.get("id") ?? "");
   if (!id) return;

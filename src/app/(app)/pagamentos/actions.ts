@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/auth";
+import { requireActiveTenantAdmin } from "@/lib/session-guard";
 import type { PaymentProviderType } from "@prisma/client";
 
 const settingsSchema = z.object({
@@ -28,9 +28,11 @@ function emptyToNull(value: string | undefined) {
 export async function savePaymentSettings(
   input: z.infer<typeof settingsSchema>,
 ): Promise<{ success?: boolean; error?: string }> {
-  const session = await getSession();
-  if (!session?.tenantId || session.role !== "ADMIN") {
-    return { error: "Não autorizado." };
+  let session: Awaited<ReturnType<typeof requireActiveTenantAdmin>>;
+  try {
+    session = await requireActiveTenantAdmin();
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Não autorizado." };
   }
   const tenantId = session.tenantId;
 
@@ -112,9 +114,12 @@ export async function savePaymentSettings(
 }
 
 export async function getPaymentSettingsForForm() {
-  const session = await getSession();
-  if (!session?.tenantId || session.role !== "ADMIN") return null;
-  const tenantId = session.tenantId;
+  let tenantId: string;
+  try {
+    tenantId = (await requireActiveTenantAdmin()).tenantId;
+  } catch {
+    return null;
+  }
 
   let row: Awaited<ReturnType<typeof prisma.paymentSettings.findUnique>> = null;
   try {

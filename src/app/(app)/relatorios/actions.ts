@@ -2,15 +2,17 @@
 
 import { revalidatePath } from "next/cache";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/auth";
+import { requireActiveTenantAdmin } from "@/lib/session-guard";
 
 export async function cancelSale(
   saleId: string,
   reason: string,
 ): Promise<{ success?: boolean; error?: string }> {
-  const session = await getSession();
-  if (!session?.tenantId || session.role !== "ADMIN") {
-    return { error: "Não autorizado." };
+  let session: Awaited<ReturnType<typeof requireActiveTenantAdmin>>;
+  try {
+    session = await requireActiveTenantAdmin();
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Não autorizado." };
   }
   const tenantId = session.tenantId;
   if (!reason.trim()) return { error: "Informe o motivo do cancelamento." };
