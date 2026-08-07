@@ -12,7 +12,13 @@
 
 ---
 
-## 1. Telas
+## 1. Telas (3 superfícies)
+
+### Visitante (público)
+
+- **/** — landing NexoPDV (apresentação, planos, CTA)
+- **/cadastro** — auto-cadastro: cria loja + admin, inicia trial de 7 dias e já entra no painel
+- **/login** — código da loja + usuário + senha (código vazio = dono da plataforma)
 
 ### Plataforma (super-admin)
 
@@ -24,8 +30,7 @@
 
 ### Loja (tenant)
 
-- **/login** — código da loja + usuário + senha
-- **/ (Dashboard)** — vendas do dia, faturamento, produtos, alertas de estoque
+- **/dashboard** — vendas do dia, faturamento, produtos, alertas de estoque
 - **/pdv** — PDV tela cheia
 - **/produtos**, **/categorias**, **/estoque**, **/relatorios**, **/pagamentos**, **/usuarios**, **/auditoria**, **/backup**
 
@@ -69,4 +74,8 @@ Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4 + Prisma 7 (SQLite
 
 ## 5. Identidade
 
-Produto genérico **NexoPDV** (sem marca de loja específica). Cores teal/slate. WhatsApp de suporte via `NEXT_PUBLIC_SUPPORT_WHATSAPP`.
+Produto genérico **NexoPDV** (sem marca de loja específica). Tipografia Syne + DM Sans, paleta teal/slate. WhatsApp de suporte via `NEXT_PUBLIC_SUPPORT_WHATSAPP`.
+
+## 6. Auto-cadastro
+
+`/cadastro` cria `Tenant` + `Subscription` (TRIALING) + usuário ADMIN via `src/lib/create-tenant.ts` (mesmo fluxo usado pelo painel `/plataforma`). Após o cadastro, a sessão é aberta e o usuário vai para `/dashboard`. O pagamento da assinatura fica em `/assinatura` (Mercado Pago), durante ou após o trial.

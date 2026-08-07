@@ -42,7 +42,7 @@ export default async function PdvLayout({
           </Button>
         </Link>
         {session.role === "ADMIN" ? (
-          <Link href="/" target="_blank">
+          <Link href="/dashboard" target="_blank">
             <Button
               variant="outline"
               size="sm"

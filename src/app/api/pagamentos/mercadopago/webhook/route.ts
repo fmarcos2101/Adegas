@@ -25,7 +25,7 @@ const notificationSchema = z.object({
 });
 
 function revalidateSalePaths() {
-  revalidatePath("/");
+  revalidatePath("/dashboard");
   revalidatePath("/produtos");
   revalidatePath("/estoque");
   revalidatePath("/relatorios");

@@ -95,7 +95,7 @@ export async function createProduct(
   }
 
   revalidatePath("/produtos");
-  revalidatePath("/");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 
@@ -164,7 +164,7 @@ export async function updateProduct(
   revalidatePath("/produtos");
   revalidatePath("/pdv");
   revalidatePath("/relatorios");
-  revalidatePath("/");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 
@@ -205,7 +205,7 @@ export async function zeroStock(id: string): Promise<ProductActionResult> {
 
   revalidatePath("/produtos");
   revalidatePath("/estoque");
-  revalidatePath("/");
+  revalidatePath("/dashboard");
   return { message: "Estoque zerado." };
 }
 
@@ -235,7 +235,7 @@ export async function deleteProduct(id: string): Promise<ProductActionResult> {
       }),
     ]);
     revalidatePath("/produtos");
-    revalidatePath("/");
+    revalidatePath("/dashboard");
     return {
       message: "Produto possui vendas: foi inativado para preservar o histórico.",
     };
@@ -256,6 +256,6 @@ export async function deleteProduct(id: string): Promise<ProductActionResult> {
 
   revalidatePath("/produtos");
   revalidatePath("/estoque");
-  revalidatePath("/");
+  revalidatePath("/dashboard");
   return { message: "Produto excluído." };
 }

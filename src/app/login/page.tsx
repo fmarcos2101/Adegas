@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState } from "react";
+import Link from "next/link";
 import { Store } from "lucide-react";
 import { loginAction, type LoginState } from "./actions";
 import { Button } from "@/components/ui/button";
@@ -31,12 +32,14 @@ export default function LoginPage() {
       <Card className="relative z-10 w-full max-w-sm border-teal-800/40 bg-white/95 shadow-2xl shadow-teal-950/50 backdrop-blur">
         <CardContent className="p-8">
           <div className="mb-6 flex flex-col items-center gap-2 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-teal-700 text-white shadow-lg shadow-teal-900/30">
-              <Store className="h-6 w-6" />
-            </div>
-            <h1 className="text-2xl font-extrabold tracking-tight text-slate-900">
-              {APP_NAME}
-            </h1>
+            <Link href="/" className="flex flex-col items-center gap-2">
+              <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-teal-700 text-white shadow-lg shadow-teal-900/30">
+                <Store className="h-6 w-6" />
+              </div>
+              <h1 className="font-display text-2xl font-extrabold tracking-tight text-slate-900">
+                {APP_NAME}
+              </h1>
+            </Link>
             <p className="text-sm text-slate-500">{APP_TAGLINE}</p>
           </div>
 
@@ -91,6 +94,16 @@ export default function LoginPage() {
               {pending ? "Entrando..." : "Entrar"}
             </Button>
           </form>
+
+          <p className="mt-5 text-center text-sm text-slate-500">
+            Novo por aqui?{" "}
+            <Link
+              href="/cadastro"
+              className="font-medium text-teal-800 hover:underline"
+            >
+              Criar loja grátis
+            </Link>
+          </p>
         </CardContent>
       </Card>
     </div>

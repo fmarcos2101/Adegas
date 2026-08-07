@@ -2,6 +2,14 @@
 
 :root {
   color-scheme: light;
+  --nexo-ink: #0b1220;
+  --nexo-slate: #1e293b;
+  --nexo-teal: #0f766e;
+  --nexo-teal-bright: #14b8a6;
+  --nexo-mist: #e8f5f3;
+  --nexo-sand: #f4f7f6;
+  --font-display: var(--font-syne), ui-sans-serif, sans-serif;
+  --font-body: var(--font-dm-sans), ui-sans-serif, sans-serif;
 }
 
 html,
@@ -10,5 +18,72 @@ body {
 }
 
 body {
-  @apply bg-neutral-100 text-neutral-900 antialiased;
+  @apply antialiased;
+  background: var(--nexo-sand);
+  color: var(--nexo-ink);
+  font-family: var(--font-body);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+@keyframes nexo-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes nexo-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes nexo-drift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-nexo-rise {
+  animation: nexo-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-nexo-rise-delay {
+  animation: nexo-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+}
+
+.animate-nexo-rise-delay-2 {
+  animation: nexo-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.24s both;
+}
+
+.animate-nexo-fade {
+  animation: nexo-fade 1.1s ease both;
+}
+
+.animate-nexo-drift {
+  animation: nexo-drift 7s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-nexo-rise,
+  .animate-nexo-rise-delay,
+  .animate-nexo-rise-delay-2,
+  .animate-nexo-fade,
+  .animate-nexo-drift {
+    animation: none;
+  }
 }

@@ -58,7 +58,7 @@ export async function cancelSale(
     });
 
     revalidatePath("/relatorios");
-    revalidatePath("/");
+    revalidatePath("/dashboard");
     revalidatePath("/produtos");
     revalidatePath("/estoque");
     return { success: true };

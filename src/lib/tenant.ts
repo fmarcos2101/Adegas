@@ -15,7 +15,7 @@ export async function requireSession(): Promise<SessionPayload> {
 /** Exige super-admin da plataforma (painel /plataforma). */
 export async function requirePlatformAdmin(): Promise<SessionPayload> {
   const session = await requireSession();
-  if (!session.isPlatformAdmin) redirect("/");
+  if (!session.isPlatformAdmin) redirect("/dashboard");
   return session;
 }
 

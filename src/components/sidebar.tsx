@@ -28,7 +28,7 @@ type NavItem = {
 };
 
 const items: NavItem[] = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard, adminOnly: true },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, adminOnly: true },
   { href: "/pdv", label: "Vendas (PDV)", icon: ShoppingCart, newTab: true },
   { href: "/produtos", label: "Produtos", icon: Package, adminOnly: true },
   { href: "/categorias", label: "Categorias", icon: Tags, adminOnly: true },
@@ -80,10 +80,7 @@ export function Sidebar({
       </div>
       <nav className="flex-1 space-y-1 p-3">
         {visible.map((item) => {
-          const active =
-            item.href === "/"
-              ? pathname === "/"
-              : pathname.startsWith(item.href);
+          const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
           const Icon = item.icon;
           const className = cn(
             "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",

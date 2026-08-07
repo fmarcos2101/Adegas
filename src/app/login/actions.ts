@@ -141,5 +141,5 @@ export async function loginAction(
     redirect("/assinatura");
   }
 
-  redirect(user.role === "ADMIN" ? "/" : "/pdv");
+  redirect(user.role === "ADMIN" ? "/dashboard" : "/pdv");
 }

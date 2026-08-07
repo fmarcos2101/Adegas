@@ -119,7 +119,7 @@ const saleSchema = z.object({
 export type FinalizeInput = z.input<typeof saleSchema>;
 
 function revalidateSalePaths() {
-  revalidatePath("/");
+  revalidatePath("/dashboard");
   revalidatePath("/produtos");
   revalidatePath("/estoque");
   revalidatePath("/relatorios");

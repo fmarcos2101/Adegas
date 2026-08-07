@@ -43,7 +43,7 @@ export async function restoreBackup(
       },
     });
 
-    revalidatePath("/");
+    revalidatePath("/dashboard");
     revalidatePath("/backup");
     return { success: true };
   } catch (err) {

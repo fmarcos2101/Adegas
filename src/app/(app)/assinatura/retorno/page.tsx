@@ -88,7 +88,7 @@ export default async function AssinaturaRetornoPage() {
         <Link href="/assinatura">
           <Button variant="outline">Ver assinatura</Button>
         </Link>
-        <Link href="/">
+        <Link href="/dashboard">
           <Button className="bg-teal-700 hover:bg-teal-600">Dashboard</Button>
         </Link>
       </div>

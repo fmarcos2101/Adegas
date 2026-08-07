@@ -96,7 +96,7 @@ export async function createMovement(
 
     revalidatePath("/estoque");
     revalidatePath("/produtos");
-    revalidatePath("/");
+    revalidatePath("/dashboard");
     return { success: true };
   } catch (err) {
     return {

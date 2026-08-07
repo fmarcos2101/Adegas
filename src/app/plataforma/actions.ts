@@ -2,24 +2,14 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import bcrypt from "bcryptjs";
-import { z } from "zod";
 import type { SubscriptionPlan, SubscriptionStatus } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { createSession } from "@/lib/auth";
 import { requirePlatformAdmin } from "@/lib/tenant";
-import { PLATFORM_SLUG } from "@/lib/constants";
-import { computeTrialEnd, TRIAL_DAYS } from "@/lib/trial";
+import { createTenantWithAdmin, slugSchema } from "@/lib/create-tenant";
+import { TRIAL_DAYS } from "@/lib/trial";
 
 export type PlatformActionState = { error?: string; success?: string };
-
-const slugSchema = z
-  .string()
-  .trim()
-  .toLowerCase()
-  .min(2, "Slug muito curto")
-  .max(40, "Slug muito longo")
-  .regex(/^[a-z0-9]+(?:-[a-z0-9]+)*$/, "Use apenas letras, números e hífens");
 
 export async function createTenantAction(
   _prev: PlatformActionState,
@@ -34,65 +24,27 @@ export async function createTenantAction(
   const plan = String(formData.get("plan") ?? "TRIAL") as SubscriptionPlan;
   const priceMonthly = Number(formData.get("priceMonthly") ?? 0);
 
-  if (!name) return { error: "Informe o nome da loja." };
   if (!slugParsed.success) {
     return { error: slugParsed.error.issues[0]?.message ?? "Slug inválido." };
   }
-  const slug = slugParsed.data;
-  if (slug === PLATFORM_SLUG) {
-    return { error: "Este código é reservado para a plataforma." };
-  }
-  if (!adminPass || adminPass.length < 4) {
-    return { error: "Defina uma senha inicial (mín. 4 caracteres)." };
-  }
 
-  const exists = await prisma.tenant.findUnique({ where: { slug } });
-  if (exists) return { error: "Já existe uma loja com este código." };
-
-  // Toda loja nova começa com teste grátis de 7 dias
-  const trialEnd = computeTrialEnd();
-  const passwordHash = await bcrypt.hash(adminPass, 10);
-  const intendedPlan = plan === "TRIAL" ? "TRIAL" : plan;
-
-  const tenant = await prisma.tenant.create({
-    data: {
-      name,
-      slug,
-      active: true,
-      subscription: {
-        create: {
-          plan: intendedPlan,
-          status: "TRIALING",
-          priceMonthly: Number.isFinite(priceMonthly) ? priceMonthly : 0,
-          trialEndsAt: trialEnd,
-          currentPeriodStart: new Date(),
-          currentPeriodEnd: trialEnd,
-          notes: `Teste grátis de ${TRIAL_DAYS} dias`,
-        },
-      },
-      paymentSettings: { create: { activeProvider: "GENERIC" } },
-      users: {
-        create: {
-          username: adminUser,
-          name: "Administrador",
-          password: passwordHash,
-          role: "ADMIN",
-        },
-      },
-    },
+  const result = await createTenantWithAdmin({
+    name,
+    slug: slugParsed.data,
+    adminUser,
+    adminPass,
+    plan,
+    priceMonthly,
+    actorUserId: session.userId,
+    auditAction: "TENANT_CREATE",
+    auditDetail: `Loja ${slugParsed.data} (${name}) criada pela plataforma`,
   });
 
-  await prisma.auditLog.create({
-    data: {
-      userId: session.userId,
-      action: "TENANT_CREATE",
-      detail: `Loja ${tenant.slug} (${tenant.name}) criada`,
-    },
-  });
+  if (!result.ok) return { error: result.error };
 
   revalidatePath("/plataforma");
   return {
-    success: `Loja "${tenant.name}" criada. Código: ${tenant.slug}. Teste grátis de ${TRIAL_DAYS} dias até ${trialEnd.toLocaleDateString("pt-BR")}.`,
+    success: `Loja "${result.tenant.name}" criada. Código: ${result.tenant.slug}. Teste grátis de ${TRIAL_DAYS} dias até ${result.trialEndsAt.toLocaleDateString("pt-BR")}.`,
   };
 }
 
@@ -189,7 +141,7 @@ export async function enterTenantSupportAction(tenantId: string) {
     },
   });
 
-  redirect("/");
+  redirect("/dashboard");
 }
 
 export async function exitSupportAction() {
