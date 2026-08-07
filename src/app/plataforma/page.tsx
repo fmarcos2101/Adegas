@@ -150,7 +150,7 @@ export default async function PlataformaPage() {
     <PlatformShell userName={session.name} activePath="/plataforma">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl font-semibold text-zinc-100">
+          <h1 className="font-display text-2xl font-semibold text-zinc-900">
             Seu painel — {APP_NAME}
           </h1>
           <p className="text-sm text-zinc-400">
@@ -169,7 +169,7 @@ export default async function PlataformaPage() {
                 <Icon className="h-5 w-5 text-zinc-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-zinc-100">{c.value}</div>
+                <div className="text-2xl font-bold text-zinc-900">{c.value}</div>
                 {c.hint ? (
                   <p className="mt-1 text-xs text-zinc-400">{c.hint}</p>
                 ) : null}
@@ -193,7 +193,7 @@ export default async function PlataformaPage() {
           />
           <AttentionCard
             title="Trial acabando (≤3 dias)"
-            icon={<Clock className="h-4 w-4 text-sky-300" />}
+            icon={<Clock className="h-4 w-4 text-sky-700" />}
             items={trialEnding.map((t) => ({
               id: t.id,
               label: t.name,
@@ -265,7 +265,7 @@ function AttentionCard({
               <li key={item.id}>
                 <Link
                   href={`/plataforma/lojas/${item.id}`}
-                  className="block text-sm font-medium text-zinc-100 hover:underline"
+                  className="block text-sm font-medium text-zinc-900 hover:underline"
                 >
                   {item.label}
                 </Link>

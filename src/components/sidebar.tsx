@@ -59,26 +59,19 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "fixed inset-y-0 left-0 z-50 flex w-60 shrink-0 flex-col border-r border-white/10 bg-[#0a0a0c] transition-transform duration-200 lg:static lg:translate-x-0",
+        "fixed inset-y-0 left-0 z-50 flex w-60 shrink-0 flex-col border-r border-zinc-200 bg-white transition-transform duration-200 lg:static lg:translate-x-0",
         mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
       )}
     >
-      <div className="relative flex h-20 items-center gap-2.5 overflow-hidden border-b border-white/10 px-4">
-        <div
-          className="absolute inset-0 opacity-60"
-          style={{
-            background:
-              "radial-gradient(ellipse at left, rgba(220,225,235,0.12), transparent 60%)",
-          }}
-          aria-hidden
-        />
-        <img src="/logo-maf.svg" alt="" width={42} height={26} className="relative h-7 w-auto" />
-        <span className="relative font-display text-sm font-bold leading-tight tracking-[0.12em] text-white">
+      <div className="maf-dark-bar flex h-20 items-center gap-2.5 border-b border-white/10 px-4">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img src="/logo-maf.png" alt="" className="h-9 w-auto object-contain" />
+        <span className="font-display text-sm font-bold leading-tight tracking-[0.12em] text-white">
           {APP_NAME}
           {storeName ? (
             <>
               <br />
-              <span className="font-sans text-[11px] font-medium normal-case tracking-normal text-zinc-400">
+              <span className="font-sans text-[11px] font-medium normal-case tracking-normal text-zinc-300">
                 {storeName}
               </span>
             </>
@@ -93,8 +86,8 @@ export function Sidebar({
           const className = cn(
             "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
             active && !item.newTab
-              ? "bg-white/10 text-white ring-1 ring-white/15"
-              : "text-zinc-400 hover:bg-white/5 hover:text-zinc-100",
+              ? "bg-zinc-900 text-white"
+              : "text-zinc-700 hover:bg-zinc-100",
           );
 
           if (item.newTab) {

@@ -280,3 +280,13 @@ model AuditLog {
   detail    String?
   createdAt DateTime @default(now())
 }
+
+/// Leads do formulário "Falar com especialistas" (landing).
+model ContactLead {
+  id        String   @id @default(cuid())
+  name      String
+  cpf       String
+  email     String
+  whatsapp  String
+  createdAt DateTime @default(now())
+}

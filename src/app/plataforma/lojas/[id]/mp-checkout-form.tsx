@@ -67,7 +67,7 @@ export function MpCheckoutForm({
       </CardHeader>
       <CardContent className="space-y-4">
         {!billingConfigured ? (
-          <p className="rounded-md bg-amber-950/40 px-3 py-2 text-sm text-amber-200">
+          <p className="rounded-md bg-amber-50 px-3 py-2 text-sm text-amber-800">
             Configure o Access Token em{" "}
             <a href="/plataforma/cobranca" className="underline">
               Plataforma → Cobrança
@@ -77,7 +77,7 @@ export function MpCheckoutForm({
         ) : null}
 
         {mpPreapprovalId ? (
-          <div className="rounded-md border border-white/10 bg-white/5 p-3 text-sm">
+          <div className="rounded-md border border-zinc-200 bg-zinc-50 p-3 text-sm">
             <p>
               Assinatura MP:{" "}
               <span className="font-mono text-xs">{mpPreapprovalId}</span>
@@ -87,9 +87,9 @@ export function MpCheckoutForm({
         ) : null}
 
         {checkoutUrl ? (
-          <div className="rounded-md border border-white/15 bg-white/5/60 p-3 text-sm">
-            <p className="font-medium text-zinc-100">Link de checkout</p>
-            <p className="mt-1 break-all font-mono text-xs text-zinc-100">
+          <div className="rounded-md border border-zinc-300 bg-zinc-50/60 p-3 text-sm">
+            <p className="font-medium text-zinc-900">Link de checkout</p>
+            <p className="mt-1 break-all font-mono text-xs text-zinc-900">
               {checkoutUrl}
             </p>
             <div className="mt-2 flex flex-wrap gap-2">
@@ -100,7 +100,7 @@ export function MpCheckoutForm({
                 href={checkoutUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-8 items-center rounded-md px-3 text-sm font-medium text-zinc-100 hover:underline"
+                className="inline-flex h-8 items-center rounded-md px-3 text-sm font-medium text-zinc-900 hover:underline"
               >
                 Abrir
               </a>
@@ -135,7 +135,7 @@ export function MpCheckoutForm({
                   ? defaultPlan
                   : "BASIC"
               }
-              className="flex h-9 w-full rounded-md border border-white/10 bg-white px-3 text-sm"
+              className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 text-sm"
             >
               <option value="BASIC">Básico (1 PDV)</option>
               <option value="PLUS">Plus (até 3 PDVs)</option>
@@ -159,12 +159,12 @@ export function MpCheckoutForm({
           </div>
 
           {state.error ? (
-            <p className="rounded-md bg-red-950/40 px-3 py-2 text-sm text-red-300 sm:col-span-2">
+            <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600 sm:col-span-2">
               {state.error}
             </p>
           ) : null}
           {state.success && !linkFromState ? (
-            <p className="break-all rounded-md bg-white/5 px-3 py-2 text-sm text-zinc-100 sm:col-span-2">
+            <p className="break-all rounded-md bg-zinc-50 px-3 py-2 text-sm text-zinc-900 sm:col-span-2">
               {state.success}
             </p>
           ) : null}
@@ -194,12 +194,12 @@ export function MpCheckoutForm({
             }}
           >
             {cancelState.error ? (
-              <p className="mb-2 rounded-md bg-red-950/40 px-3 py-2 text-sm text-red-300">
+              <p className="mb-2 rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
                 {cancelState.error}
               </p>
             ) : null}
             {cancelState.success ? (
-              <p className="mb-2 rounded-md bg-white/5 px-3 py-2 text-sm text-zinc-100">
+              <p className="mb-2 rounded-md bg-zinc-50 px-3 py-2 text-sm text-zinc-900">
                 {cancelState.success}
               </p>
             ) : null}
@@ -207,7 +207,7 @@ export function MpCheckoutForm({
               type="submit"
               variant="outline"
               disabled={cancelling}
-              className="border-amber-300 text-amber-100 hover:bg-amber-950/40"
+              className="border-amber-300 text-amber-900 hover:bg-amber-50"
             >
               {cancelling
                 ? "Cancelando..."

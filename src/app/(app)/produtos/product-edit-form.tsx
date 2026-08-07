@@ -60,7 +60,7 @@ export function ProductEditForm({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
       <div className="max-h-[90vh] w-full max-w-lg overflow-y-auto rounded-lg bg-white p-5 shadow-lg">
-        <h2 className="mb-4 text-lg font-semibold text-zinc-100">
+        <h2 className="mb-4 text-lg font-semibold text-zinc-900">
           Editar produto
         </h2>
         <form action={handleSubmit} className="grid grid-cols-1 gap-3 sm:grid-cols-2">

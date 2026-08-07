@@ -69,7 +69,7 @@ export function ProductActions({
         type="button"
         variant="ghost"
         size="sm"
-        className="text-red-300"
+        className="text-red-600"
         disabled={pending}
         onClick={handleDelete}
         title="Excluir produto"

@@ -61,12 +61,12 @@ export function AssinaturaCheckoutForm({
             Status: <strong>{currentStatus}</strong>
           </p>
           {trialExpired ? (
-            <p className="rounded-md bg-amber-950/40 px-3 py-2 text-amber-100">
+            <p className="rounded-md bg-amber-50 px-3 py-2 text-amber-900">
               Seu teste grátis de 7 dias acabou. Escolha um plano abaixo para
               continuar usando o sistema.
             </p>
           ) : trialDaysLeft > 0 && trialEndsLabel ? (
-            <p className="text-zinc-100">
+            <p className="text-zinc-900">
               Teste grátis: {trialDaysLeft}{" "}
               {trialDaysLeft === 1 ? "dia" : "dias"} restantes (até{" "}
               {trialEndsLabel}). Ao assinar agora, a 1ª cobrança fica para depois
@@ -100,7 +100,7 @@ export function AssinaturaCheckoutForm({
           ) : (
             <form action={formAction} className="space-y-4">
               <div className="grid gap-3 sm:grid-cols-3">
-                <label className="flex cursor-pointer flex-col rounded-md border border-white/10 p-4 has-[:checked]:border-zinc-400 has-[:checked]:bg-white/5">
+                <label className="flex cursor-pointer flex-col rounded-md border border-zinc-200 p-4 has-[:checked]:border-zinc-400 has-[:checked]:bg-zinc-50">
                   <span className="flex items-center gap-2 font-medium">
                     <input
                       type="radio"
@@ -116,7 +116,7 @@ export function AssinaturaCheckoutForm({
                   </span>
                   <span className="mt-1 text-xs text-zinc-500">1 PDV</span>
                 </label>
-                <label className="flex cursor-pointer flex-col rounded-md border border-white/10 p-4 has-[:checked]:border-zinc-400 has-[:checked]:bg-white/5">
+                <label className="flex cursor-pointer flex-col rounded-md border border-zinc-200 p-4 has-[:checked]:border-zinc-400 has-[:checked]:bg-zinc-50">
                   <span className="flex items-center gap-2 font-medium">
                     <input
                       type="radio"
@@ -134,7 +134,7 @@ export function AssinaturaCheckoutForm({
                     Até 3 PDVs
                   </span>
                 </label>
-                <label className="flex cursor-pointer flex-col rounded-md border border-white/10 p-4 has-[:checked]:border-zinc-400 has-[:checked]:bg-white/5">
+                <label className="flex cursor-pointer flex-col rounded-md border border-zinc-200 p-4 has-[:checked]:border-zinc-400 has-[:checked]:bg-zinc-50">
                   <span className="flex items-center gap-2 font-medium">
                     <input
                       type="radio"
@@ -169,12 +169,12 @@ export function AssinaturaCheckoutForm({
               </div>
 
               {state.error ? (
-                <p className="rounded-md bg-red-950/40 px-3 py-2 text-sm text-red-300">
+                <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
                   {state.error}
                 </p>
               ) : null}
               {state.success ? (
-                <p className="rounded-md bg-white/5 px-3 py-2 text-sm text-zinc-100">
+                <p className="rounded-md bg-zinc-50 px-3 py-2 text-sm text-zinc-900">
                   {state.success}
                 </p>
               ) : null}

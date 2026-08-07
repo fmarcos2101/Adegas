@@ -80,8 +80,8 @@ export function PaymentSettingsForm({
               className={
                 "cursor-pointer rounded-lg border p-4 transition-colors " +
                 (form.activeProvider === p.id
-                  ? "border-zinc-400 bg-white/5 ring-1 ring-zinc-400"
-                  : "border-white/10 hover:border-white/15")
+                  ? "border-zinc-400 bg-zinc-50 ring-1 ring-zinc-400"
+                  : "border-zinc-200 hover:border-zinc-300")
               }
             >
               <div className="flex items-start gap-2">
@@ -93,7 +93,7 @@ export function PaymentSettingsForm({
                   className="mt-1 accent-zinc-300"
                 />
                 <div>
-                  <p className="font-medium text-zinc-100">{p.label}</p>
+                  <p className="font-medium text-zinc-900">{p.label}</p>
                   <p className="text-xs text-zinc-400">{p.hint}</p>
                 </div>
               </div>
@@ -127,7 +127,7 @@ export function PaymentSettingsForm({
               placeholder="Chave do painel Suas integrações"
             />
             <p className="text-xs text-zinc-400">
-              Webhook: <code className="rounded bg-[var(--maf-ink)] px-1">{webhookUrls.mercadopago}</code>
+              Webhook: <code className="rounded bg-zinc-50 px-1">{webhookUrls.mercadopago}</code>
             </p>
           </CardContent>
         </Card>
@@ -151,7 +151,7 @@ export function PaymentSettingsForm({
               onChange={(v) => setField("sumupMerchantCode", v)}
             />
             <p className="text-xs text-zinc-400">
-              Webhook: <code className="rounded bg-[var(--maf-ink)] px-1">{webhookUrls.sumup}</code>
+              Webhook: <code className="rounded bg-zinc-50 px-1">{webhookUrls.sumup}</code>
             </p>
           </CardContent>
         </Card>
@@ -175,7 +175,7 @@ export function PaymentSettingsForm({
               onChange={(v) => setField("tonMerchantId", v)}
             />
             <p className="text-xs text-zinc-400">
-              Webhook: <code className="rounded bg-[var(--maf-ink)] px-1">{webhookUrls.ton}</code>
+              Webhook: <code className="rounded bg-zinc-50 px-1">{webhookUrls.ton}</code>
             </p>
           </CardContent>
         </Card>
@@ -194,7 +194,7 @@ export function PaymentSettingsForm({
               placeholder="sua-chave-secreta"
             />
             <p className="text-xs text-zinc-400">
-              Callback: <code className="rounded bg-[var(--maf-ink)] px-1">{webhookUrls.generic}</code>
+              Callback: <code className="rounded bg-zinc-50 px-1">{webhookUrls.generic}</code>
             </p>
           </CardContent>
         </Card>

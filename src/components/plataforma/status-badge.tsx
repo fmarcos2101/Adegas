@@ -1,11 +1,11 @@
 import { cn } from "@/lib/utils";
 
 const STATUS_STYLE: Record<string, string> = {
-  TRIALING: "bg-sky-950/60 text-sky-200 ring-sky-800/60",
-  ACTIVE: "bg-emerald-950/50 text-emerald-200 ring-emerald-800/50",
-  PAST_DUE: "bg-amber-950/50 text-amber-100 ring-amber-800/50",
-  SUSPENDED: "bg-red-950/50 text-red-200 ring-red-900/50",
-  CANCELLED: "bg-zinc-800/80 text-zinc-300 ring-zinc-700",
+  TRIALING: "bg-sky-50 text-sky-800 ring-sky-200",
+  ACTIVE: "bg-emerald-50 text-emerald-800 ring-emerald-200",
+  PAST_DUE: "bg-amber-50 text-amber-900 ring-amber-200",
+  SUSPENDED: "bg-red-50 text-red-800 ring-red-200",
+  CANCELLED: "bg-zinc-100 text-zinc-600 ring-zinc-200",
 };
 
 export function StatusBadge({

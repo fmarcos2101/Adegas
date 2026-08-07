@@ -58,7 +58,7 @@ export function SubscriptionForm({
               id="plan"
               name="plan"
               defaultValue={plan}
-              className="flex h-9 w-full rounded-md border border-white/10 bg-white px-3 text-sm"
+              className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 text-sm"
             >
               <option value="TRIAL">Trial (1 PDV)</option>
               <option value="BASIC">Básico (1 PDV)</option>
@@ -74,7 +74,7 @@ export function SubscriptionForm({
               id="status"
               name="status"
               defaultValue={status}
-              className="flex h-9 w-full rounded-md border border-white/10 bg-white px-3 text-sm"
+              className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 text-sm"
             >
               <option value="TRIALING">Em trial</option>
               <option value="ACTIVE">Ativa</option>
@@ -118,17 +118,17 @@ export function SubscriptionForm({
               defaultValue={notes}
               rows={3}
               placeholder="Pagamento via Pix, contrato, etc."
-              className="flex w-full rounded-md border border-white/10 bg-white px-3 py-2 text-sm"
+              className="flex w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm"
             />
           </div>
 
           {state.error ? (
-            <p className="rounded-md bg-red-950/40 px-3 py-2 text-sm text-red-300 sm:col-span-2">
+            <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600 sm:col-span-2">
               {state.error}
             </p>
           ) : null}
           {state.success ? (
-            <p className="rounded-md bg-white/5 px-3 py-2 text-sm text-zinc-100 sm:col-span-2">
+            <p className="rounded-md bg-zinc-50 px-3 py-2 text-sm text-zinc-900 sm:col-span-2">
               {state.success}
             </p>
           ) : null}

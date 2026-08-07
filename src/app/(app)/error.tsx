@@ -18,10 +18,10 @@ export default function AppError({
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center gap-4 p-6 text-center">
       <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
-        <AlertTriangle className="h-7 w-7 text-red-300" />
+        <AlertTriangle className="h-7 w-7 text-red-600" />
       </div>
       <div>
-        <h2 className="text-lg font-semibold text-zinc-100">
+        <h2 className="text-lg font-semibold text-zinc-900">
           Ocorreu um erro inesperado
         </h2>
         <p className="mt-1 max-w-md text-sm text-zinc-400">

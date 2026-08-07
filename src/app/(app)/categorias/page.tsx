@@ -17,7 +17,7 @@ export default async function CategoriasPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-zinc-100">Categorias</h1>
+        <h1 className="text-2xl font-semibold text-zinc-900">Categorias</h1>
         <p className="text-sm text-zinc-400">Organize os produtos</p>
       </div>
 
@@ -40,7 +40,7 @@ export default async function CategoriasPage() {
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/10 text-left text-zinc-400">
+                <tr className="border-b border-zinc-200 text-left text-zinc-400">
                   <th className="py-2">Nome</th>
                   <th className="py-2">Produtos</th>
                   <th className="py-2 text-right">Ações</th>
@@ -48,7 +48,7 @@ export default async function CategoriasPage() {
               </thead>
               <tbody>
                 {categories.map((c) => (
-                  <tr key={c.id} className="border-b border-white/5">
+                  <tr key={c.id} className="border-b border-zinc-100">
                     <td className="py-2 font-medium">{c.name}</td>
                     <td className="py-2 text-zinc-400">{c._count.products}</td>
                     <td className="py-2 text-right">

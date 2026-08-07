@@ -29,20 +29,20 @@ export default async function RelatoriosPage({
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-semibold text-zinc-100">Relatórios</h1>
+          <h1 className="text-2xl font-semibold text-zinc-900">Relatórios</h1>
           <p className="text-sm text-zinc-400">{report.label}</p>
         </div>
         <div className="flex items-center gap-2">
           <a
             href={`/api/relatorios/export?format=pdf&periodo=${periodo}`}
-            className="inline-flex h-9 items-center gap-2 rounded-md border border-neutral-300 bg-white px-3 text-sm font-medium hover:bg-[var(--maf-ink)]"
+            className="inline-flex h-9 items-center gap-2 rounded-md border border-neutral-300 bg-white px-3 text-sm font-medium hover:bg-zinc-50"
           >
             <FileText className="h-4 w-4" />
             PDF
           </a>
           <a
             href={`/api/relatorios/export?format=excel&periodo=${periodo}`}
-            className="inline-flex h-9 items-center gap-2 rounded-md border border-neutral-300 bg-white px-3 text-sm font-medium hover:bg-[var(--maf-ink)]"
+            className="inline-flex h-9 items-center gap-2 rounded-md border border-neutral-300 bg-white px-3 text-sm font-medium hover:bg-zinc-50"
           >
             <FileSpreadsheet className="h-4 w-4" />
             Excel
@@ -50,7 +50,7 @@ export default async function RelatoriosPage({
         </div>
       </div>
 
-      <div className="flex gap-1 rounded-lg border border-white/10 bg-white p-1">
+      <div className="flex gap-1 rounded-lg border border-zinc-200 bg-white p-1">
         {tabs.map((t) => (
           <Link
             key={t.value}
@@ -59,7 +59,7 @@ export default async function RelatoriosPage({
               "rounded-md px-4 py-1.5 text-sm font-medium transition-colors",
               periodo === t.value
                 ? "bg-emerald-600 text-white"
-                : "text-neutral-600 hover:bg-[var(--maf-ink)]",
+                : "text-neutral-600 hover:bg-zinc-50",
             )}
           >
             {t.label}
@@ -99,7 +99,7 @@ export default async function RelatoriosPage({
             <CardTitle>Lucro bruto</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-emerald-300">
+            <div className="text-2xl font-bold text-emerald-700">
               {formatBRL(report.grossProfit)}
             </div>
             <p className="mt-1 text-xs text-zinc-400">
@@ -146,7 +146,7 @@ export default async function RelatoriosPage({
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-white/10 text-left text-zinc-400">
+                  <tr className="border-b border-zinc-200 text-left text-zinc-400">
                     <th className="py-2">Produto</th>
                     <th className="py-2 text-right">Qtd</th>
                     <th className="py-2 text-right">Receita</th>
@@ -159,14 +159,14 @@ export default async function RelatoriosPage({
                 </thead>
                 <tbody>
                   {report.productProfits.map((p) => (
-                    <tr key={p.name} className="border-b border-white/5">
+                    <tr key={p.name} className="border-b border-zinc-100">
                       <td className="py-2 font-medium">{p.name}</td>
                       <td className="py-2 text-right text-zinc-400">
                         {p.quantity}
                       </td>
                       <td className="py-2 text-right">{formatBRL(p.revenue)}</td>
                       <td className="py-2 text-right">{formatBRL(p.cogs)}</td>
-                      <td className="py-2 text-right font-medium text-emerald-300">
+                      <td className="py-2 text-right font-medium text-emerald-700">
                         {formatBRL(p.grossProfit)}
                       </td>
                       <td className="py-2 text-right text-amber-700">
@@ -204,7 +204,7 @@ export default async function RelatoriosPage({
               <table className="w-full text-sm">
                 <tbody>
                   {report.byMethod.map((m) => (
-                    <tr key={m.method} className="border-b border-white/5">
+                    <tr key={m.method} className="border-b border-zinc-100">
                       <td className="py-2">{m.method}</td>
                       <td className="py-2 text-right font-medium">
                         {formatBRL(m.total)}
@@ -228,7 +228,7 @@ export default async function RelatoriosPage({
               <table className="w-full text-sm">
                 <tbody>
                   {report.topProducts.map((p) => (
-                    <tr key={p.name} className="border-b border-white/5">
+                    <tr key={p.name} className="border-b border-zinc-100">
                       <td className="py-2">{p.name}</td>
                       <td className="py-2 text-right text-zinc-400">
                         {p.quantity} un

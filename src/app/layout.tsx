@@ -20,7 +20,7 @@ const archivo = Archivo({
 export const metadata: Metadata = {
   title: `${APP_NAME} — PDV Online`,
   description: APP_DESCRIPTION,
-  icons: { icon: "/favicon.svg" },
+  icons: { icon: "/logo-maf.png" },
 };
 
 export default function RootLayout({
@@ -31,18 +31,7 @@ export default function RootLayout({
       <body>
         {children}
         <SupportButton />
-        <Toaster
-          theme="dark"
-          richColors
-          position="top-right"
-          toastOptions={{
-            style: {
-              background: "#121216",
-              border: "1px solid rgba(255,255,255,0.1)",
-              color: "#f3f5f8",
-            },
-          }}
-        />
+        <Toaster richColors position="top-right" />
       </body>
     </html>
   );

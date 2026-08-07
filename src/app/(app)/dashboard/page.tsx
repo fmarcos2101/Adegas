@@ -74,7 +74,7 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-zinc-100">Dashboard</h1>
+        <h1 className="text-2xl font-semibold text-zinc-900">Dashboard</h1>
         <p className="text-sm text-zinc-400">
           Visão geral — {session.tenantName}
         </p>
@@ -94,7 +94,7 @@ export default async function DashboardPage() {
                 />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-zinc-100">
+                <div className="text-2xl font-bold text-zinc-900">
                   {c.value}
                 </div>
                 {c.hint ? (
@@ -118,7 +118,7 @@ export default async function DashboardPage() {
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/10 text-left text-zinc-400">
+                <tr className="border-b border-zinc-200 text-left text-zinc-400">
                   <th className="py-2">Produto</th>
                   <th className="py-2">Estoque</th>
                   <th className="py-2">Mínimo</th>
@@ -126,9 +126,9 @@ export default async function DashboardPage() {
               </thead>
               <tbody>
                 {lowStockItems.map((p) => (
-                  <tr key={p.id} className="border-b border-white/5">
+                  <tr key={p.id} className="border-b border-zinc-100">
                     <td className="py-2">{p.name}</td>
-                    <td className="py-2 font-medium text-red-300">{p.stock}</td>
+                    <td className="py-2 font-medium text-red-600">{p.stock}</td>
                     <td className="py-2 text-zinc-400">{p.minStock}</td>
                   </tr>
                 ))}

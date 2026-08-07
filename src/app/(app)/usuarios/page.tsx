@@ -24,7 +24,7 @@ export default async function UsuariosPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-zinc-100">Usuários</h1>
+        <h1 className="text-2xl font-semibold text-zinc-900">Usuários</h1>
         <p className="text-sm text-zinc-400">
           Gestão de acessos · PDVs: {pdvUsage.used}/{pdvUsage.max} (
           {SUBSCRIPTION_PLAN_LABEL[pdvUsage.plan] ?? pdvUsage.plan})
@@ -51,7 +51,7 @@ export default async function UsuariosPage() {
         <CardContent>
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/10 text-left text-zinc-400">
+              <tr className="border-b border-zinc-200 text-left text-zinc-400">
                 <th className="py-2">Nome</th>
                 <th className="py-2">Usuário</th>
                 <th className="py-2">Perfil</th>
@@ -63,7 +63,7 @@ export default async function UsuariosPage() {
               {users.map((u) => {
                 const isSelf = u.id === session?.userId;
                 return (
-                  <tr key={u.id} className="border-b border-white/5 align-top">
+                  <tr key={u.id} className="border-b border-zinc-100 align-top">
                     <td className="py-3 font-medium">{u.name}</td>
                     <td className="py-3 text-zinc-400">{u.username}</td>
                     <td className="py-3">
@@ -71,11 +71,11 @@ export default async function UsuariosPage() {
                     </td>
                     <td className="py-3">
                       {u.active ? (
-                        <span className="rounded-full bg-emerald-950/40 px-2 py-0.5 text-xs text-emerald-300">
+                        <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700">
                           Ativo
                         </span>
                       ) : (
-                        <span className="rounded-full bg-[var(--maf-ink)] px-2 py-0.5 text-xs text-neutral-600">
+                        <span className="rounded-full bg-zinc-50 px-2 py-0.5 text-xs text-neutral-600">
                           Inativo
                         </span>
                       )}

@@ -53,7 +53,7 @@ export function CreateTenantForm() {
               required
             />
           </div>
-          <p className="rounded-md bg-white/5 px-3 py-2 text-xs text-zinc-100">
+          <p className="rounded-md bg-zinc-50 px-3 py-2 text-xs text-zinc-900">
             Toda loja nova ganha <strong>7 dias de teste grátis</strong>. Depois
             precisa assinar (Mercado Pago).
           </p>
@@ -65,7 +65,7 @@ export function CreateTenantForm() {
               <select
                 id="plan"
                 name="plan"
-                className="flex h-9 w-full rounded-md border border-white/10 bg-white px-3 text-sm"
+                className="flex h-9 w-full rounded-md border border-zinc-200 bg-white px-3 text-sm"
                 defaultValue="TRIAL"
               >
                 <option value="TRIAL">Trial → depois escolher</option>
@@ -90,12 +90,12 @@ export function CreateTenantForm() {
           </div>
 
           {state.error ? (
-            <p className="rounded-md bg-red-950/40 px-3 py-2 text-sm text-red-300">
+            <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
               {state.error}
             </p>
           ) : null}
           {state.success ? (
-            <p className="rounded-md bg-white/5 px-3 py-2 text-sm text-zinc-100">
+            <p className="rounded-md bg-zinc-50 px-3 py-2 text-sm text-zinc-900">
               {state.success}
             </p>
           ) : null}

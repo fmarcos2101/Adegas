@@ -33,7 +33,7 @@ export function CadastroForm({ basicPrice, proPrice }: Props) {
   return (
     <form action={formAction} className="space-y-5">
       <div className="space-y-1">
-        <label htmlFor="storeName" className="text-sm font-medium text-zinc-300">
+        <label htmlFor="storeName" className="text-sm font-medium text-zinc-800">
           Nome do negócio
         </label>
         <Input
@@ -49,7 +49,7 @@ export function CadastroForm({ basicPrice, proPrice }: Props) {
       </div>
 
       <div className="space-y-1">
-        <label htmlFor="slug" className="text-sm font-medium text-zinc-300">
+        <label htmlFor="slug" className="text-sm font-medium text-zinc-800">
           Código da loja (usado no login)
         </label>
         <Input
@@ -71,7 +71,7 @@ export function CadastroForm({ basicPrice, proPrice }: Props) {
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1 sm:col-span-2">
-          <label htmlFor="adminName" className="text-sm font-medium text-zinc-300">
+          <label htmlFor="adminName" className="text-sm font-medium text-zinc-800">
             Seu nome
           </label>
           <Input
@@ -83,7 +83,7 @@ export function CadastroForm({ basicPrice, proPrice }: Props) {
           />
         </div>
         <div className="space-y-1">
-          <label htmlFor="adminUser" className="text-sm font-medium text-zinc-300">
+          <label htmlFor="adminUser" className="text-sm font-medium text-zinc-800">
             Usuário admin
           </label>
           <Input
@@ -95,7 +95,7 @@ export function CadastroForm({ basicPrice, proPrice }: Props) {
           />
         </div>
         <div className="space-y-1">
-          <label htmlFor="adminPass" className="text-sm font-medium text-zinc-300">
+          <label htmlFor="adminPass" className="text-sm font-medium text-zinc-800">
             Senha
           </label>
           <Input
@@ -110,7 +110,7 @@ export function CadastroForm({ basicPrice, proPrice }: Props) {
         <div className="space-y-1 sm:col-span-2">
           <label
             htmlFor="adminPassConfirm"
-            className="text-sm font-medium text-zinc-300"
+            className="text-sm font-medium text-zinc-800"
           >
             Confirmar senha
           </label>
@@ -126,7 +126,7 @@ export function CadastroForm({ basicPrice, proPrice }: Props) {
       </div>
 
       <fieldset className="space-y-3">
-        <legend className="text-sm font-medium text-zinc-300">
+        <legend className="text-sm font-medium text-zinc-800">
           Plano após o teste ({TRIAL_DAYS} dias grátis agora)
         </legend>
         {(
@@ -151,17 +151,17 @@ export function CadastroForm({ basicPrice, proPrice }: Props) {
         ).map((plan) => (
           <label
             key={plan.value}
-            className="flex cursor-pointer items-start gap-3 rounded-md border border-white/10 bg-black/25 p-3 has-[:checked]:border-zinc-300 has-[:checked]:bg-white/5"
+            className="flex cursor-pointer items-start gap-3 rounded-md border border-zinc-200 bg-white p-3 has-[:checked]:border-zinc-800 has-[:checked]:bg-zinc-50"
           >
             <input
               type="radio"
               name="plan"
               value={plan.value}
               defaultChecked={"defaultChecked" in plan && plan.defaultChecked}
-              className="mt-1 accent-zinc-300"
+              className="mt-1 accent-zinc-800"
             />
             <span>
-              <span className="block font-semibold text-zinc-100">
+              <span className="block font-semibold text-zinc-900">
                 {plan.title}
               </span>
               <span className="text-xs text-zinc-500">{plan.detail}</span>
@@ -171,7 +171,7 @@ export function CadastroForm({ basicPrice, proPrice }: Props) {
       </fieldset>
 
       {state.error ? (
-        <p className="rounded-md bg-red-950/40 px-3 py-2 text-sm text-red-300">
+        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
           {state.error}
         </p>
       ) : null}
@@ -182,7 +182,7 @@ export function CadastroForm({ basicPrice, proPrice }: Props) {
 
       <p className="text-center text-sm text-zinc-500">
         Já tem conta?{" "}
-        <Link href="/login" className="font-medium text-zinc-200 hover:text-white">
+        <Link href="/login" className="font-medium text-zinc-800 hover:underline">
           Entrar
         </Link>
       </p>

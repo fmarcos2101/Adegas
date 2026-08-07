@@ -25,7 +25,7 @@ export default async function ProdutosPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-zinc-100">Produtos</h1>
+        <h1 className="text-2xl font-semibold text-zinc-900">Produtos</h1>
         <p className="text-sm text-zinc-400">
           Cadastre preço de custo e de venda para acompanhar o lucro
         </p>
@@ -46,7 +46,7 @@ export default async function ProdutosPage() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-white/10 text-left text-zinc-400">
+                  <tr className="border-b border-zinc-200 text-left text-zinc-400">
                     <th className="py-2">Produto</th>
                     <th className="py-2">Código</th>
                     <th className="py-2">Categoria</th>
@@ -66,14 +66,14 @@ export default async function ProdutosPage() {
                         key={p.id}
                         className={
                           p.active
-                            ? "border-b border-white/5"
-                            : "border-b border-white/5 opacity-50"
+                            ? "border-b border-zinc-100"
+                            : "border-b border-zinc-100 opacity-50"
                         }
                       >
                         <td className="py-2 font-medium">
                           {p.name}
                           {!p.active ? (
-                            <span className="ml-2 rounded-full bg-[var(--maf-ink)] px-2 py-0.5 text-xs text-zinc-400">
+                            <span className="ml-2 rounded-full bg-zinc-50 px-2 py-0.5 text-xs text-zinc-400">
                               inativo
                             </span>
                           ) : null}
@@ -95,8 +95,8 @@ export default async function ProdutosPage() {
                         <td
                           className={
                             margin >= 0
-                              ? "py-2 text-emerald-300"
-                              : "py-2 text-red-300"
+                              ? "py-2 text-emerald-700"
+                              : "py-2 text-red-600"
                           }
                         >
                           {margin.toFixed(1)}%
@@ -104,7 +104,7 @@ export default async function ProdutosPage() {
                         <td
                           className={
                             p.stock <= p.minStock
-                              ? "py-2 font-medium text-red-300"
+                              ? "py-2 font-medium text-red-600"
                               : "py-2"
                           }
                         >

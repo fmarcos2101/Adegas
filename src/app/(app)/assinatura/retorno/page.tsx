@@ -69,7 +69,7 @@ export default async function AssinaturaRetornoPage() {
   return (
     <div className="mx-auto flex max-w-lg flex-col items-center gap-4 py-12 text-center">
       <CheckCircle2 className="h-12 w-12 text-zinc-300" />
-      <h1 className="text-2xl font-semibold text-zinc-100">
+      <h1 className="text-2xl font-semibold text-zinc-900">
         Retorno do Mercado Pago
       </h1>
       <p className="text-sm text-zinc-400">

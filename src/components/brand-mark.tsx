@@ -4,25 +4,32 @@ import { cn } from "@/lib/utils";
 export function BrandMark({
   className,
   showWordmark = true,
-  size = 44,
+  size = 48,
+  light = false,
 }: {
   className?: string;
   showWordmark?: boolean;
   size?: number;
+  /** texto escuro (fundos claros) */
+  light?: boolean;
 }) {
   return (
     <span className={cn("inline-flex items-center gap-2.5", className)}>
-      {/* SVG local — <img> evita restrições do next/image com SVG */}
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/logo-maf.svg"
+        src="/logo-maf.png"
         alt={APP_NAME}
         width={size}
-        height={Math.round(size * 0.5)}
-        className="h-auto"
+        height={Math.round(size * 0.56)}
+        className="h-auto object-contain"
       />
       {showWordmark ? (
-        <span className="font-display text-lg font-bold tracking-[0.14em] text-white">
+        <span
+          className={cn(
+            "font-display text-lg font-bold tracking-[0.14em]",
+            light ? "text-zinc-900" : "text-white",
+          )}
+        >
           {APP_NAME}
         </span>
       ) : null}

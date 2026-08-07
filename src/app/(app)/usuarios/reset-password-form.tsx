@@ -40,12 +40,12 @@ export function ResetPasswordForm({
         {pending ? "..." : "Resetar"}
       </Button>
       {state.error ? (
-        <span className="w-full text-right text-xs text-red-300">
+        <span className="w-full text-right text-xs text-red-600">
           {state.error}
         </span>
       ) : null}
       {state.success ? (
-        <span className="w-full text-right text-xs text-zinc-200">
+        <span className="w-full text-right text-xs text-zinc-800">
           Senha atualizada
         </span>
       ) : null}

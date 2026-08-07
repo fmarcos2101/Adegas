@@ -35,7 +35,7 @@ export default async function AuditoriaPage({
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-zinc-100">Auditoria</h1>
+        <h1 className="text-2xl font-semibold text-zinc-900">Auditoria</h1>
         <p className="text-sm text-zinc-400">
           Histórico de ações sensíveis
         </p>
@@ -69,7 +69,7 @@ export default async function AuditoriaPage({
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-white/10 text-left text-zinc-400">
+                  <tr className="border-b border-zinc-200 text-left text-zinc-400">
                     <th className="py-2">Data</th>
                     <th className="py-2">Usuário</th>
                     <th className="py-2">Ação</th>
@@ -78,7 +78,7 @@ export default async function AuditoriaPage({
                 </thead>
                 <tbody>
                   {logs.map((l) => (
-                    <tr key={l.id} className="border-b border-white/5">
+                    <tr key={l.id} className="border-b border-zinc-100">
                       <td className="py-2 whitespace-nowrap text-zinc-400">
                         {format(l.createdAt, "dd/MM/yyyy HH:mm")}
                       </td>

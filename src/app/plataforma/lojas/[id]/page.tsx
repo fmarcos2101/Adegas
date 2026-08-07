@@ -91,13 +91,13 @@ export default async function TenantDetailPage({
         <div>
           <Link
             href="/plataforma"
-            className="mb-2 inline-flex items-center gap-1 text-sm text-zinc-200 hover:underline"
+            className="mb-2 inline-flex items-center gap-1 text-sm text-zinc-800 hover:underline"
           >
             <ArrowLeft className="h-4 w-4" />
             Voltar aos clientes
           </Link>
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="font-display text-2xl font-semibold text-zinc-100">
+            <h1 className="font-display text-2xl font-semibold text-zinc-900">
               {tenant.name}
             </h1>
             {sub ? (
@@ -224,7 +224,7 @@ export default async function TenantDetailPage({
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-white/10 text-left text-zinc-400">
+                <tr className="border-b border-zinc-200 text-left text-zinc-400">
                   <th className="py-2">Data</th>
                   <th className="py-2">Valor</th>
                   <th className="py-2">Status</th>
@@ -232,7 +232,7 @@ export default async function TenantDetailPage({
               </thead>
               <tbody>
                 {recentPayments.map((p) => (
-                  <tr key={p.id} className="border-b border-white/5">
+                  <tr key={p.id} className="border-b border-zinc-100">
                     <td className="py-2">
                       {p.createdAt.toLocaleString("pt-BR")}
                     </td>

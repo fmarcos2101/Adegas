@@ -81,7 +81,7 @@ export function TenantsTable({ rows }: { rows: TenantRow[] }) {
               className={
                 filter === f.key
                   ? "rounded-md bg-zinc-100 px-2.5 py-1 text-xs font-medium text-white"
-                  : "rounded-md bg-[var(--maf-ink)] px-2.5 py-1 text-xs font-medium text-zinc-400 hover:bg-slate-200"
+                  : "rounded-md bg-zinc-50 px-2.5 py-1 text-xs font-medium text-zinc-400 hover:bg-slate-200"
               }
             >
               {f.label}
@@ -96,7 +96,7 @@ export function TenantsTable({ rows }: { rows: TenantRow[] }) {
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-white/10 text-left text-zinc-400">
+              <tr className="border-b border-zinc-200 text-left text-zinc-400">
                 <th className="py-2 pr-3">Loja</th>
                 <th className="py-2 pr-3">Plano</th>
                 <th className="py-2 pr-3">Status</th>
@@ -107,9 +107,9 @@ export function TenantsTable({ rows }: { rows: TenantRow[] }) {
             </thead>
             <tbody>
               {filtered.map((t) => (
-                <tr key={t.id} className="border-b border-white/5 align-top">
+                <tr key={t.id} className="border-b border-zinc-100 align-top">
                   <td className="py-3 pr-3">
-                    <div className="font-medium text-zinc-100">{t.name}</div>
+                    <div className="font-medium text-zinc-900">{t.name}</div>
                     <div className="text-xs text-zinc-400">
                       código <span className="font-mono">{t.slug}</span>
                       {!t.active ? " · inativa" : ""}
@@ -118,7 +118,7 @@ export function TenantsTable({ rows }: { rows: TenantRow[] }) {
                       <div className="text-xs text-zinc-500">{t.payerEmail}</div>
                     ) : null}
                     {t.trialEndsAt && t.status === "TRIALING" ? (
-                      <div className="text-xs text-sky-300">
+                      <div className="text-xs text-sky-700">
                         Trial até{" "}
                         {new Date(t.trialEndsAt).toLocaleDateString("pt-BR")}
                       </div>
@@ -144,7 +144,7 @@ export function TenantsTable({ rows }: { rows: TenantRow[] }) {
                     <div className="flex flex-col items-start gap-1">
                       <Link
                         href={`/plataforma/lojas/${t.id}`}
-                        className="font-medium text-zinc-200 hover:underline"
+                        className="font-medium text-zinc-800 hover:underline"
                       >
                         Gerenciar
                       </Link>

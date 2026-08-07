@@ -1,29 +1,19 @@
 @import "tailwindcss";
 
 :root {
-  color-scheme: dark;
-  --maf-void: #050506;
-  --maf-ink: #0b0b0d;
-  --maf-panel: #121216;
-  --maf-panel-2: #1a1a20;
-  --maf-line: rgba(255, 255, 255, 0.1);
-  --maf-chrome: #d7dbe3;
-  --maf-chrome-bright: #f3f5f8;
-  --maf-steel: #8b909b;
-  --maf-mist: rgba(232, 236, 242, 0.08);
-  --maf-danger: #f07178;
-  --maf-ok: #7dcea0;
-  --maf-warn: #e6c07b;
+  color-scheme: light;
+  --maf-void: #0a0a0c;
+  --maf-ink: #111114;
+  --maf-chrome: #8a909c;
+  --maf-chrome-bright: #c5cad3;
+  --maf-steel: #6b7280;
+  --maf-surface: #f4f5f7;
+  --maf-card: #ffffff;
+  --maf-text: #141418;
+  --maf-muted: #5c6370;
+  --maf-line: rgba(20, 20, 24, 0.1);
   --font-display: var(--font-orbitron), ui-sans-serif, sans-serif;
   --font-body: var(--font-archivo), ui-sans-serif, sans-serif;
-}
-
-@theme inline {
-  --color-maf-void: var(--maf-void);
-  --color-maf-ink: var(--maf-ink);
-  --color-maf-panel: var(--maf-panel);
-  --color-maf-chrome: var(--maf-chrome);
-  --color-maf-steel: var(--maf-steel);
 }
 
 html,
@@ -33,8 +23,8 @@ body {
 
 body {
   @apply antialiased;
-  background: var(--maf-ink);
-  color: var(--maf-chrome-bright);
+  background: var(--maf-surface);
+  color: var(--maf-text);
   font-family: var(--font-body);
 }
 
@@ -43,7 +33,7 @@ body {
 }
 
 .maf-chrome-text {
-  background: linear-gradient(135deg, #ffffff 0%, #c5cad3 40%, #8e949e 55%, #f0f2f5 100%);
+  background: linear-gradient(135deg, #2a2d34 0%, #8a909c 35%, #1a1c22 55%, #b8bec8 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
@@ -54,24 +44,17 @@ body {
   color: #0a0a0c;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.65),
-    0 8px 24px rgba(0, 0, 0, 0.35);
+    0 8px 24px rgba(0, 0, 0, 0.12);
 }
 
 .maf-chrome-btn:hover {
-  filter: brightness(1.06);
+  filter: brightness(1.04);
 }
 
-.maf-panel {
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent),
-    var(--maf-panel);
-  border: 1px solid var(--maf-line);
-}
-
-.maf-smoke {
+.maf-dark-bar {
   background:
-    radial-gradient(ellipse 70% 50% at 50% 45%, rgba(255, 255, 255, 0.14), transparent 60%),
-    radial-gradient(ellipse 40% 30% at 70% 30%, rgba(200, 210, 230, 0.08), transparent 50%),
-    var(--maf-void);
+    radial-gradient(ellipse 60% 120% at 10% 50%, rgba(220, 225, 235, 0.12), transparent 55%),
+    #070708;
 }
 
 @keyframes maf-rise {
@@ -97,19 +80,10 @@ body {
 @keyframes maf-drift {
   0%,
   100% {
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
   50% {
-    transform: translateY(-10px) scale(1.02);
-  }
-}
-
-@keyframes maf-shimmer {
-  0% {
-    background-position: 0% 50%;
-  }
-  100% {
-    background-position: 100% 50%;
+    transform: translateY(-8px);
   }
 }
 
@@ -141,11 +115,4 @@ body {
   .animate-maf-drift {
     animation: none;
   }
-}
-
-/* Forms / cards on dark UI */
-input,
-textarea,
-select {
-  color-scheme: dark;
 }

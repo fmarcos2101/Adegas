@@ -74,7 +74,7 @@ export default async function PlataformaAtividadePage() {
       activePath="/plataforma/atividade"
     >
       <div>
-        <h1 className="font-display text-2xl font-semibold text-zinc-100">
+        <h1 className="font-display text-2xl font-semibold text-zinc-900">
           Atividade
         </h1>
         <p className="text-sm text-zinc-400">
@@ -97,14 +97,14 @@ export default async function PlataformaAtividadePage() {
                   className="flex flex-col gap-1 py-3 sm:flex-row sm:items-start sm:justify-between"
                 >
                   <div>
-                    <p className="text-sm font-medium text-zinc-100">
+                    <p className="text-sm font-medium text-zinc-900">
                       {ACTION_LABEL[log.action] ?? log.action}
                       {log.tenant ? (
                         <>
                           {" · "}
                           <Link
                             href={`/plataforma/lojas/${log.tenant.id}`}
-                            className="text-zinc-200 hover:underline"
+                            className="text-zinc-800 hover:underline"
                           >
                             {log.tenant.name}
                           </Link>

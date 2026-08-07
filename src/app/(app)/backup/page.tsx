@@ -6,7 +6,7 @@ export default function BackupPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-zinc-100">Backup</h1>
+        <h1 className="text-2xl font-semibold text-zinc-900">Backup</h1>
         <p className="text-sm text-zinc-400">
           Gere um backup do banco de dados ou restaure a partir de um arquivo
         </p>

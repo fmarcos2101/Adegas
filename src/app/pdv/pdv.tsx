@@ -310,9 +310,9 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       {awaiting ? (
         <div className="lg:col-span-3">
-          <Card className="border-amber-300 bg-amber-950/40">
+          <Card className="border-amber-300 bg-amber-50">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-amber-100">
+              <CardTitle className="flex items-center gap-2 text-amber-900">
                 <Loader2 className="h-5 w-5 animate-spin" />
                 Aguardando pagamento na máquina
               </CardTitle>
@@ -320,25 +320,25 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
             <CardContent className="space-y-4">
               <div className="grid gap-3 sm:grid-cols-3">
                 <div>
-                  <p className="text-xs uppercase text-amber-200/70">Referência</p>
+                  <p className="text-xs uppercase text-amber-800/70">Referência</p>
                   <p className="font-mono text-2xl font-bold tracking-widest text-amber-950">
                     {awaiting.paymentRef}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase text-amber-200/70">Valor</p>
+                  <p className="text-xs uppercase text-amber-800/70">Valor</p>
                   <p className="text-2xl font-bold text-emerald-800">
                     {formatBRL(awaiting.total)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase text-amber-200/70">Forma</p>
+                  <p className="text-xs uppercase text-amber-800/70">Forma</p>
                   <p className="text-lg font-semibold text-amber-950">
                     {methods.find((m) => m.value === awaiting.method)?.label}
                   </p>
                 </div>
               </div>
-              <p className="text-sm text-amber-100/80">
+              <p className="text-sm text-amber-900/80">
                 {awaiting.provider === "mercadopago" ? (
                   <>
                     A ordem foi enviada para <strong>{terminal.label}</strong>. O cliente paga na
@@ -413,7 +413,7 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
                   autoComplete="off"
                 />
                 {predictions.length > 0 ? (
-                  <ul className="absolute z-10 mt-1 max-h-72 w-full overflow-auto rounded-md border border-white/10 bg-white shadow-lg">
+                  <ul className="absolute z-10 mt-1 max-h-72 w-full overflow-auto rounded-md border border-zinc-200 bg-white shadow-lg">
                     {predictions.map((p, i) => (
                       <li key={p.id}>
                         <button
@@ -425,14 +425,14 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
                           onMouseEnter={() => setHighlight(i)}
                           className={
                             "flex w-full items-center justify-between px-3 py-2 text-left text-sm " +
-                            (i === highlight ? "bg-emerald-950/40" : "hover:bg-white/5")
+                            (i === highlight ? "bg-emerald-50" : "hover:bg-zinc-50")
                           }
                         >
                           <span className="font-medium text-neutral-800">{p.name}</span>
                           <span className="flex items-center gap-3 text-xs">
                             <span
                               className={
-                                p.stock <= 0 ? "text-red-300" : "text-zinc-400"
+                                p.stock <= 0 ? "text-red-600" : "text-zinc-400"
                               }
                             >
                               estoque: {p.stock}
@@ -475,7 +475,7 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
               <div className="max-h-64 overflow-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-white/10 text-left text-zinc-400">
+                    <tr className="border-b border-zinc-200 text-left text-zinc-400">
                       <th className="py-2">Produto</th>
                       <th className="py-2 text-right">Preço</th>
                       <th className="py-2 text-right">Estoque</th>
@@ -483,13 +483,13 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
                   </thead>
                   <tbody>
                     {filteredStock.map((p) => (
-                      <tr key={p.id} className="border-b border-white/5">
+                      <tr key={p.id} className="border-b border-zinc-100">
                         <td className="py-2">{p.name}</td>
                         <td className="py-2 text-right">{formatBRL(p.price)}</td>
                         <td
                           className={
                             p.stock <= 0
-                              ? "py-2 text-right font-medium text-red-300"
+                              ? "py-2 text-right font-medium text-red-600"
                               : "py-2 text-right"
                           }
                         >
@@ -514,7 +514,7 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
             ) : (
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-white/10 text-left text-zinc-400">
+                  <tr className="border-b border-zinc-200 text-left text-zinc-400">
                     <th className="py-2">Produto</th>
                     <th className="py-2">Preço</th>
                     <th className="py-2 text-center">Qtd</th>
@@ -524,7 +524,7 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
                 </thead>
                 <tbody>
                   {cart.map((l) => (
-                    <tr key={l.id} className="border-b border-white/5">
+                    <tr key={l.id} className="border-b border-zinc-100">
                       <td className="py-2 font-medium">{l.name}</td>
                       <td className="py-2">{formatBRL(l.price)}</td>
                       <td className="py-2">
@@ -617,7 +617,7 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
               </select>
             </div>
             {canUseTerminal ? (
-              <label className="flex cursor-pointer items-center gap-2 rounded-md border border-white/15 bg-white/5 px-3 py-2 text-sm">
+              <label className="flex cursor-pointer items-center gap-2 rounded-md border border-zinc-300 bg-zinc-50 px-3 py-2 text-sm">
                 <input
                   type="checkbox"
                   checked={useTerminal}
@@ -625,13 +625,13 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
                   onChange={(e) => setUseTerminal(e.target.checked)}
                   className="h-4 w-4 accent-zinc-300"
                 />
-                <CreditCard className="h-4 w-4 text-zinc-200" />
+                <CreditCard className="h-4 w-4 text-zinc-800" />
                 <span>Cobrar na maquininha ({terminal.label})</span>
               </label>
             ) : null}
-            <div className="flex justify-between border-t border-white/10 pt-3 text-lg font-bold">
+            <div className="flex justify-between border-t border-zinc-200 pt-3 text-lg font-bold">
               <span>Total</span>
-              <span className="text-emerald-300">{formatBRL(total)}</span>
+              <span className="text-emerald-700">{formatBRL(total)}</span>
             </div>
             <Button
               type="button"

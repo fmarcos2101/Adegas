@@ -48,7 +48,7 @@ export default async function AssinaturaPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-zinc-100">Assinatura</h1>
+        <h1 className="text-2xl font-semibold text-zinc-900">Assinatura</h1>
         <p className="text-sm text-zinc-400">
           Teste grátis de 7 dias · cobrança automática via Mercado Pago
         </p>
@@ -81,8 +81,8 @@ export default async function AssinaturaPage() {
       />
 
       {payments.length > 0 ? (
-        <div className="rounded-lg border border-white/10 bg-white p-4">
-          <h2 className="mb-3 text-sm font-semibold text-zinc-100">
+        <div className="rounded-lg border border-zinc-200 bg-white p-4">
+          <h2 className="mb-3 text-sm font-semibold text-zinc-900">
             Histórico de cobranças
           </h2>
           <table className="w-full text-sm">
@@ -95,7 +95,7 @@ export default async function AssinaturaPage() {
             </thead>
             <tbody>
               {payments.map((p) => (
-                <tr key={p.id} className="border-b border-white/5">
+                <tr key={p.id} className="border-b border-zinc-100">
                   <td className="py-2">
                     {format(p.createdAt, "dd/MM/yyyy HH:mm")}
                   </td>

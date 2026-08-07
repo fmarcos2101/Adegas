@@ -17,8 +17,8 @@ export function TrialBanner({
     <div
       className={
         urgent
-          ? "flex flex-wrap items-center justify-between gap-3 border-b border-amber-500/30 bg-amber-950/40 px-4 py-2.5 text-sm text-amber-100"
-          : "flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-zinc-200"
+          ? "flex flex-wrap items-center justify-between gap-3 border-b border-amber-200 bg-amber-50 px-4 py-2.5 text-sm text-amber-950"
+          : "flex flex-wrap items-center justify-between gap-3 border-b border-zinc-200 bg-zinc-100 px-4 py-2.5 text-sm text-zinc-800"
       }
     >
       <div className="flex items-center gap-2">
@@ -33,7 +33,7 @@ export function TrialBanner({
       </div>
       <Link
         href="/assinatura"
-        className="shrink-0 font-medium text-white underline-offset-2 hover:underline"
+        className="shrink-0 font-medium text-zinc-900 underline-offset-2 hover:underline"
       >
         Ver planos
       </Link>

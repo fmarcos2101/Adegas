@@ -112,20 +112,20 @@ export function BillingSettingsForm({
             </div>
           </div>
 
-          <div className="rounded-md border border-white/10 bg-white/5 p-3 text-sm">
-            <p className="font-medium text-zinc-200">URL do webhook</p>
+          <div className="rounded-md border border-zinc-200 bg-zinc-50 p-3 text-sm">
+            <p className="font-medium text-zinc-800">URL do webhook</p>
             <p className="mt-1 break-all font-mono text-xs text-zinc-400">
               {webhookUrl}
             </p>
           </div>
 
           {state.error ? (
-            <p className="rounded-md bg-red-950/40 px-3 py-2 text-sm text-red-300">
+            <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
               {state.error}
             </p>
           ) : null}
           {state.success ? (
-            <p className="rounded-md bg-white/5 px-3 py-2 text-sm text-zinc-100">
+            <p className="rounded-md bg-zinc-50 px-3 py-2 text-sm text-zinc-900">
               {state.success}
             </p>
           ) : null}
