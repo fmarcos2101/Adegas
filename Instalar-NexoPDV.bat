@@ -3,11 +3,11 @@ if /i not "%~1"=="__run__" cmd /k "%~f0" __run__ & exit /b
 
 setlocal EnableExtensions
 cd /d "%~dp0"
-title Adega Faixa Rosa - Instalacao
+title NexoPDV - Instalacao
 
 echo(
 echo ========================================
-echo   ADEGA FAIXA ROSA - Instalacao
+echo   NEXOPDV - Instalacao
 echo ========================================
 echo(
 
@@ -15,7 +15,7 @@ echo %CD% | findstr /i "onedrive" >nul
 if errorlevel 1 goto avisopasta_ok
 echo [AVISO] Esta pasta esta dentro do OneDrive.
 echo O OneDrive pode travar arquivos durante a instalacao e causar erros.
-echo Recomendado: copie esta pasta para C:\Adega e instale de la.
+echo Recomendado: copie esta pasta para C:\NexoPDV e instale de la.
 echo(
 :avisopasta_ok
 
@@ -58,7 +58,7 @@ echo ========================================
 echo(
 echo Login: admin / admin123  ou  caixa / caixa123
 echo(
-echo Agora execute: Iniciar-Adega.bat
+echo Agora execute: Iniciar-NexoPDV.bat
 echo(
 goto fim_ok
 

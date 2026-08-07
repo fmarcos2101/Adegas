@@ -1,100 +1,85 @@
-# Sistema para Distribuidora de Bebidas — Documentação e Plano de Trabalho
+# MAF PDV — Documentação do sistema SaaS
 
-## Credenciais de acesso (ambiente de desenvolvimento)
+## Credenciais (desenvolvimento)
 
-- **Administrador:** usuário `admin` / senha `admin123`
-- **Operador de Caixa:** usuário `caixa` / senha `caixa123`
+| Acesso | Código da loja | Usuário | Senha |
+|--------|----------------|---------|-------|
+| Dono da plataforma | *(vazio)* | `owner` | `owner123` |
+| Admin da loja demo | `demo` | `admin` | `admin123` |
+| Caixa da loja demo | `demo` | `caixa` | `caixa123` |
 
-> O seed inicial cria **apenas os usuários** `admin` e `caixa`. Produtos e categorias devem ser cadastrados pelo painel. Para zerar o banco: `npm run db:reset`.
-
----
-
-## 1. Estrutura das telas
-
-- **/login** — Tela de login (usuário/senha), redireciona conforme perfil.
-- **/ (Dashboard)** — Visão geral: vendas do dia, faturamento do mês, produtos ativos, alertas de estoque mínimo, acesso rápido.
-- **/vendas** — PDV (Ponto de Venda): busca por código de barras (leitor USB), carrinho, quantidade, desconto, formas de pagamento, finalizar/cancelar venda.
-- **/produtos** *(admin)* — CRUD de produtos: nome, código de barras, categoria, marca, custo, preço, estoque, estoque mínimo.
-- **/categorias** *(admin)* — CRUD de categorias.
-- **/marcas** *(admin)* — CRUD de marcas.
-- **/estoque** *(admin)* — Movimentações de estoque (entrada, saída, ajuste) e histórico.
-- **/relatorios** *(admin)* — Relatórios diários/semanais/mensais de vendas, estoque, lucro estimado, formas de pagamento. Exportação em PDF/Excel.
-- **/usuarios** *(admin)* — CRUD de usuários (admin/operador de caixa).
-- **/auditoria** *(admin)* — Histórico de ações sensíveis (login, cancelamento de vendas, ajustes de estoque etc.).
-- **/backup** *(admin)* — Geração de backup do banco (.db) e restauração.
-- **/pagamentos** *(admin)* — Documentação da API de integração com máquina de cartão.
-
-Layout: barra lateral fixa com navegação (visível apenas conforme perfil), cabeçalho com usuário logado/logout, área de conteúdo principal.
+> O seed cria a loja `demo` (trial 14 dias), usuários da loja e o super-admin `owner`. Use `npm run db:reset` para zerar produtos/vendas.
 
 ---
 
-## 2. Estrutura do banco de dados (Prisma Schema)
+## 1. Telas (3 superfícies)
 
-Já criada em `prisma/schema.prisma`, usando SQLite (arquivo `prisma/dev.db`) através do adapter `@prisma/adapter-better-sqlite3`, preparado para troca futura para PostgreSQL (basta alterar o `datasource` e o adapter).
+### Visitante (público)
 
-Modelos principais:
-- **User** — usuários (admin/caixa), senha com hash (bcrypt).
-- **Category / Brand** — categorias e marcas de produtos.
-- **Product** — produtos com código de barras, custo, preço, estoque atual e mínimo.
-- **StockMovement** — histórico de entrada/saída/ajuste/venda de estoque.
-- **Sale / SaleItem / Payment** — vendas, itens vendidos e formas de pagamento (dinheiro, PIX, débito, crédito — apenas registro).
-- **AuditLog** — auditoria de ações (login/logout, cancelamento de venda, ajustes etc.).
-- **BackupLog** — histórico de backups/restaurações realizados.
+- **/** — landing MAF PDV (apresentação, planos, CTA)
+- **/cadastro** — auto-cadastro: cria loja + admin, inicia trial de 7 dias e já entra no painel
+- Landing: seção **Falar com especialistas** (nome, WhatsApp, CPF, e-mail) → leads em `/plataforma/leads`
+- **/login** — código da loja + usuário + senha (código vazio = dono da plataforma)
 
----
+### Plataforma (super-admin — você)
 
-## 3. Etapas de desenvolvimento
+- **/plataforma** — KPIs, filas de atenção (atrasadas / trial acabando / suspensas), busca e filtros de clientes, suspender/reativar, criar loja
+- **/plataforma/cobranca** — Access Token Mercado Pago, preços Básico/Pro, URL do webhook
+- **/plataforma/atividade** — auditoria das ações do dono (suporte, suspensões, checkouts…)
+- **/plataforma/lojas/[id]** — perfil/notas internas, assinatura, **gerar/copiar link MP**, usuários (criar/resetar/**excluir**), **Entrar como suporte**, **apagar conta** (zona de perigo)
+- **Cancelar assinatura** → bloqueia acesso, **mantém** dados da loja
+- **Apagar conta** (só owner) → remove a loja e **todo** o banco dela (cascade)
+- **/assinatura** (admin da loja) — plano, checkout Mercado Pago e histórico de cobranças
+- Webhook: `POST /api/assinaturas/mercadopago/webhook` (tópicos `subscription_preapproval` e `subscription_authorized_payment`)
 
-- [x] **Etapa 0 — Base do projeto:** Next.js + TypeScript + Tailwind + shadcn/ui, Prisma + SQLite configurado, schema do banco criado e migrado, seed inicial (usuários, categorias, marcas, produtos de exemplo).
-- [x] **Etapa 1 — Autenticação:** login com sessão via cookie assinado (JWT), middleware de proteção de rotas por perfil (admin/caixa), logout, tela de login estilizada.
-- [x] **Etapa 2 — Layout principal:** sidebar dinâmica por perfil, cabeçalho com usuário, dashboard inicial com indicadores.
-- [x] **Etapa 3 — Cadastro de Produtos e Categorias:** CRUD completo com validações (Zod), tabela com busca/filtro, formulários shadcn/ui.
-- [x] **Etapa 4 — Estoque:** entrada, saída, ajuste manual, histórico de movimentações, alerta visual de estoque mínimo.
-- [x] **Etapa 5 — Tela de Vendas (PDV):** leitura via leitor USB (input de código de barras com foco automático), carrinho, quantidade, desconto, múltiplas formas de pagamento, finalização com baixa automática de estoque.
-- [x] **Etapa 6 — Cancelamento de venda:** com motivo obrigatório, reposição de estoque e registro em auditoria.
-- [x] **Etapa 7 — Relatórios:** vendas diárias/semanais/mensais, estoque, lucro estimado, formas de pagamento — com tabelas.
-- [x] **Etapa 8 — Exportação:** PDF (jspdf/jspdf-autotable) e Excel (exceljs) dos relatórios.
-- [x] **Etapa 9 — Gestão de usuários:** CRUD de usuários (somente admin), ativar/inativar, com proteção contra remover o próprio usuário ou o último admin ativo.
-- [x] **Etapa 10 — Auditoria:** tela de consulta de logs de ações sensíveis, com busca por texto.
-- [x] **Etapa 11 — Backup e Restauração:** exportar/importar arquivo do banco SQLite pela interface.
-- [x] **Etapa 12 — Polimento final:** responsividade, atalhos de teclado no PDV, integrações de pagamento, suporte WhatsApp.
+### Loja (tenant)
 
-### Detalhes da Etapa 12
-
-- [x] **Responsividade:** sidebar colapsável com menu hamburger em telas pequenas (`AppShell` + drawer mobile).
-- [x] **Atalhos de teclado no PDV:** `F8` foco na busca, `F2` finalizar venda, `F4` limpar carrinho, `F3` consultar estoque.
-- [x] **Identidade visual:** favicon e metadados atualizados para "Adega Faixa Rosa".
-- [x] **Integração Mercado Pago Point:** Orders API + webhook + liberação manual.
-- [x] **Suporte WhatsApp:** botão flutuante (?) em todas as telas.
-- [ ] **Testes automatizados:** pendente (fluxo login → venda → cancelamento).
-- [ ] **Merge na `main`:** código ainda na branch `cursor/fase-final-polimento-6f4f` (PR #3).
+- **/dashboard** — vendas do dia, faturamento, produtos, alertas de estoque
+- **/pdv** — PDV tela cheia
+- **/produtos**, **/categorias**, **/estoque**, **/relatorios**, **/pagamentos**, **/usuarios**, **/auditoria**, **/backup**
 
 ---
 
-## 4. Maquininhas de cartão
+## 2. Multi-tenancy e assinatura
 
-Configure em **Pagamentos** (`/pagamentos`) — escolha o provedor e cole as credenciais **quando tiver a API**.
+Modelos novos:
 
-| Provedor | Status | Como funciona |
-|----------|--------|---------------|
-| **API genérica** | Pronto | Callback HTTP com referência da venda |
-| **Mercado Pago Point** | Pronto (cole token depois) | Order automática na maquininha + webhook |
-| **SumUp** | Webhook pronto (cole API depois) | Referência no PDV + confirmação via webhook |
-| **Ton (Stone)** | Webhook pronto (cole API depois) | Referência no PDV + confirmação via webhook |
+- **Tenant** — loja/cliente (`name`, `slug` único usado no login, `active`)
+- **Subscription** — `plan` (TRIAL/BASIC/PRO), `status` (TRIALING/ACTIVE/PAST_DUE/SUSPENDED/CANCELLED), `priceMonthly`, períodos
+- Dados de negócio (`User`, `Product`, `Category`, `Sale`, `StockMovement`, `PaymentSettings`, `AuditLog`) carregam `tenantId`
 
-Sem maquininha configurada: use dinheiro, PIX ou **Liberar manualmente** no PDV.
+Login bloqueia lojas inativas ou com assinatura SUSPENDED/CANCELLED.
+
+**Teste grátis:** toda loja nova ganha **7 dias** (`TRIALING` + `trialEndsAt`). Banner no painel mostra os dias restantes. Ao expirar, vira `PAST_DUE`: caixa é bloqueado; admin só acessa `/assinatura` para assinar. No checkout Mercado Pago, o trial restante é enviado como `free_trial` (1ª cobrança depois do teste).
+
+**Limite de PDVs:** cada usuário **Caixa** ativo = 1 PDV. Admin não consome vaga.
+- Trial / Básico → **1 PDV**
+- Plus / Pro → **até 3 PDVs**
+
+**Suporte (owner):** em `/plataforma/lojas/[id]` pode criar usuário, ativar/inativar e **resetar senha**.
+
+O dono da plataforma pode entrar em qualquer loja em **modo suporte** (papel ADMIN na loja) e voltar ao painel.
 
 ---
 
-## 5. Projeto concluído
+## 3. Papéis
 
-MVP entregue. Pendências opcionais pós-entrega:
+- **SUPER (isPlatformAdmin)** — `/plataforma`; pode suporte em lojas
+- **ADMIN da loja** — painel completo da própria loja
+- **CAIXA** — `/pdv` e `/estoque` (só ENTRADA)
 
-- Testes automatizados
-- Deploy com HTTPS (webhook em produção)
-- Credenciais reais das maquininhas em Pagamentos
-- Troca de senhas padrão
+---
 
-> **Nota:** o cadastro de Marcas (Etapa 3) não foi implementado como entidade separada — a categorização de produtos ficou centralizada em Categorias.
+## 4. Stack
 
-Cada etapa será desenvolvida e apresentada para revisão antes de avançar para a próxima.
+Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4 + Prisma 7 (SQLite). Proteção de rotas em `src/proxy.ts`.
+
+---
+
+## 5. Identidade
+
+**MAF PDV** — tipografia Orbitron + Archivo, paleta chrome metálico / preto / fumaça. Logo em `public/logo-maf.png`. WhatsApp de suporte via `NEXT_PUBLIC_SUPPORT_WHATSAPP`.
+
+## 6. Auto-cadastro
+
+`/cadastro` cria `Tenant` + `Subscription` (TRIALING) + usuário ADMIN via `src/lib/create-tenant.ts` (mesmo fluxo usado pelo painel `/plataforma`). Após o cadastro, a sessão é aberta e o usuário vai para `/dashboard`. O pagamento da assinatura fica em `/assinatura` (Mercado Pago), durante ou após o trial.

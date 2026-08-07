@@ -19,7 +19,8 @@ export async function createMovement(
   formData: FormData,
 ): Promise<StockState> {
   const session = await getSession();
-  if (!session) return { error: "Não autorizado." };
+  if (!session?.tenantId) return { error: "Não autorizado." };
+  const tenantId = session.tenantId;
 
   const parsed = schema.safeParse({
     productId: formData.get("productId"),
@@ -32,7 +33,6 @@ export async function createMovement(
   }
   const { productId, type, quantity, reason } = parsed.data;
 
-  // Operador de caixa só pode acrescentar (entrada); nunca dar saída/ajuste.
   if (session.role !== "ADMIN" && type !== "ENTRADA") {
     return {
       error: "Apenas administradores podem registrar saída ou ajuste de estoque.",
@@ -48,7 +48,9 @@ export async function createMovement(
 
   try {
     await prisma.$transaction(async (tx) => {
-      const product = await tx.product.findUnique({ where: { id: productId } });
+      const product = await tx.product.findFirst({
+        where: { id: productId, tenantId },
+      });
       if (!product) throw new Error("Produto não encontrado.");
 
       let delta = 0;
@@ -72,11 +74,18 @@ export async function createMovement(
         data: { stock: newStock },
       });
       await tx.stockMovement.create({
-        data: { productId, type, quantity: delta, reason: reason ?? null },
+        data: {
+          tenantId,
+          productId,
+          type,
+          quantity: delta,
+          reason: reason ?? null,
+        },
       });
       if (type === "AJUSTE") {
         await tx.auditLog.create({
           data: {
+            tenantId,
             userId: session.userId,
             action: "AJUSTE_ESTOQUE",
             detail: `${product.name}: ${product.stock} -> ${newStock}${reason ? ` (${reason})` : ""}`,
@@ -87,7 +96,7 @@ export async function createMovement(
 
     revalidatePath("/estoque");
     revalidatePath("/produtos");
-    revalidatePath("/");
+    revalidatePath("/dashboard");
     return { success: true };
   } catch (err) {
     return {

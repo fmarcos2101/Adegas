@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { prisma } from "@/lib/prisma";
 import { getPaymentSettings } from "@/lib/payment-settings";
 import {
   completePendingSaleByMpOrderId,
@@ -24,7 +25,7 @@ const notificationSchema = z.object({
 });
 
 function revalidateSalePaths() {
-  revalidatePath("/");
+  revalidatePath("/dashboard");
   revalidatePath("/produtos");
   revalidatePath("/estoque");
   revalidatePath("/relatorios");
@@ -89,7 +90,33 @@ export async function POST(request: Request) {
   const dataId = (queryDataId ?? bodyDataId)?.toString() ?? null;
   const type = queryType ?? (parsed.success ? parsed.data.type : undefined);
 
-  const settings = await getPaymentSettings();
+  if (!dataId) {
+    return NextResponse.json({ ok: true, message: "Notificação recebida." });
+  }
+
+  if (type && type !== "order") {
+    return NextResponse.json({ ok: true, ignored: true, type });
+  }
+
+  const sale = await prisma.sale.findUnique({ where: { mpOrderId: dataId } });
+  let settings = sale ? await getPaymentSettings(sale.tenantId) : null;
+
+  if (!settings) {
+    const row = await prisma.paymentSettings.findFirst({
+      where: {
+        activeProvider: "MERCADOPAGO",
+        mpAccessToken: { not: null },
+      },
+    });
+    if (row) settings = await getPaymentSettings(row.tenantId);
+  }
+
+  if (!settings) {
+    return NextResponse.json(
+      { error: "Mercado Pago não configurado em nenhuma loja." },
+      { status: 503 },
+    );
+  }
 
   const validSignature = validateMercadoPagoWebhookSignature(
     request.headers.get("x-signature"),
@@ -101,17 +128,12 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Assinatura inválida." }, { status: 401 });
   }
 
-  if (!dataId) {
-    return NextResponse.json({ ok: true, message: "Notificação recebida." });
-  }
-
-  if (type && type !== "order") {
-    return NextResponse.json({ ok: true, ignored: true, type });
-  }
-
   try {
     if (!settings.mpAccessToken) {
-      return NextResponse.json({ error: "Mercado Pago não configurado." }, { status: 503 });
+      return NextResponse.json(
+        { error: "Mercado Pago não configurado." },
+        { status: 503 },
+      );
     }
     const result = await processMercadoPagoOrder(dataId, {
       accessToken: settings.mpAccessToken,

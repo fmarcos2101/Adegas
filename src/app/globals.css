@@ -2,6 +2,18 @@
 
 :root {
   color-scheme: light;
+  --maf-void: #0a0a0c;
+  --maf-ink: #111114;
+  --maf-chrome: #8a909c;
+  --maf-chrome-bright: #c5cad3;
+  --maf-steel: #6b7280;
+  --maf-surface: #f4f5f7;
+  --maf-card: #ffffff;
+  --maf-text: #141418;
+  --maf-muted: #5c6370;
+  --maf-line: rgba(20, 20, 24, 0.1);
+  --font-display: var(--font-orbitron), ui-sans-serif, sans-serif;
+  --font-body: var(--font-archivo), ui-sans-serif, sans-serif;
 }
 
 html,
@@ -10,5 +22,97 @@ body {
 }
 
 body {
-  @apply bg-neutral-100 text-neutral-900 antialiased;
+  @apply antialiased;
+  background: var(--maf-surface);
+  color: var(--maf-text);
+  font-family: var(--font-body);
+}
+
+.font-display {
+  font-family: var(--font-display);
+}
+
+.maf-chrome-text {
+  background: linear-gradient(135deg, #2a2d34 0%, #8a909c 35%, #1a1c22 55%, #b8bec8 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.maf-chrome-btn {
+  background: linear-gradient(180deg, #f4f6f9 0%, #c4c9d2 48%, #9aa1ad 100%);
+  color: #0a0a0c;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.65),
+    0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+.maf-chrome-btn:hover {
+  filter: brightness(1.04);
+}
+
+.maf-dark-bar {
+  background:
+    radial-gradient(ellipse 60% 120% at 10% 50%, rgba(220, 225, 235, 0.12), transparent 55%),
+    #070708;
+}
+
+@keyframes maf-rise {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes maf-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes maf-drift {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+.animate-maf-rise {
+  animation: maf-rise 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.animate-maf-rise-delay {
+  animation: maf-rise 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+}
+
+.animate-maf-rise-delay-2 {
+  animation: maf-rise 0.95s cubic-bezier(0.22, 1, 0.36, 1) 0.24s both;
+}
+
+.animate-maf-fade {
+  animation: maf-fade 1.1s ease both;
+}
+
+.animate-maf-drift {
+  animation: maf-drift 8s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-maf-rise,
+  .animate-maf-rise-delay,
+  .animate-maf-rise-delay-2,
+  .animate-maf-fade,
+  .animate-maf-drift {
+    animation: none;
+  }
 }

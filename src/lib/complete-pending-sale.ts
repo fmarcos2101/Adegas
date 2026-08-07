@@ -42,6 +42,7 @@ export async function completePendingSale(
 
   await tx.auditLog.create({
     data: {
+      tenantId: sale.tenantId,
       userId: options.userId ?? null,
       action: options.auditAction,
       detail: options.auditDetail,

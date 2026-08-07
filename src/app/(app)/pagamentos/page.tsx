@@ -1,4 +1,5 @@
 import { headers } from "next/headers";
+import { getSession } from "@/lib/auth";
 import { getPaymentSettingsForForm } from "./actions";
 import { PaymentSettingsForm } from "./payment-settings-form";
 import { CopyBlock } from "./copy-block";
@@ -12,12 +13,15 @@ import { MERCADOPAGO_WEBHOOK_PATH } from "@/lib/mercadopago-point";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default async function PagamentosPage() {
+  const session = await getSession();
+  if (!session?.tenantId) return null;
+
   const hdrs = await headers();
   const host = hdrs.get("host");
   const proto = hdrs.get("x-forwarded-proto") ?? "http";
   const baseUrl = host ? `${proto}://${host}` : `http://localhost:${getTerminalApiPort()}`;
 
-  const settings = await getPaymentSettings();
+  const settings = await getPaymentSettings(session.tenantId);
   const formData = await getPaymentSettingsForForm();
   const active = settings.activeProvider;
   const configured = isProviderConfigured(settings, active);
@@ -37,7 +41,7 @@ export default async function PagamentosPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-neutral-900">Pagamentos — Maquininhas</h1>
+        <h1 className="text-2xl font-bold text-zinc-900">Pagamentos — Maquininhas</h1>
         <p className="mt-1 text-sm text-neutral-600">
           Escolha a maquininha e cole as credenciais quando tiver. Até lá, use{" "}
           <strong>dinheiro/PIX</strong> ou <strong>liberação manual</strong> no PDV.
@@ -76,7 +80,7 @@ export default async function PagamentosPage() {
         <CardHeader>
           <CardTitle>Como funciona cada maquininha</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4 text-sm text-neutral-700">
+        <CardContent className="space-y-4 text-sm text-zinc-300">
           <div>
             <p className="font-medium">Mercado Pago Point</p>
             <p className="text-neutral-600">

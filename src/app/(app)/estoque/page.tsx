@@ -12,27 +12,31 @@ const typeLabels: Record<string, string> = {
 };
 
 export default async function EstoquePage() {
-  const [products, movements, session] = await Promise.all([
+  const session = await getSession();
+  if (!session?.tenantId) return null;
+  const tenantId = session.tenantId;
+
+  const [products, movements] = await Promise.all([
     prisma.product.findMany({
-      where: { active: true },
+      where: { tenantId, active: true },
       orderBy: { name: "asc" },
     }),
     prisma.stockMovement.findMany({
+      where: { tenantId },
       orderBy: { createdAt: "desc" },
       take: 50,
       include: { product: { select: { name: true } } },
     }),
-    getSession(),
   ]);
-  const canManage = session?.role === "ADMIN";
+  const canManage = session.role === "ADMIN";
 
   const lowStock = products.filter((p) => p.stock <= p.minStock);
 
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-neutral-900">Estoque</h1>
-        <p className="text-sm text-neutral-500">
+        <h1 className="text-2xl font-semibold text-zinc-900">Estoque</h1>
+        <p className="text-sm text-zinc-400">
           Movimentações e histórico de estoque
         </p>
       </div>
@@ -79,12 +83,12 @@ export default async function EstoquePage() {
         </CardHeader>
         <CardContent>
           {movements.length === 0 ? (
-            <p className="text-sm text-neutral-500">Nenhuma movimentação.</p>
+            <p className="text-sm text-zinc-400">Nenhuma movimentação.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-neutral-200 text-left text-neutral-500">
+                  <tr className="border-b border-zinc-200 text-left text-zinc-400">
                     <th className="py-2">Data</th>
                     <th className="py-2">Produto</th>
                     <th className="py-2">Tipo</th>
@@ -94,13 +98,13 @@ export default async function EstoquePage() {
                 </thead>
                 <tbody>
                   {movements.map((m) => (
-                    <tr key={m.id} className="border-b border-neutral-100">
-                      <td className="py-2 text-neutral-500">
+                    <tr key={m.id} className="border-b border-zinc-100">
+                      <td className="py-2 text-zinc-400">
                         {format(m.createdAt, "dd/MM/yyyy HH:mm")}
                       </td>
                       <td className="py-2 font-medium">
                         {m.product?.name ?? (
-                          <span className="italic text-neutral-400">
+                          <span className="italic text-zinc-500">
                             Produto removido
                           </span>
                         )}
@@ -115,7 +119,7 @@ export default async function EstoquePage() {
                       >
                         {m.quantity > 0 ? `+${m.quantity}` : m.quantity}
                       </td>
-                      <td className="py-2 text-neutral-500">{m.reason ?? "—"}</td>
+                      <td className="py-2 text-zinc-400">{m.reason ?? "—"}</td>
                     </tr>
                   ))}
                 </tbody>

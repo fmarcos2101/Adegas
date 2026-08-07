@@ -3,11 +3,11 @@ if /i not "%~1"=="__run__" cmd /k "%~f0" __run__ & exit /b
 
 setlocal EnableExtensions
 cd /d "%~dp0"
-title Adega Faixa Rosa - Reparar
+title NexoPDV - Reparar
 
 echo(
 echo ========================================
-echo   ADEGA FAIXA ROSA - Reparar sistema
+echo   NEXOPDV - Reparar sistema
 echo ========================================
 echo(
 echo Use se aparecer "Internal Server Error" ou a pagina nao carregar
@@ -20,7 +20,7 @@ if not exist "node_modules\" goto sem_install
 goto liberaporta
 
 :sem_install
-echo [ERRO] Rode Instalar-Adega.bat ou npm install primeiro.
+echo [ERRO] Rode Instalar-NexoPDV.bat ou npm install primeiro.
 goto fim_erro
 
 :liberaporta
@@ -51,7 +51,7 @@ echo ========================================
 echo   Reparo concluido!
 echo ========================================
 echo(
-echo Execute Iniciar-Adega.bat ou: npm start
+echo Execute Iniciar-NexoPDV.bat ou: npm start
 echo Login: admin / admin123
 echo(
 goto fim_ok

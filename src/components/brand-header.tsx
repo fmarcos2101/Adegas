@@ -1,28 +1,33 @@
+import { BrandMark } from "@/components/brand-mark";
+import { APP_NAME } from "@/lib/constants";
+
 export function BrandHeader({
   subtitle,
+  brandName,
   children,
 }: {
   subtitle?: string;
+  brandName?: string;
   children?: React.ReactNode;
 }) {
   return (
-    <header className="relative h-20 shrink-0 overflow-hidden border-b border-pink-900/40">
-      <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('/hero-adega.png')" }}
-        aria-hidden
-      />
-      <div
-        className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/65 to-pink-900/30"
-        aria-hidden
-      />
+    <header className="maf-dark-bar relative h-20 shrink-0 overflow-hidden border-b border-white/10">
       <div className="relative z-10 flex h-full items-center justify-between px-6">
         <div className="leading-tight">
-          <p className="text-xl font-extrabold uppercase tracking-tight text-white drop-shadow">
-            Adega <span className="text-pink-400">Faixa Rosa</span>
-          </p>
+          {brandName && brandName !== APP_NAME ? (
+            <>
+              <p className="font-display text-xs font-semibold tracking-[0.2em] text-zinc-400">
+                {APP_NAME}
+              </p>
+              <p className="text-lg font-semibold tracking-tight text-white">
+                {brandName}
+              </p>
+            </>
+          ) : (
+            <BrandMark size={52} />
+          )}
           {subtitle ? (
-            <p className="text-xs font-medium text-pink-100/90">{subtitle}</p>
+            <p className="mt-0.5 text-xs font-medium text-zinc-400">{subtitle}</p>
           ) : null}
         </div>
         <div className="flex items-center gap-3">{children}</div>

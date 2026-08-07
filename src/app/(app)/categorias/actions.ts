@@ -14,7 +14,10 @@ export async function createCategory(
   formData: FormData,
 ): Promise<CategoryState> {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") return { error: "Não autorizado." };
+  if (!session?.tenantId || session.role !== "ADMIN") {
+    return { error: "Não autorizado." };
+  }
+  const tenantId = session.tenantId;
 
   const parsed = schema.safeParse({ name: formData.get("name") });
   if (!parsed.success) {
@@ -22,23 +25,33 @@ export async function createCategory(
   }
 
   const exists = await prisma.category.findUnique({
-    where: { name: parsed.data.name },
+    where: { tenantId_name: { tenantId, name: parsed.data.name } },
   });
   if (exists) return { error: "Já existe uma categoria com esse nome." };
 
-  await prisma.category.create({ data: { name: parsed.data.name } });
+  await prisma.category.create({
+    data: { tenantId, name: parsed.data.name },
+  });
   revalidatePath("/categorias");
   return { success: true };
 }
 
 export async function deleteCategory(formData: FormData): Promise<void> {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") return;
+  if (!session?.tenantId || session.role !== "ADMIN") return;
+  const tenantId = session.tenantId;
 
   const id = String(formData.get("id") ?? "");
   if (!id) return;
 
-  const count = await prisma.product.count({ where: { categoryId: id } });
+  const category = await prisma.category.findFirst({
+    where: { id, tenantId },
+  });
+  if (!category) return;
+
+  const count = await prisma.product.count({
+    where: { categoryId: id, tenantId },
+  });
   if (count > 0) {
     return;
   }

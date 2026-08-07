@@ -5,6 +5,10 @@ import { getSession } from "@/lib/auth";
 import { BrandHeader } from "@/components/brand-header";
 import { Button } from "@/components/ui/button";
 import { logoutAction } from "@/app/(app)/actions";
+import {
+  expireTrialIfNeeded,
+  mustCompleteSubscription,
+} from "@/lib/trial";
 
 export default async function PdvLayout({
   children,
@@ -12,11 +16,21 @@ export default async function PdvLayout({
   children: React.ReactNode;
 }) {
   const session = await getSession();
-  if (!session) redirect("/login");
+  if (!session?.tenantId) redirect("/login");
+
+  if (!session.supportMode) {
+    const subscription = await expireTrialIfNeeded(session.tenantId);
+    if (mustCompleteSubscription(subscription)) {
+      redirect(session.role === "ADMIN" ? "/assinatura" : "/login");
+    }
+  }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-neutral-100">
-      <BrandHeader subtitle="PDV — Ponto de Venda">
+    <div className="flex h-screen flex-col overflow-hidden bg-[var(--maf-void)]">
+      <BrandHeader
+        brandName={session.tenantName ?? undefined}
+        subtitle="PDV — Ponto de Venda"
+      >
         <Link href="/estoque" target="_blank">
           <Button
             variant="outline"
@@ -28,7 +42,7 @@ export default async function PdvLayout({
           </Button>
         </Link>
         {session.role === "ADMIN" ? (
-          <Link href="/" target="_blank">
+          <Link href="/dashboard" target="_blank">
             <Button
               variant="outline"
               size="sm"

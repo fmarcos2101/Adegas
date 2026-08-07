@@ -15,12 +15,21 @@ async function main() {
   await prisma.product.deleteMany();
   await prisma.category.deleteMany();
   await prisma.auditLog.deleteMany();
-  await prisma.user.deleteMany({
-    where: { username: { notIn: ["admin", "caixa"] } },
-  });
-  // PaymentSettings mantido — reconfigurado pelo seed.
 
-  console.log("Banco zerado: vendas, produtos, categorias e auditoria removidos.");
+  // Mantém owner da plataforma e usuários admin/caixa da loja demo
+  const demo = await prisma.tenant.findUnique({ where: { slug: "demo" } });
+  if (demo) {
+    await prisma.user.deleteMany({
+      where: {
+        tenantId: demo.id,
+        username: { notIn: ["admin", "caixa"] },
+      },
+    });
+  }
+
+  console.log(
+    "Banco zerado: vendas, produtos, categorias e auditoria removidos (tenants/usuários base mantidos).",
+  );
 }
 
 main()

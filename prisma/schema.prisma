@@ -6,48 +6,157 @@ datasource db {
   provider = "sqlite"
 }
 
+/// Papel do usuário dentro da loja (tenant).
 enum Role {
   ADMIN
   CAIXA
 }
 
-model User {
+enum SubscriptionPlan {
+  TRIAL
+  BASIC
+  PLUS
+  PRO
+}
+
+enum SubscriptionStatus {
+  TRIALING
+  ACTIVE
+  PAST_DUE
+  SUSPENDED
+  CANCELLED
+}
+
+/// Cliente / loja isolada no SaaS.
+model Tenant {
   id        String   @id @default(cuid())
-  username  String   @unique
   name      String
-  password  String
-  role      Role     @default(CAIXA)
+  slug      String   @unique
   active    Boolean  @default(true)
+  notes     String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
+  users           User[]
+  categories      Category[]
+  products        Product[]
+  stockMovements  StockMovement[]
+  sales           Sale[]
+  auditLogs       AuditLog[]
+  paymentSettings PaymentSettings?
+  subscription    Subscription?
+}
+
+model Subscription {
+  id                 String             @id @default(cuid())
+  tenantId           String             @unique
+  tenant             Tenant             @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  plan               SubscriptionPlan   @default(TRIAL)
+  status             SubscriptionStatus @default(TRIALING)
+  priceMonthly       Float              @default(0)
+  trialEndsAt        DateTime?
+  currentPeriodStart DateTime?
+  currentPeriodEnd   DateTime?
+  notes              String?
+  /// E-mail do pagador no Mercado Pago (assinatura SaaS)
+  payerEmail         String?
+  /// ID da assinatura (preapproval) no Mercado Pago
+  mpPreapprovalId    String?            @unique
+  /// ID do plano (preapproval_plan) associado
+  mpPreapprovalPlanId String?
+  /// Status bruto retornado pelo MP (pending, authorized, paused, cancelled…)
+  mpStatus           String?
+  /// URL de checkout para o cliente autorizar o cartão
+  mpInitPoint        String?
+  lastPaymentAt      DateTime?
+  lastPaymentAmount  Float?
+  createdAt          DateTime           @default(now())
+  updatedAt          DateTime           @updatedAt
+
+  payments SubscriptionPayment[]
+}
+
+/// Histórico de cobranças recorrentes (Mercado Pago authorized_payments)
+model SubscriptionPayment {
+  id                 String       @id @default(cuid())
+  subscriptionId     String
+  subscription       Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  mpAuthorizedPaymentId String    @unique
+  mpPaymentId        String?
+  amount             Float
+  status             String
+  summarized         String?
+  debitDate          DateTime?
+  rawDetail          String?
+  createdAt          DateTime     @default(now())
+}
+
+/// Configuração de cobrança SaaS da plataforma (Mercado Pago Assinaturas).
+model PlatformBillingSettings {
+  id              String   @id @default("default")
+  mpAccessToken   String?
+  mpWebhookSecret String?
+  basicPrice      Float    @default(79.9)
+  proPrice        Float    @default(149.9)
+  /// IDs de planos cacheados no MP (recriados se o preço mudar)
+  mpPlanBasicId   String?
+  mpPlanBasicPrice Float?
+  mpPlanProId     String?
+  mpPlanProPrice  Float?
+  updatedAt       DateTime @updatedAt
+}
+
+model User {
+  id              String   @id @default(cuid())
+  /// null = administrador da plataforma (super-admin)
+  tenantId        String?
+  tenant          Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  username        String
+  name            String
+  password        String
+  role            Role     @default(CAIXA)
+  isPlatformAdmin Boolean  @default(false)
+  active          Boolean  @default(true)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
   sales     Sale[]
   auditLogs AuditLog[]
+
+  @@unique([tenantId, username])
 }
 
 model Category {
   id        String    @id @default(cuid())
-  name      String    @unique
+  tenantId  String
+  tenant    Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  name      String
   createdAt DateTime  @default(now())
   products  Product[]
+
+  @@unique([tenantId, name])
 }
 
 model Product {
-  id           String   @id @default(cuid())
-  barcode      String   @unique
-  name         String
-  categoryId   String?
-  category     Category? @relation(fields: [categoryId], references: [id])
-  cost         Float    @default(0)
-  price        Float    @default(0)
-  stock        Int      @default(0)
-  minStock     Int      @default(0)
-  active       Boolean  @default(true)
-  createdAt    DateTime @default(now())
-  updatedAt    DateTime @updatedAt
+  id         String    @id @default(cuid())
+  tenantId   String
+  tenant     Tenant    @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  barcode    String
+  name       String
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id])
+  cost       Float     @default(0)
+  price      Float     @default(0)
+  stock      Int       @default(0)
+  minStock   Int       @default(0)
+  active     Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 
   movements StockMovement[]
   saleItems SaleItem[]
+
+  @@unique([tenantId, barcode])
 }
 
 enum StockMovementType {
@@ -59,6 +168,8 @@ enum StockMovementType {
 
 model StockMovement {
   id        String            @id @default(cuid())
+  tenantId  String
+  tenant    Tenant            @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   productId String
   product   Product           @relation(fields: [productId], references: [id], onDelete: Cascade)
   type      StockMovementType
@@ -90,7 +201,9 @@ enum PaymentProviderType {
 }
 
 model PaymentSettings {
-  id                String              @id @default("default")
+  id                String              @id @default(cuid())
+  tenantId          String              @unique
+  tenant            Tenant              @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   activeProvider    PaymentProviderType @default(GENERIC)
   terminalApiKey    String?
   mpAccessToken     String?
@@ -108,19 +221,22 @@ model PaymentSettings {
 }
 
 model Sale {
-  id         String     @id @default(cuid())
-  total      Float
-  discount   Float      @default(0)
-  status     SaleStatus @default(CONCLUIDA)
-  userId     String
-  user       User       @relation(fields: [userId], references: [id])
-  cancelReason String?
-  paymentRef   String?   @unique
-  mpOrderId    String?   @unique
-  terminalTxId String?
-  paymentSource PaymentSource?
+  id                 String         @id @default(cuid())
+  tenantId           String
+  tenant             Tenant         @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  total              Float
+  discount           Float          @default(0)
+  status             SaleStatus     @default(CONCLUIDA)
+  /// Pode ficar null se o usuário for excluído (histórico da venda permanece)
+  userId             String?
+  user               User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
+  cancelReason       String?
+  paymentRef         String?        @unique
+  mpOrderId          String?        @unique
+  terminalTxId       String?
+  paymentSource      PaymentSource?
   paymentConfirmedAt DateTime?
-  createdAt  DateTime   @default(now())
+  createdAt          DateTime       @default(now())
 
   items    SaleItem[]
   payments Payment[]
@@ -156,9 +272,21 @@ model Payment {
 
 model AuditLog {
   id        String   @id @default(cuid())
+  tenantId  String?
+  tenant    Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   userId    String?
-  user      User?    @relation(fields: [userId], references: [id])
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   action    String
   detail    String?
+  createdAt DateTime @default(now())
+}
+
+/// Leads do formulário "Falar com especialistas" (landing).
+model ContactLead {
+  id        String   @id @default(cuid())
+  name      String
+  cpf       String
+  email     String
+  whatsapp  String
   createdAt DateTime @default(now())
 }

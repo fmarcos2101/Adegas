@@ -44,14 +44,14 @@ export function SalesTable({
   }
 
   if (sales.length === 0) {
-    return <p className="text-sm text-neutral-500">Nenhuma venda no período.</p>;
+    return <p className="text-sm text-zinc-400">Nenhuma venda no período.</p>;
   }
 
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-neutral-200 text-left text-neutral-500">
+          <tr className="border-b border-zinc-200 text-left text-zinc-400">
             <th className="py-2">Data</th>
             <th className="py-2">Operador</th>
             <th className="py-2">Itens</th>
@@ -62,8 +62,8 @@ export function SalesTable({
         </thead>
         <tbody>
           {sales.map((s) => (
-            <tr key={s.id} className="border-b border-neutral-100">
-              <td className="py-2 text-neutral-500">{s.createdAt}</td>
+            <tr key={s.id} className="border-b border-zinc-100">
+              <td className="py-2 text-zinc-400">{s.createdAt}</td>
               <td className="py-2">{s.user}</td>
               <td className="py-2">{s.itemsCount}</td>
               <td className="py-2 font-medium">{formatBRL(s.total)}</td>

@@ -16,12 +16,15 @@ export type ComputedSaleLine = {
 export async function computeSaleLines(
   tx: Prisma.TransactionClient,
   items: SaleLineInput[],
+  tenantId: string,
 ): Promise<{ computed: ComputedSaleLine[]; subtotal: number }> {
   let subtotal = 0;
   const computed: ComputedSaleLine[] = [];
 
   for (const item of items) {
-    const product = await tx.product.findUnique({ where: { id: item.productId } });
+    const product = await tx.product.findFirst({
+      where: { id: item.productId, tenantId },
+    });
     if (!product || !product.active) {
       throw new Error("Produto inválido no carrinho.");
     }
@@ -44,6 +47,7 @@ export async function computeSaleLines(
 
 export async function applyStockForSale(
   tx: Prisma.TransactionClient,
+  tenantId: string,
   saleId: string,
   computed: ComputedSaleLine[],
   movementReason: string,
@@ -55,6 +59,7 @@ export async function applyStockForSale(
     });
     await tx.stockMovement.create({
       data: {
+        tenantId,
         productId: line.productId,
         type: "VENDA",
         quantity: -line.quantity,
@@ -66,6 +71,7 @@ export async function applyStockForSale(
 
 export async function restoreStockForSale(
   tx: Prisma.TransactionClient,
+  tenantId: string,
   saleId: string,
   items: { productId: string; quantity: number }[],
   reason: string,
@@ -77,6 +83,7 @@ export async function restoreStockForSale(
     });
     await tx.stockMovement.create({
       data: {
+        tenantId,
         productId: item.productId,
         type: "ENTRADA",
         quantity: item.quantity,

@@ -12,10 +12,11 @@ import {
   Users,
   ScrollText,
   Database,
-  Crown,
   CreditCard,
+  Receipt,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { APP_NAME } from "@/lib/constants";
 
 type NavItem = {
   href: string;
@@ -26,13 +27,14 @@ type NavItem = {
 };
 
 const items: NavItem[] = [
-  { href: "/", label: "Dashboard", icon: LayoutDashboard, adminOnly: true },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, adminOnly: true },
   { href: "/pdv", label: "Vendas (PDV)", icon: ShoppingCart, newTab: true },
   { href: "/produtos", label: "Produtos", icon: Package, adminOnly: true },
   { href: "/categorias", label: "Categorias", icon: Tags, adminOnly: true },
   { href: "/estoque", label: "Estoque", icon: Boxes },
   { href: "/relatorios", label: "Relatórios", icon: BarChart3, adminOnly: true },
   { href: "/pagamentos", label: "Pagamentos", icon: CreditCard, adminOnly: true },
+  { href: "/assinatura", label: "Assinatura", icon: Receipt, adminOnly: true },
   { href: "/usuarios", label: "Usuários", icon: Users, adminOnly: true },
   { href: "/auditoria", label: "Auditoria", icon: ScrollText, adminOnly: true },
   { href: "/backup", label: "Backup", icon: Database, adminOnly: true },
@@ -40,41 +42,56 @@ const items: NavItem[] = [
 
 type SidebarProps = {
   role: "ADMIN" | "CAIXA";
+  storeName?: string | null;
   mobileOpen?: boolean;
   onNavigate?: () => void;
 };
 
-export function Sidebar({ role, mobileOpen = false, onNavigate }: SidebarProps) {
+export function Sidebar({
+  role,
+  storeName,
+  mobileOpen = false,
+  onNavigate,
+}: SidebarProps) {
   const pathname = usePathname();
   const visible = items.filter((i) => !i.adminOnly || role === "ADMIN");
 
   return (
     <aside
       className={cn(
-        "fixed inset-y-0 left-0 z-50 flex w-60 shrink-0 flex-col border-r border-neutral-200 bg-white transition-transform duration-200 lg:static lg:translate-x-0",
+        "fixed inset-y-0 left-0 z-50 flex w-60 shrink-0 flex-col border-r border-zinc-200 bg-white transition-transform duration-200 lg:static lg:translate-x-0",
         mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
       )}
     >
-      <div className="flex h-20 items-center gap-2 border-b border-neutral-200 bg-gradient-to-br from-pink-600 to-pink-800 px-5">
-        <Crown className="h-5 w-5 text-pink-200" />
-        <span className="text-lg font-extrabold uppercase leading-none tracking-tight text-white">
-          Adega
-          <br />
-          <span className="text-pink-200">Faixa Rosa</span>
+      <div className="maf-dark-bar flex h-20 items-center gap-2.5 border-b border-white/10 px-4">
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src="/logo-maf-icon.png"
+          alt=""
+          className="h-10 w-auto object-contain"
+        />
+        <span className="font-display text-sm font-bold leading-tight tracking-[0.12em] text-white">
+          {APP_NAME}
+          {storeName ? (
+            <>
+              <br />
+              <span className="font-sans text-[11px] font-medium normal-case tracking-normal text-zinc-300">
+                {storeName}
+              </span>
+            </>
+          ) : null}
         </span>
       </div>
       <nav className="flex-1 space-y-1 p-3">
         {visible.map((item) => {
           const active =
-            item.href === "/"
-              ? pathname === "/"
-              : pathname.startsWith(item.href);
+            pathname === item.href || pathname.startsWith(`${item.href}/`);
           const Icon = item.icon;
           const className = cn(
             "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
             active && !item.newTab
-              ? "bg-pink-600 text-white"
-              : "text-neutral-700 hover:bg-pink-50",
+              ? "bg-zinc-900 text-white"
+              : "text-zinc-700 hover:bg-zinc-100",
           );
 
           if (item.newTab) {

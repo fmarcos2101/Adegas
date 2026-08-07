@@ -132,9 +132,10 @@ async function getSaleItemsForReport(
   }
 }
 
-export async function getReport(periodo: Periodo): Promise<ReportData> {
+export async function getReport(periodo: Periodo, tenantId: string): Promise<ReportData> {
   const start = periodoStart(periodo);
   const inRangeConcluida = {
+    tenantId,
     status: "CONCLUIDA" as const,
     createdAt: { gte: start },
   };
@@ -152,7 +153,7 @@ export async function getReport(periodo: Periodo): Promise<ReportData> {
       _sum: { amount: true },
     }),
     prisma.sale.findMany({
-      where: { createdAt: { gte: start } },
+      where: { tenantId, createdAt: { gte: start } },
       orderBy: { createdAt: "desc" },
       include: {
         user: { select: { name: true } },
@@ -160,7 +161,7 @@ export async function getReport(periodo: Periodo): Promise<ReportData> {
       },
       take: 200,
     }),
-    getPaymentSettings(),
+    getPaymentSettings(tenantId),
   ]);
 
   const revenue = agg._sum.total ?? 0;
@@ -245,7 +246,7 @@ export async function getReport(periodo: Periodo): Promise<ReportData> {
       createdAt: s.createdAt,
       total: s.total,
       status: s.status,
-      user: s.user.name,
+      user: s.user?.name ?? "—",
       itemsCount: s._count.items,
       cancelReason: s.cancelReason,
     })),

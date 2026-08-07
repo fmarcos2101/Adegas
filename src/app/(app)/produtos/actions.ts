@@ -30,9 +30,10 @@ export async function createProduct(
   formData: FormData,
 ): Promise<ProductState> {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session?.tenantId || session.role !== "ADMIN") {
     return { error: "Não autorizado." };
   }
+  const tenantId = session.tenantId;
 
   const parsed = productSchema.safeParse({
     name: formData.get("name"),
@@ -60,7 +61,7 @@ export async function createProduct(
       return { error: "Código de barras inválido (mínimo 3 dígitos)." };
     }
     const exists = await prisma.product.findUnique({
-      where: { barcode: rawBarcode },
+      where: { tenantId_barcode: { tenantId, barcode: rawBarcode } },
     });
     if (exists) {
       return { error: "Já existe um produto com esse código de barras." };
@@ -70,6 +71,7 @@ export async function createProduct(
 
   const product = await prisma.product.create({
     data: {
+      tenantId,
       name: data.name,
       barcode,
       categoryId: data.categoryId || null,
@@ -83,6 +85,7 @@ export async function createProduct(
   if (data.stock > 0) {
     await prisma.stockMovement.create({
       data: {
+        tenantId,
         productId: product.id,
         type: "ENTRADA",
         quantity: data.stock,
@@ -92,7 +95,7 @@ export async function createProduct(
   }
 
   revalidatePath("/produtos");
-  revalidatePath("/");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 
@@ -111,9 +114,10 @@ export async function updateProduct(
   formData: FormData,
 ): Promise<ProductState> {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  if (!session?.tenantId || session.role !== "ADMIN") {
     return { error: "Não autorizado." };
   }
+  const tenantId = session.tenantId;
 
   const parsed = updateProductSchema.safeParse({
     id: formData.get("id"),
@@ -130,7 +134,9 @@ export async function updateProduct(
   }
 
   const data = parsed.data;
-  const existing = await prisma.product.findUnique({ where: { id: data.id } });
+  const existing = await prisma.product.findFirst({
+    where: { id: data.id, tenantId },
+  });
   if (!existing) return { error: "Produto não encontrado." };
 
   await prisma.$transaction([
@@ -147,6 +153,7 @@ export async function updateProduct(
     }),
     prisma.auditLog.create({
       data: {
+        tenantId,
         userId: session.userId,
         action: "EDITAR_PRODUTO",
         detail: `${data.name}: custo ${data.cost.toFixed(2)} / venda ${data.price.toFixed(2)}`,
@@ -157,7 +164,7 @@ export async function updateProduct(
   revalidatePath("/produtos");
   revalidatePath("/pdv");
   revalidatePath("/relatorios");
-  revalidatePath("/");
+  revalidatePath("/dashboard");
   return { success: true };
 }
 
@@ -165,9 +172,12 @@ export type ProductActionResult = { error?: string; message?: string };
 
 export async function zeroStock(id: string): Promise<ProductActionResult> {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") return { error: "Não autorizado." };
+  if (!session?.tenantId || session.role !== "ADMIN") {
+    return { error: "Não autorizado." };
+  }
+  const tenantId = session.tenantId;
 
-  const product = await prisma.product.findUnique({ where: { id } });
+  const product = await prisma.product.findFirst({ where: { id, tenantId } });
   if (!product) return { error: "Produto não encontrado." };
   if (product.stock === 0) return { message: "Estoque já está em zero." };
 
@@ -176,6 +186,7 @@ export async function zeroStock(id: string): Promise<ProductActionResult> {
     prisma.product.update({ where: { id }, data: { stock: 0 } }),
     prisma.stockMovement.create({
       data: {
+        tenantId,
         productId: id,
         type: "AJUSTE",
         quantity: delta,
@@ -184,6 +195,7 @@ export async function zeroStock(id: string): Promise<ProductActionResult> {
     }),
     prisma.auditLog.create({
       data: {
+        tenantId,
         userId: session.userId,
         action: "ZERAR_ESTOQUE",
         detail: `${product.name}: ${product.stock} -> 0`,
@@ -193,27 +205,29 @@ export async function zeroStock(id: string): Promise<ProductActionResult> {
 
   revalidatePath("/produtos");
   revalidatePath("/estoque");
-  revalidatePath("/");
+  revalidatePath("/dashboard");
   return { message: "Estoque zerado." };
 }
 
 export async function deleteProduct(id: string): Promise<ProductActionResult> {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") return { error: "Não autorizado." };
+  if (!session?.tenantId || session.role !== "ADMIN") {
+    return { error: "Não autorizado." };
+  }
+  const tenantId = session.tenantId;
 
-  const product = await prisma.product.findUnique({
-    where: { id },
+  const product = await prisma.product.findFirst({
+    where: { id, tenantId },
     include: { _count: { select: { saleItems: true } } },
   });
   if (!product) return { error: "Produto não encontrado." };
 
-  // Produtos com vendas registradas são inativados (preserva histórico);
-  // produtos sem vendas são excluídos de fato.
   if (product._count.saleItems > 0) {
     await prisma.$transaction([
       prisma.product.update({ where: { id }, data: { active: false } }),
       prisma.auditLog.create({
         data: {
+          tenantId,
           userId: session.userId,
           action: "INATIVAR_PRODUTO",
           detail: `${product.name} inativado (possui vendas)`,
@@ -221,17 +235,18 @@ export async function deleteProduct(id: string): Promise<ProductActionResult> {
       }),
     ]);
     revalidatePath("/produtos");
-    revalidatePath("/");
+    revalidatePath("/dashboard");
     return {
       message: "Produto possui vendas: foi inativado para preservar o histórico.",
     };
   }
 
   await prisma.$transaction([
-    prisma.stockMovement.deleteMany({ where: { productId: id } }),
+    prisma.stockMovement.deleteMany({ where: { productId: id, tenantId } }),
     prisma.product.delete({ where: { id } }),
     prisma.auditLog.create({
       data: {
+        tenantId,
         userId: session.userId,
         action: "EXCLUIR_PRODUTO",
         detail: `${product.name} excluído`,
@@ -241,6 +256,6 @@ export async function deleteProduct(id: string): Promise<ProductActionResult> {
 
   revalidatePath("/produtos");
   revalidatePath("/estoque");
-  revalidatePath("/");
+  revalidatePath("/dashboard");
   return { message: "Produto excluído." };
 }

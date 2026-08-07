@@ -1,20 +1,29 @@
 "use client";
 
 import { useState } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, LogOut, LifeBuoy, ArrowLeft } from "lucide-react";
 import { Sidebar } from "@/components/sidebar";
 import { BrandHeader } from "@/components/brand-header";
 import { Button } from "@/components/ui/button";
 import { logoutAction } from "@/app/(app)/actions";
-import { LogOut } from "lucide-react";
+import { exitSupportAction } from "@/app/plataforma/actions";
+import { APP_NAME } from "@/lib/constants";
 
 type AppShellProps = {
   role: "ADMIN" | "CAIXA";
   userName: string;
+  storeName?: string | null;
+  supportMode?: boolean;
   children: React.ReactNode;
 };
 
-export function AppShell({ role, userName, children }: AppShellProps) {
+export function AppShell({
+  role,
+  userName,
+  storeName,
+  supportMode,
+  children,
+}: AppShellProps) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -30,14 +39,20 @@ export function AppShell({ role, userName, children }: AppShellProps) {
 
       <Sidebar
         role={role}
+        storeName={storeName}
         mobileOpen={mobileOpen}
         onNavigate={() => setMobileOpen(false)}
       />
 
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <BrandHeader
+          brandName={storeName ? APP_NAME : APP_NAME}
           subtitle={
-            role === "ADMIN" ? "Painel administrativo" : "Operador de Caixa"
+            supportMode
+              ? `Suporte · ${storeName ?? "loja"}`
+              : role === "ADMIN"
+                ? "Painel administrativo"
+                : "Operador de Caixa"
           }
         >
           <Button
@@ -54,6 +69,25 @@ export function AppShell({ role, userName, children }: AppShellProps) {
               <Menu className="h-4 w-4" />
             )}
           </Button>
+          {supportMode ? (
+            <>
+              <span className="hidden items-center gap-1 rounded-md bg-amber-500/20 px-2 py-1 text-xs font-medium text-amber-100 sm:inline-flex">
+                <LifeBuoy className="h-3.5 w-3.5" />
+                Modo suporte
+              </span>
+              <form action={exitSupportAction}>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  type="submit"
+                  className="border-amber-300/50 bg-amber-500/20 text-amber-50 hover:bg-amber-500/30"
+                >
+                  <ArrowLeft className="h-4 w-4" />
+                  <span className="hidden sm:inline">Plataforma</span>
+                </Button>
+              </form>
+            </>
+          ) : null}
           <span className="hidden text-sm font-medium text-white/90 sm:inline">
             {userName}
           </span>

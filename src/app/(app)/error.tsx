@@ -21,15 +21,15 @@ export default function AppError({
         <AlertTriangle className="h-7 w-7 text-red-600" />
       </div>
       <div>
-        <h2 className="text-lg font-semibold text-neutral-900">
+        <h2 className="text-lg font-semibold text-zinc-900">
           Ocorreu um erro inesperado
         </h2>
-        <p className="mt-1 max-w-md text-sm text-neutral-500">
+        <p className="mt-1 max-w-md text-sm text-zinc-400">
           Isso pode acontecer se o sistema foi atualizado enquanto esta página
           estava aberta. Recarregue a página para continuar.
         </p>
         {error.digest ? (
-          <p className="mt-2 text-xs text-neutral-400">Código: {error.digest}</p>
+          <p className="mt-2 text-xs text-zinc-500">Código: {error.digest}</p>
         ) : null}
       </div>
       <div className="flex gap-2">

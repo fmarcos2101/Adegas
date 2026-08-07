@@ -1,22 +1,10 @@
-# Adega Faixa Rosa — Sistema PDV
+# MAF PDV — PDV Online (SaaS multi-loja)
 
-Sistema de gestão e ponto de venda para distribuidora de bebidas.
+Sistema de ponto de venda e gestão com isolamento por cliente (tenant), painel da plataforma para assinaturas e acesso de suporte.
 
-## Instalação Windows (recomendado para a loja)
+Derivado do PDV da Adega Faixa Rosa, com identidade genérica para exposição online.
 
-1. Instale **Node.js 20 LTS**: https://nodejs.org  
-2. Baixe o projeto (ou clone com Git)  
-3. **Duplo clique** em `Instalar-Adega.bat` (só na primeira vez)  
-4. **Duplo clique** em `Iniciar-Adega.bat` (toda vez que for usar)
-
-O navegador abre automaticamente no PDV e no painel admin.
-
-Para iniciar com o Windows: copie um atalho de `Iniciar-Adega.bat` para a pasta  
-`Inicializar` (Win+R → `shell:startup`).
-
----
-
-## Início rápido (desenvolvedor)
+## Início rápido
 
 ```bash
 npm install
@@ -25,40 +13,56 @@ npm run db:seed
 npm run dev
 ```
 
-Acesse http://localhost:3000
+Acesse http://localhost:3000 — landing pública. Cadastro em `/cadastro`, login em `/login`.
 
-| Usuário | Senha | Perfil |
-|---------|-------|--------|
-| `admin` | `admin123` | Administrador |
-| `caixa` | `caixa123` | Caixa |
+| Acesso | Código da loja | Usuário | Senha |
+|--------|----------------|---------|-------|
+| Plataforma (dono) | *(deixe em branco)* | `owner` | `owner123` |
+| Loja demo (admin) | `demo` | `admin` | `admin123` |
+| Loja demo (caixa) | `demo` | `caixa` | `caixa123` |
 
-> Troque as senhas antes de usar na loja. Banco inicia **limpo** (sem produtos).
+## O que é
 
-## Funcionalidades
+- **Landing + auto-cadastro** — visitante cria a loja, inicia trial e entra no painel
+- **Cada loja** tem produtos, estoque, vendas e usuários isolados (`/dashboard`, `/pdv`)
+- **Painel `/plataforma`** — criar clientes, planos, status de assinatura, uso (vendas/mês) e **entrar como suporte**
+- **Cobrança automática** via Mercado Pago Assinaturas (`/plataforma/cobranca`)
+- Assinaturas: **7 dias de teste grátis**, depois Básico (1 PDV) / Plus·Pro (até 3 PDVs)
+- Após o trial, admin é levado a `/assinatura`; caixa fica bloqueado até assinar
+- Owner pode resetar senha e gerenciar usuários de qualquer loja em `/plataforma/lojas/[id]`
 
-- PDV com leitor de código de barras, autocomplete e atalhos (F2/F3/F4/F8)
+## Cobrança Mercado Pago (SaaS)
+
+1. Login como `owner` → **Cobrança Mercado Pago**
+2. Cole o Access Token da sua conta MP e salve os preços
+3. No painel do MP, cadastre o webhook apontando para  
+   `https://SEU_DOMINIO/api/assinaturas/mercadopago/webhook`  
+   (tópicos: `subscription_preapproval` e `subscription_authorized_payment`)
+4. Em cada loja → **Gerar link de cobrança** (e-mail do cliente + plano)
+5. Cliente autoriza o cartão; as mensalidades passam a ser cobradas sozinhas
+
+Alternativa via `.env`: `PLATFORM_MP_ACCESS_TOKEN` e `PLATFORM_MP_WEBHOOK_SECRET`.
+
+## Funcionalidades da loja
+
+- PDV com leitor, autocomplete e atalhos
 - Produtos, categorias, estoque, relatórios (PDF/Excel)
-- Usuários, auditoria, backup/restauração SQLite
-- Maquininhas: **Mercado Pago Point**, **SumUp**, **Ton (Stone)** ou **API genérica**
-- Suporte WhatsApp (botão ? flutuante)
-
-## Maquininhas (configurar depois)
-
-Admin → **Pagamentos** → escolha a maquininha e cole as credenciais quando tiver.
-
-Não precisa de API no primeiro dia: use **dinheiro/PIX** ou **liberação manual** no PDV.
-
-Documentação completa: `SISTEMA.md`
+- Usuários, auditoria, backup SQLite
+- Maquininhas: Mercado Pago Point, SumUp, Ton ou API genérica
 
 ## Comandos
 
 ```bash
-npm run dev          # servidor desenvolvimento
-npm run db:reset     # zera produtos/vendas, mantém usuários
-npm run lint         # ESLint
-npm run typecheck    # TypeScript
+npm run dev          # desenvolvimento
+npm run db:reset     # zera produtos/vendas da demo
+npm run lint
+npm run typecheck
 ```
 
-## Suporte
+## Documentação
 
-WhatsApp: (64) 99290-3947
+Veja `SISTEMA.md` para telas, papéis e modelo de dados.
+
+## Suporte WhatsApp (opcional)
+
+Defina `NEXT_PUBLIC_SUPPORT_WHATSAPP` (ex.: `5564999999999`) no `.env` para exibir o botão flutuante.

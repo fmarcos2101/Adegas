@@ -9,6 +9,7 @@ export async function logoutAction() {
   if (session) {
     await prisma.auditLog.create({
       data: {
+        tenantId: session.tenantId,
         userId: session.userId,
         action: "LOGOUT",
         detail: `Logout de ${session.username}`,

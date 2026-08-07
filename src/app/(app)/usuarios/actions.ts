@@ -5,6 +5,7 @@ import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { getSession } from "@/lib/auth";
+import { canAddPdvUser } from "@/lib/plan-limits";
 
 const schema = z.object({
   name: z.string().min(2, "Nome muito curto"),
@@ -20,7 +21,10 @@ export async function createUser(
   formData: FormData,
 ): Promise<UserState> {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") return { error: "Não autorizado." };
+  if (!session?.tenantId || session.role !== "ADMIN") {
+    return { error: "Não autorizado." };
+  }
+  const tenantId = session.tenantId;
 
   const parsed = schema.safeParse({
     name: formData.get("name"),
@@ -33,15 +37,29 @@ export async function createUser(
   }
   const { name, username, password, role } = parsed.data;
 
-  const exists = await prisma.user.findUnique({ where: { username } });
+  if (role === "CAIXA") {
+    const seat = await canAddPdvUser(tenantId);
+    if (!seat.ok) return { error: seat.error };
+  }
+
+  const exists = await prisma.user.findUnique({
+    where: { tenantId_username: { tenantId, username } },
+  });
   if (exists) return { error: "Nome de usuário já existe." };
 
   await prisma.user.create({
-    data: { name, username, password: await bcrypt.hash(password, 10), role },
+    data: {
+      tenantId,
+      name,
+      username,
+      password: await bcrypt.hash(password, 10),
+      role,
+    },
   });
 
   await prisma.auditLog.create({
     data: {
+      tenantId,
       userId: session.userId,
       action: "CRIAR_USUARIO",
       detail: `Usuário ${username} (${role}) criado`,
@@ -54,20 +72,26 @@ export async function createUser(
 
 export async function toggleUserActive(formData: FormData): Promise<void> {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") return;
+  if (!session?.tenantId || session.role !== "ADMIN") return;
+  const tenantId = session.tenantId;
 
   const id = String(formData.get("id") ?? "");
   if (!id) return;
-  if (id === session.userId) return; // não pode inativar a si mesmo
+  if (id === session.userId) return;
 
-  const user = await prisma.user.findUnique({ where: { id } });
+  const user = await prisma.user.findFirst({ where: { id, tenantId } });
   if (!user) return;
+
+  if (!user.active && user.role === "CAIXA") {
+    const seat = await canAddPdvUser(tenantId);
+    if (!seat.ok) return;
+  }
 
   if (user.active && user.role === "ADMIN") {
     const activeAdmins = await prisma.user.count({
-      where: { role: "ADMIN", active: true },
+      where: { tenantId, role: "ADMIN", active: true },
     });
-    if (activeAdmins <= 1) return; // não remover o último admin ativo
+    if (activeAdmins <= 1) return;
   }
 
   await prisma.user.update({
@@ -77,6 +101,7 @@ export async function toggleUserActive(formData: FormData): Promise<void> {
 
   await prisma.auditLog.create({
     data: {
+      tenantId,
       userId: session.userId,
       action: user.active ? "INATIVAR_USUARIO" : "ATIVAR_USUARIO",
       detail: `Usuário ${user.username}`,
@@ -84,4 +109,84 @@ export async function toggleUserActive(formData: FormData): Promise<void> {
   });
 
   revalidatePath("/usuarios");
+}
+
+export async function resetUserPassword(
+  _prev: UserState,
+  formData: FormData,
+): Promise<UserState> {
+  const session = await getSession();
+  if (!session?.tenantId || session.role !== "ADMIN") {
+    return { error: "Não autorizado." };
+  }
+  const tenantId = session.tenantId;
+  const userId = String(formData.get("userId") ?? "");
+  const password = String(formData.get("password") ?? "");
+
+  if (!userId) return { error: "Usuário inválido." };
+  if (password.length < 4) {
+    return { error: "Senha deve ter ao menos 4 caracteres." };
+  }
+
+  const user = await prisma.user.findFirst({ where: { id: userId, tenantId } });
+  if (!user) return { error: "Usuário não encontrado." };
+
+  await prisma.user.update({
+    where: { id: userId },
+    data: { password: await bcrypt.hash(password, 10) },
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      tenantId,
+      userId: session.userId,
+      action: "RESET_SENHA",
+      detail: `Senha de ${user.username} redefinida`,
+    },
+  });
+
+  revalidatePath("/usuarios");
+  return { success: true };
+}
+
+export async function deleteUser(
+  _prev: UserState,
+  formData: FormData,
+): Promise<UserState> {
+  const session = await getSession();
+  if (!session?.tenantId || session.role !== "ADMIN") {
+    return { error: "Não autorizado." };
+  }
+  const tenantId = session.tenantId;
+  const id = String(formData.get("id") ?? "");
+  if (!id) return { error: "Usuário inválido." };
+  if (id === session.userId) {
+    return { error: "Você não pode excluir o próprio usuário." };
+  }
+
+  const user = await prisma.user.findFirst({ where: { id, tenantId } });
+  if (!user) return { error: "Usuário não encontrado." };
+
+  if (user.role === "ADMIN") {
+    const totalAdmins = await prisma.user.count({
+      where: { tenantId, role: "ADMIN" },
+    });
+    if (totalAdmins <= 1) {
+      return { error: "Não é possível excluir o único administrador da loja." };
+    }
+  }
+
+  await prisma.user.delete({ where: { id } });
+
+  await prisma.auditLog.create({
+    data: {
+      tenantId,
+      userId: session.userId,
+      action: "EXCLUIR_USUARIO",
+      detail: `Usuário ${user.username} (${user.role}) excluído`,
+    },
+  });
+
+  revalidatePath("/usuarios");
+  return { success: true };
 }

@@ -1,11 +1,12 @@
 "use client";
 
 import { useActionState } from "react";
-import { Crown } from "lucide-react";
+import Link from "next/link";
 import { loginAction, type LoginState } from "./actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { APP_NAME, APP_TAGLINE } from "@/lib/constants";
 
 const initialState: LoginState = {};
 
@@ -13,26 +14,43 @@ export default function LoginPage() {
   const [state, formAction, pending] = useActionState(loginAction, initialState);
 
   return (
-    <div className="relative flex min-h-screen items-center justify-center p-4">
+    <div className="relative flex min-h-screen items-center justify-center overflow-hidden p-4">
       <div
-        className="absolute inset-0 bg-cover bg-center"
-        style={{ backgroundImage: "url('/hero-adega.png')" }}
+        className="absolute inset-0 bg-[radial-gradient(ellipse_at_top,rgba(160,168,180,0.35),transparent_55%),linear-gradient(160deg,#f7f8fa_0%,#e6e8ee_50%,#f4f5f7_100%)]"
         aria-hidden
       />
-      <div className="absolute inset-0 bg-black/75" aria-hidden />
-      <Card className="relative z-10 w-full max-w-sm border-pink-500/30 shadow-2xl shadow-pink-900/40 ring-1 ring-pink-500/40">
+      <Card className="relative z-10 w-full max-w-sm border-zinc-200/80 shadow-xl shadow-zinc-900/10">
         <CardContent className="p-8">
-          <div className="mb-6 flex flex-col items-center gap-2 text-center">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-pink-600 text-white shadow-lg shadow-pink-500/40">
-              <Crown className="h-6 w-6" />
-            </div>
-            <h1 className="text-xl font-extrabold uppercase tracking-tight text-neutral-900">
-              Adega Faixa Rosa
-            </h1>
-            <p className="text-sm text-neutral-500">Sua adega, seu estilo.</p>
+          <div className="mb-6 flex flex-col items-center gap-3 text-center">
+            <Link href="/" className="flex flex-col items-center gap-3">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src="/logo-maf.png"
+                alt={APP_NAME}
+                width={120}
+                height={68}
+                className="h-16 w-auto object-contain"
+              />
+              <h1 className="font-display text-xl font-bold tracking-[0.14em] text-zinc-900">
+                {APP_NAME}
+              </h1>
+            </Link>
+            <p className="text-sm text-zinc-500">{APP_TAGLINE}</p>
           </div>
 
           <form action={formAction} className="space-y-4">
+            <div className="space-y-1">
+              <label htmlFor="storeCode" className="text-sm font-medium">
+                Código da loja
+              </label>
+              <Input
+                id="storeCode"
+                name="storeCode"
+                placeholder="ex.: demo (vazio = plataforma)"
+                autoComplete="organization"
+                autoFocus
+              />
+            </div>
             <div className="space-y-1">
               <label htmlFor="username" className="text-sm font-medium">
                 Usuário
@@ -42,7 +60,6 @@ export default function LoginPage() {
                 name="username"
                 placeholder="admin"
                 autoComplete="username"
-                autoFocus
               />
             </div>
             <div className="space-y-1">
@@ -64,14 +81,20 @@ export default function LoginPage() {
               </p>
             ) : null}
 
-            <Button
-              type="submit"
-              className="w-full bg-pink-600 hover:bg-pink-500"
-              disabled={pending}
-            >
+            <Button type="submit" className="w-full" disabled={pending}>
               {pending ? "Entrando..." : "Entrar"}
             </Button>
           </form>
+
+          <p className="mt-5 text-center text-sm text-zinc-500">
+            Novo por aqui?{" "}
+            <Link
+              href="/cadastro"
+              className="font-medium text-zinc-800 hover:underline"
+            >
+              Criar loja grátis
+            </Link>
+          </p>
         </CardContent>
       </Card>
     </div>

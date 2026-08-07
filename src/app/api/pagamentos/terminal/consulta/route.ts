@@ -4,11 +4,6 @@ import { getPaymentSettings } from "@/lib/payment-settings";
 import { validateTerminalApiKey } from "@/lib/payment-terminal";
 
 export async function GET(request: Request) {
-  const settings = await getPaymentSettings();
-  if (!validateTerminalApiKey(request as unknown as import("next/server").NextRequest, settings.terminalApiKey)) {
-    return NextResponse.json({ error: "Chave de API inválida." }, { status: 401 });
-  }
-
   const ref = new URL(request.url).searchParams.get("ref")?.trim().toUpperCase();
   if (!ref) {
     return NextResponse.json({ error: "Informe o parâmetro ref." }, { status: 400 });
@@ -21,6 +16,16 @@ export async function GET(request: Request) {
 
   if (!sale) {
     return NextResponse.json({ error: "Venda não encontrada." }, { status: 404 });
+  }
+
+  const settings = await getPaymentSettings(sale.tenantId);
+  if (
+    !validateTerminalApiKey(
+      request as unknown as import("next/server").NextRequest,
+      settings.terminalApiKey,
+    )
+  ) {
+    return NextResponse.json({ error: "Chave de API inválida." }, { status: 401 });
   }
 
   return NextResponse.json({

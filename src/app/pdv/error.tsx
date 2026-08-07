@@ -16,21 +16,21 @@ export default function PdvError({
   }, [error]);
 
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-neutral-100 p-6 text-center">
+    <div className="flex min-h-screen flex-col items-center justify-center gap-4 bg-zinc-50 p-6 text-center">
       <div className="flex h-14 w-14 items-center justify-center rounded-full bg-red-100">
         <AlertTriangle className="h-7 w-7 text-red-600" />
       </div>
       <div>
-        <h2 className="text-lg font-semibold text-neutral-900">
+        <h2 className="text-lg font-semibold text-zinc-900">
           Ocorreu um erro no PDV
         </h2>
-        <p className="mt-1 max-w-md text-sm text-neutral-500">
+        <p className="mt-1 max-w-md text-sm text-zinc-400">
           Isso pode acontecer se o sistema foi atualizado enquanto o PDV estava
           aberto em segundo plano. Recarregue a página antes de continuar
           vendendo — nenhuma venda em andamento foi perdida no banco de dados.
         </p>
         {error.digest ? (
-          <p className="mt-2 text-xs text-neutral-400">Código: {error.digest}</p>
+          <p className="mt-2 text-xs text-zinc-500">Código: {error.digest}</p>
         ) : null}
       </div>
       <div className="flex gap-2">

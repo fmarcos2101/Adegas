@@ -36,13 +36,14 @@ export async function restoreBackup(
     // A próxima consulta reabre a conexão a partir do novo arquivo.
     await prisma.auditLog.create({
       data: {
+        tenantId: session.tenantId,
         userId: session.userId,
         action: "RESTAURAR_BACKUP",
         detail: `Backup restaurado (${file.name})`,
       },
     });
 
-    revalidatePath("/");
+    revalidatePath("/dashboard");
     revalidatePath("/backup");
     return { success: true };
   } catch (err) {
