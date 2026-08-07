@@ -3,8 +3,21 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/auth";
+import { requireActiveTenantAdmin } from "@/lib/session-guard";
 import { INTERNAL_BARCODE_PREFIX } from "@/lib/constants";
+
+/** Garante que a categoria informada existe e pertence à mesma loja. */
+async function assertCategoryBelongsToTenant(
+  categoryId: string | null | undefined,
+  tenantId: string,
+): Promise<{ error?: string }> {
+  if (!categoryId) return {};
+  const category = await prisma.category.findFirst({
+    where: { id: categoryId, tenantId },
+  });
+  if (!category) return { error: "Categoria inválida." };
+  return {};
+}
 
 const productSchema = z.object({
   name: z.string().min(2, "Nome muito curto"),
@@ -29,11 +42,12 @@ export async function createProduct(
   _prev: ProductState,
   formData: FormData,
 ): Promise<ProductState> {
-  const session = await getSession();
-  if (!session?.tenantId || session.role !== "ADMIN") {
-    return { error: "Não autorizado." };
+  let tenantId: string;
+  try {
+    tenantId = (await requireActiveTenantAdmin()).tenantId;
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Não autorizado." };
   }
-  const tenantId = session.tenantId;
 
   const parsed = productSchema.safeParse({
     name: formData.get("name"),
@@ -51,6 +65,10 @@ export async function createProduct(
   }
 
   const data = parsed.data;
+
+  const categoryCheck = await assertCategoryBelongsToTenant(data.categoryId, tenantId);
+  if (categoryCheck.error) return categoryCheck;
+
   const rawBarcode = (data.barcode ?? "").trim();
 
   let barcode: string;
@@ -69,30 +87,32 @@ export async function createProduct(
     barcode = rawBarcode;
   }
 
-  const product = await prisma.product.create({
-    data: {
-      tenantId,
-      name: data.name,
-      barcode,
-      categoryId: data.categoryId || null,
-      cost: data.cost,
-      price: data.price,
-      stock: data.stock,
-      minStock: data.minStock,
-    },
-  });
-
-  if (data.stock > 0) {
-    await prisma.stockMovement.create({
+  await prisma.$transaction(async (tx) => {
+    const product = await tx.product.create({
       data: {
         tenantId,
-        productId: product.id,
-        type: "ENTRADA",
-        quantity: data.stock,
-        reason: "Estoque inicial no cadastro",
+        name: data.name,
+        barcode,
+        categoryId: data.categoryId || null,
+        cost: data.cost,
+        price: data.price,
+        stock: data.stock,
+        minStock: data.minStock,
       },
     });
-  }
+
+    if (data.stock > 0) {
+      await tx.stockMovement.create({
+        data: {
+          tenantId,
+          productId: product.id,
+          type: "ENTRADA",
+          quantity: data.stock,
+          reason: "Estoque inicial no cadastro",
+        },
+      });
+    }
+  });
 
   revalidatePath("/produtos");
   revalidatePath("/dashboard");
@@ -113,9 +133,11 @@ export async function updateProduct(
   _prev: ProductState,
   formData: FormData,
 ): Promise<ProductState> {
-  const session = await getSession();
-  if (!session?.tenantId || session.role !== "ADMIN") {
-    return { error: "Não autorizado." };
+  let session: Awaited<ReturnType<typeof requireActiveTenantAdmin>>;
+  try {
+    session = await requireActiveTenantAdmin();
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Não autorizado." };
   }
   const tenantId = session.tenantId;
 
@@ -138,6 +160,9 @@ export async function updateProduct(
     where: { id: data.id, tenantId },
   });
   if (!existing) return { error: "Produto não encontrado." };
+
+  const categoryCheck = await assertCategoryBelongsToTenant(data.categoryId, tenantId);
+  if (categoryCheck.error) return categoryCheck;
 
   await prisma.$transaction([
     prisma.product.update({
@@ -171,9 +196,11 @@ export async function updateProduct(
 export type ProductActionResult = { error?: string; message?: string };
 
 export async function zeroStock(id: string): Promise<ProductActionResult> {
-  const session = await getSession();
-  if (!session?.tenantId || session.role !== "ADMIN") {
-    return { error: "Não autorizado." };
+  let session: Awaited<ReturnType<typeof requireActiveTenantAdmin>>;
+  try {
+    session = await requireActiveTenantAdmin();
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Não autorizado." };
   }
   const tenantId = session.tenantId;
 
@@ -210,9 +237,11 @@ export async function zeroStock(id: string): Promise<ProductActionResult> {
 }
 
 export async function deleteProduct(id: string): Promise<ProductActionResult> {
-  const session = await getSession();
-  if (!session?.tenantId || session.role !== "ADMIN") {
-    return { error: "Não autorizado." };
+  let session: Awaited<ReturnType<typeof requireActiveTenantAdmin>>;
+  try {
+    session = await requireActiveTenantAdmin();
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Não autorizado." };
   }
   const tenantId = session.tenantId;
 
