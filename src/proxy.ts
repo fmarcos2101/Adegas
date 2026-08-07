@@ -1,11 +1,10 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { jwtVerify } from "jose";
+import { AUTH_SECRET_BYTES } from "@/lib/session-secret";
 
 const COOKIE_NAME = "mafpdv_session";
-const secret = new TextEncoder().encode(
-  process.env.AUTH_SECRET ?? "dev-secret-change-me-please-32bytes-minimum-000",
-);
+const secret = AUTH_SECRET_BYTES;
 
 const ADMIN_ONLY_PREFIXES = [
   "/dashboard",

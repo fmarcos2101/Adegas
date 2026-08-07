@@ -1,10 +1,9 @@
 import { cookies } from "next/headers";
 import { SignJWT, jwtVerify } from "jose";
+import { AUTH_SECRET_BYTES } from "@/lib/session-secret";
 
 const COOKIE_NAME = "mafpdv_session";
-const secret = new TextEncoder().encode(
-  process.env.AUTH_SECRET ?? "dev-secret-change-me-please-32bytes-minimum-000",
-);
+const secret = AUTH_SECRET_BYTES;
 
 export type Role = "ADMIN" | "CAIXA";
 
