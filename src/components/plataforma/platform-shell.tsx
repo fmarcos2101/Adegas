@@ -10,6 +10,7 @@ const NAV = [
   { href: "/plataforma/cobranca", label: "Cobrança" },
   { href: "/plataforma/atividade", label: "Atividade" },
   { href: "/plataforma/leads", label: "Leads" },
+  { href: "/plataforma/backup", label: "Backup" },
 ];
 
 export function PlatformShell({

@@ -8,7 +8,11 @@ export const runtime = "nodejs";
 
 export async function GET() {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") {
+  // Backup completo contém dados de TODAS as lojas (usuários, vendas,
+  // senhas criptografadas e credenciais de pagamento) — exclusivo do dono
+  // da plataforma. Administradores de loja usam a exportação isolada em
+  // /api/backup/export-tenant.
+  if (!session?.isPlatformAdmin) {
     return new NextResponse("Não autorizado", { status: 403 });
   }
 
