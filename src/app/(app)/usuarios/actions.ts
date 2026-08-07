@@ -148,3 +148,45 @@ export async function resetUserPassword(
   revalidatePath("/usuarios");
   return { success: true };
 }
+
+export async function deleteUser(
+  _prev: UserState,
+  formData: FormData,
+): Promise<UserState> {
+  const session = await getSession();
+  if (!session?.tenantId || session.role !== "ADMIN") {
+    return { error: "Não autorizado." };
+  }
+  const tenantId = session.tenantId;
+  const id = String(formData.get("id") ?? "");
+  if (!id) return { error: "Usuário inválido." };
+  if (id === session.userId) {
+    return { error: "Você não pode excluir o próprio usuário." };
+  }
+
+  const user = await prisma.user.findFirst({ where: { id, tenantId } });
+  if (!user) return { error: "Usuário não encontrado." };
+
+  if (user.role === "ADMIN") {
+    const totalAdmins = await prisma.user.count({
+      where: { tenantId, role: "ADMIN" },
+    });
+    if (totalAdmins <= 1) {
+      return { error: "Não é possível excluir o único administrador da loja." };
+    }
+  }
+
+  await prisma.user.delete({ where: { id } });
+
+  await prisma.auditLog.create({
+    data: {
+      tenantId,
+      userId: session.userId,
+      action: "EXCLUIR_USUARIO",
+      detail: `Usuário ${user.username} (${user.role}) excluído`,
+    },
+  });
+
+  revalidatePath("/usuarios");
+  return { success: true };
+}

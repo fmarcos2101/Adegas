@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { UserForm } from "./user-form";
 import { ResetPasswordForm } from "./reset-password-form";
+import { DeleteUserButton } from "./delete-user-button";
 import { toggleUserActive } from "./actions";
 import { getPdvUsage } from "@/lib/plan-limits";
 import { SUBSCRIPTION_PLAN_LABEL } from "@/lib/constants";
@@ -97,10 +98,16 @@ export default async function UsuariosPage() {
                         </Button>
                       </form>
                       {!isSelf ? (
-                        <ResetPasswordForm
-                          userId={u.id}
-                          username={u.username}
-                        />
+                        <>
+                          <ResetPasswordForm
+                            userId={u.id}
+                            username={u.username}
+                          />
+                          <DeleteUserButton
+                            userId={u.id}
+                            username={u.username}
+                          />
+                        </>
                       ) : null}
                     </td>
                   </tr>

@@ -206,7 +206,10 @@ export async function cancelMpSubscriptionAction(
     });
     revalidatePath(`/plataforma/lojas/${tenantId}`);
     revalidatePath("/plataforma");
-    return { success: "Assinatura cancelada no Mercado Pago." };
+    return {
+      success:
+        "Assinatura cancelada no Mercado Pago. A loja foi bloqueada, mas os dados foram mantidos.",
+    };
   } catch (err) {
     return {
       error: err instanceof Error ? err.message : "Falha ao cancelar.",

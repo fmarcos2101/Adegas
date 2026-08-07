@@ -25,7 +25,9 @@
 - **/plataforma** — KPIs, filas de atenção (atrasadas / trial acabando / suspensas), busca e filtros de clientes, suspender/reativar, criar loja
 - **/plataforma/cobranca** — Access Token Mercado Pago, preços Básico/Pro, URL do webhook
 - **/plataforma/atividade** — auditoria das ações do dono (suporte, suspensões, checkouts…)
-- **/plataforma/lojas/[id]** — perfil/notas internas, assinatura, **gerar/copiar link MP**, usuários, reset de senha, **Entrar como suporte**
+- **/plataforma/lojas/[id]** — perfil/notas internas, assinatura, **gerar/copiar link MP**, usuários (criar/resetar/**excluir**), **Entrar como suporte**, **apagar conta** (zona de perigo)
+- **Cancelar assinatura** → bloqueia acesso, **mantém** dados da loja
+- **Apagar conta** (só owner) → remove a loja e **todo** o banco dela (cascade)
 - **/assinatura** (admin da loja) — plano, checkout Mercado Pago e histórico de cobranças
 - Webhook: `POST /api/assinaturas/mercadopago/webhook` (tópicos `subscription_preapproval` e `subscription_authorized_payment`)
 

@@ -186,7 +186,7 @@ export function MpCheckoutForm({
             onSubmit={(e) => {
               if (
                 !window.confirm(
-                  "Cancelar a assinatura no Mercado Pago e desativar a loja?",
+                  "Cancelar a assinatura no Mercado Pago e bloquear o acesso da loja? Os dados (produtos/vendas) serão mantidos.",
                 )
               ) {
                 e.preventDefault();
@@ -207,10 +207,16 @@ export function MpCheckoutForm({
               type="submit"
               variant="outline"
               disabled={cancelling}
-              className="border-red-300 text-red-700 hover:bg-red-50"
+              className="border-amber-300 text-amber-900 hover:bg-amber-50"
             >
-              {cancelling ? "Cancelando..." : "Cancelar no Mercado Pago"}
+              {cancelling
+                ? "Cancelando..."
+                : "Cancelar assinatura (mantém dados)"}
             </Button>
+            <p className="mt-2 text-xs text-slate-500">
+              Isto só bloqueia o acesso. Para apagar o banco da loja, use a zona
+              de perigo no fim da página.
+            </p>
           </form>
         ) : null}
       </CardContent>

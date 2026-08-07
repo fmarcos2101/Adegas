@@ -246,7 +246,7 @@ export async function getReport(periodo: Periodo, tenantId: string): Promise<Rep
       createdAt: s.createdAt,
       total: s.total,
       status: s.status,
-      user: s.user.name,
+      user: s.user?.name ?? "—",
       itemsCount: s._count.items,
       cancelReason: s.cancelReason,
     })),

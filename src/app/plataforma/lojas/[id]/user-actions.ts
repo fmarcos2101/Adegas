@@ -159,3 +159,48 @@ export async function platformToggleUserAction(
       : `${user.username} ativado.`,
   };
 }
+
+export async function platformDeleteUserAction(
+  _prev: PlatformUserState,
+  formData: FormData,
+): Promise<PlatformUserState> {
+  const session = await requirePlatformAdmin();
+  const tenantId = String(formData.get("tenantId") ?? "");
+  const userId = String(formData.get("userId") ?? "");
+  if (!tenantId || !userId) return { error: "Dados inválidos." };
+
+  const user = await prisma.user.findFirst({
+    where: { id: userId, tenantId, isPlatformAdmin: false },
+  });
+  if (!user) return { error: "Usuário não encontrado." };
+
+  if (user.role === "ADMIN") {
+    const activeAdmins = await prisma.user.count({
+      where: { tenantId, role: "ADMIN", active: true },
+    });
+    if (user.active && activeAdmins <= 1) {
+      return { error: "Não é possível excluir o último administrador ativo da loja." };
+    }
+    const totalAdmins = await prisma.user.count({
+      where: { tenantId, role: "ADMIN" },
+    });
+    if (totalAdmins <= 1) {
+      return { error: "Não é possível excluir o único administrador da loja." };
+    }
+  }
+
+  await prisma.user.delete({ where: { id: userId } });
+
+  await prisma.auditLog.create({
+    data: {
+      tenantId,
+      userId: session.userId,
+      action: "PLATAFORMA_EXCLUIR_USUARIO",
+      detail: `Usuário ${user.username} (${user.role}) excluído pelo suporte`,
+    },
+  });
+
+  revalidatePath(`/plataforma/lojas/${tenantId}`);
+  revalidatePath("/plataforma/atividade");
+  return { success: `${user.username} excluído.` };
+}

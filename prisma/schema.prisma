@@ -227,8 +227,9 @@ model Sale {
   total              Float
   discount           Float          @default(0)
   status             SaleStatus     @default(CONCLUIDA)
-  userId             String
-  user               User           @relation(fields: [userId], references: [id])
+  /// Pode ficar null se o usuário for excluído (histórico da venda permanece)
+  userId             String?
+  user               User?          @relation(fields: [userId], references: [id], onDelete: SetNull)
   cancelReason       String?
   paymentRef         String?        @unique
   mpOrderId          String?        @unique
@@ -274,7 +275,7 @@ model AuditLog {
   tenantId  String?
   tenant    Tenant?  @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   userId    String?
-  user      User?    @relation(fields: [userId], references: [id])
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
   action    String
   detail    String?
   createdAt DateTime @default(now())

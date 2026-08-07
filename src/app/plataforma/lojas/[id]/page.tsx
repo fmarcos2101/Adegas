@@ -20,6 +20,7 @@ import { SubscriptionForm } from "./subscription-form";
 import { MpCheckoutForm } from "./mp-checkout-form";
 import { PlatformUsersPanel } from "./platform-users-panel";
 import { TenantProfileForm } from "./tenant-profile-form";
+import { DeleteTenantForm } from "./delete-tenant-form";
 import {
   getPlatformBilling,
   isPlatformBillingConfigured,
@@ -257,6 +258,12 @@ export default async function TenantDetailPage({
         pdvUsed={pdvUsage.used}
         pdvMax={pdvUsage.max}
         planLabel={sub ? SUBSCRIPTION_PLAN_LABEL[sub.plan] : "—"}
+      />
+
+      <DeleteTenantForm
+        tenantId={tenant.id}
+        slug={tenant.slug}
+        name={tenant.name}
       />
     </PlatformShell>
   );

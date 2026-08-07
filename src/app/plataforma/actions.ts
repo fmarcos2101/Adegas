@@ -245,3 +245,44 @@ export async function updateTenantProfileAction(
   revalidatePath("/plataforma/atividade");
   return { success: "Dados da loja salvos." };
 }
+
+/**
+ * Apaga a loja e TODOS os dados dela (cascade).
+ * Cancelar assinatura NÃO chama isto — só bloqueia o acesso.
+ */
+export async function deleteTenantAction(
+  _prev: PlatformActionState,
+  formData: FormData,
+): Promise<PlatformActionState> {
+  const session = await requirePlatformAdmin();
+  const tenantId = String(formData.get("tenantId") ?? "");
+  const confirmSlug = String(formData.get("confirmSlug") ?? "")
+    .trim()
+    .toLowerCase();
+
+  if (!tenantId) return { error: "Loja inválida." };
+
+  const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
+  if (!tenant) return { error: "Loja não encontrada." };
+
+  if (confirmSlug !== tenant.slug) {
+    return {
+      error: `Digite o código da loja (${tenant.slug}) para confirmar a exclusão.`,
+    };
+  }
+
+  // Auditoria antes do cascade (tenant some e logs da loja vão junto)
+  await prisma.auditLog.create({
+    data: {
+      userId: session.userId,
+      action: "TENANT_DELETE",
+      detail: `Loja ${tenant.slug} (${tenant.name}) APAGADA com todos os dados`,
+    },
+  });
+
+  await prisma.tenant.delete({ where: { id: tenantId } });
+
+  revalidatePath("/plataforma");
+  revalidatePath("/plataforma/atividade");
+  redirect("/plataforma");
+}

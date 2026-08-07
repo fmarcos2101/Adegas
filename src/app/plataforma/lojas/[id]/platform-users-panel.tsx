@@ -3,6 +3,7 @@
 import { useActionState } from "react";
 import {
   platformCreateUserAction,
+  platformDeleteUserAction,
   platformResetPasswordAction,
   platformToggleUserAction,
   type PlatformUserState,
@@ -108,6 +109,48 @@ function ToggleUserButton({
   );
 }
 
+function DeleteUserButton({
+  tenantId,
+  userId,
+  username,
+}: {
+  tenantId: string;
+  userId: string;
+  username: string;
+}) {
+  const [state, formAction, pending] = useActionState(
+    platformDeleteUserAction,
+    initial,
+  );
+
+  return (
+    <form
+      action={formAction}
+      className="inline"
+      onSubmit={(e) => {
+        if (!window.confirm(`Excluir o usuário "${username}"?`)) {
+          e.preventDefault();
+        }
+      }}
+    >
+      <input type="hidden" name="tenantId" value={tenantId} />
+      <input type="hidden" name="userId" value={userId} />
+      <Button
+        type="submit"
+        size="sm"
+        variant="outline"
+        disabled={pending}
+        className="border-red-300 text-red-700 hover:bg-red-50"
+      >
+        {pending ? "..." : "Excluir"}
+      </Button>
+      {state.error ? (
+        <p className="mt-1 text-xs text-red-600">{state.error}</p>
+      ) : null}
+    </form>
+  );
+}
+
 export function PlatformUsersPanel({
   tenantId,
   users,
@@ -155,11 +198,18 @@ export function PlatformUsersPanel({
                   </td>
                   <td className="py-3">{u.active ? "Sim" : "Não"}</td>
                   <td className="space-y-2 py-3">
-                    <ToggleUserButton
-                      tenantId={tenantId}
-                      userId={u.id}
-                      active={u.active}
-                    />
+                    <div className="flex flex-wrap gap-2">
+                      <ToggleUserButton
+                        tenantId={tenantId}
+                        userId={u.id}
+                        active={u.active}
+                      />
+                      <DeleteUserButton
+                        tenantId={tenantId}
+                        userId={u.id}
+                        username={u.username}
+                      />
+                    </div>
                     <ResetPasswordRow
                       tenantId={tenantId}
                       userId={u.id}
