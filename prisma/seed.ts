@@ -8,22 +8,31 @@ const adapter = new PrismaBetterSqlite3({
 });
 const prisma = new PrismaClient({ adapter });
 
+/**
+ * Cria a conta do dono da plataforma apenas se ela ainda não existir.
+ *
+ * IMPORTANTE: nunca sobrescreve a senha de uma conta já existente. O seed é
+ * reexecutado em produção (ex.: script de reparo) e resetar a senha para o
+ * valor padrão reabriria a conta principal com credenciais públicas e
+ * conhecidas. Para forçar um reset intencional em ambiente controlado, use
+ * `SEED_RESET_OWNER_PASSWORD=1`.
+ */
 async function upsertPlatformOwner(passwordHash: string) {
   const existing = await prisma.user.findFirst({
     where: { isPlatformAdmin: true, username: "owner" },
   });
   if (existing) {
+    const forceReset = process.env.SEED_RESET_OWNER_PASSWORD === "1";
     await prisma.user.update({
       where: { id: existing.id },
       data: {
-        password: passwordHash,
-        name: "Dono da Plataforma",
-        role: "ADMIN",
+        ...(forceReset ? { password: passwordHash } : {}),
         active: true,
-        tenantId: null,
-        isPlatformAdmin: true,
       },
     });
+    if (forceReset) {
+      console.log("  [SEED_RESET_OWNER_PASSWORD=1] Senha do owner foi redefinida.");
+    }
     return;
   }
   await prisma.user.create({
@@ -128,7 +137,7 @@ async function main() {
 
   console.log("Seed MAF PDV concluído:");
   console.log(
-    "  Plataforma → usuário owner / senha owner123 (deixe o código da loja em branco)",
+    "  Plataforma → usuário owner (senha padrão owner123 apenas na primeira criação; senhas existentes não são alteradas)",
   );
   console.log("  Loja demo  → código 'demo' + admin/admin123 ou caixa/caixa123");
   console.log("  Cobrança   → configure em /plataforma/cobranca (Mercado Pago)");
