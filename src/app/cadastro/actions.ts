@@ -5,13 +5,24 @@ import type { SubscriptionPlan } from "@prisma/client";
 import { createSession } from "@/lib/auth";
 import { createTenantWithAdmin, slugSchema } from "@/lib/create-tenant";
 import { getPlatformBilling, priceForPlan } from "@/lib/platform-billing";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export type CadastroState = { error?: string };
+
+const CADASTRO_RATE_LIMIT = { limit: 5, windowMs: 15 * 60_000 };
 
 export async function cadastroAction(
   _prev: CadastroState,
   formData: FormData,
 ): Promise<CadastroState> {
+  const ip = await getClientIp();
+  const rate = checkRateLimit(`cadastro:${ip}`, CADASTRO_RATE_LIMIT);
+  if (!rate.allowed) {
+    return {
+      error: `Muitas tentativas de cadastro. Tente novamente em ${rate.retryAfterSeconds}s.`,
+    };
+  }
+
   const storeName = String(formData.get("storeName") ?? "").trim();
   const slugRaw = String(formData.get("slug") ?? "").trim();
   const adminName = String(formData.get("adminName") ?? "").trim();

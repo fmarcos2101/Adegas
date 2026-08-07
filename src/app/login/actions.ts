@@ -5,6 +5,7 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { createSession } from "@/lib/auth";
 import { PLATFORM_SLUG } from "@/lib/constants";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import {
   expireTrialIfNeeded,
   mustCompleteSubscription,
@@ -12,6 +13,8 @@ import {
 } from "@/lib/trial";
 
 export type LoginState = { error?: string };
+
+const LOGIN_RATE_LIMIT = { limit: 10, windowMs: 5 * 60_000 };
 
 export async function loginAction(
   _prev: LoginState,
@@ -25,6 +28,14 @@ export async function loginAction(
 
   if (!username || !password) {
     return { error: "Informe usuário e senha." };
+  }
+
+  const ip = await getClientIp();
+  const rate = checkRateLimit(`login:${ip}:${storeCode}:${username.toLowerCase()}`, LOGIN_RATE_LIMIT);
+  if (!rate.allowed) {
+    return {
+      error: `Muitas tentativas. Tente novamente em ${rate.retryAfterSeconds}s.`,
+    };
   }
 
   if (!storeCode || storeCode === PLATFORM_SLUG) {

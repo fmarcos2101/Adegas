@@ -88,8 +88,8 @@ export async function createTenantWithAdmin(
   if (RESERVED_SLUGS.has(slug)) {
     return { ok: false, error: "Este código é reservado. Escolha outro." };
   }
-  if (!adminPass || adminPass.length < 4) {
-    return { ok: false, error: "Defina uma senha (mín. 4 caracteres)." };
+  if (!adminPass || adminPass.length < 6) {
+    return { ok: false, error: "Defina uma senha (mín. 6 caracteres)." };
   }
   if (adminUser.length < 2) {
     return { ok: false, error: "Usuário admin muito curto." };
