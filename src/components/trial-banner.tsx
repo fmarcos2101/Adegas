@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Clock } from "lucide-react";
-import { TRIAL_DAYS } from "@/lib/trial";
+import { TRIAL_DAYS } from "@/lib/constants";
 
 export function TrialBanner({
   daysLeft,

@@ -1,8 +1,8 @@
 import type { Subscription } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { TRIAL_DAYS } from "@/lib/constants";
 
-/** Período de teste grátis padrão (dias). */
-export const TRIAL_DAYS = 7;
+export { TRIAL_DAYS };
 
 export function computeTrialEnd(from: Date = new Date()): Date {
   const d = new Date(from);

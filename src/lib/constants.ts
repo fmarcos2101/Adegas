@@ -14,8 +14,8 @@ export const APP_DESCRIPTION =
 /** Slug reservado — não pode ser usado por clientes. */
 export const PLATFORM_SLUG = "plataforma";
 
-/** Dias de teste grátis para novas lojas. */
-export { TRIAL_DAYS } from "@/lib/trial";
+/** Dias de teste grátis para novas lojas (sem dependência de Prisma — seguro no client). */
+export const TRIAL_DAYS = 7;
 
 export const SUBSCRIPTION_PLAN_LABEL: Record<string, string> = {
   TRIAL: "Trial (7 dias · 1 PDV)",
