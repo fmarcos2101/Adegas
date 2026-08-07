@@ -20,11 +20,12 @@
 - **/cadastro** — auto-cadastro: cria loja + admin, inicia trial de 7 dias e já entra no painel
 - **/login** — código da loja + usuário + senha (código vazio = dono da plataforma)
 
-### Plataforma (super-admin)
+### Plataforma (super-admin — você)
 
-- **/plataforma** — lista de clientes, MRR estimado, uso do mês, formulário de nova loja
+- **/plataforma** — KPIs, filas de atenção (atrasadas / trial acabando / suspensas), busca e filtros de clientes, suspender/reativar, criar loja
 - **/plataforma/cobranca** — Access Token Mercado Pago, preços Básico/Pro, URL do webhook
-- **/plataforma/lojas/[id]** — detalhe do cliente, assinatura, **gerar link de cobrança MP**, usuários, **Entrar como suporte**
+- **/plataforma/atividade** — auditoria das ações do dono (suporte, suspensões, checkouts…)
+- **/plataforma/lojas/[id]** — perfil/notas internas, assinatura, **gerar/copiar link MP**, usuários, reset de senha, **Entrar como suporte**
 - **/assinatura** (admin da loja) — plano, checkout Mercado Pago e histórico de cobranças
 - Webhook: `POST /api/assinaturas/mercadopago/webhook` (tópicos `subscription_preapproval` e `subscription_authorized_payment`)
 

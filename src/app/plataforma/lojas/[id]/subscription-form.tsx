@@ -110,13 +110,15 @@ export function SubscriptionForm({
           </div>
           <div className="space-y-1 sm:col-span-2">
             <label className="text-sm font-medium" htmlFor="notes">
-              Observações
+              Observações da assinatura
             </label>
-            <Input
+            <textarea
               id="notes"
               name="notes"
               defaultValue={notes}
+              rows={3}
               placeholder="Pagamento via Pix, contrato, etc."
+              className="flex w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm"
             />
           </div>
 

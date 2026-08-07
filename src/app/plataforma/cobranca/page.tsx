@@ -1,10 +1,6 @@
-import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, LogOut } from "lucide-react";
 import { getSession } from "@/lib/auth";
-import { BrandHeader } from "@/components/brand-header";
-import { Button } from "@/components/ui/button";
-import { logoutAction } from "@/app/(app)/actions";
+import { PlatformShell } from "@/components/plataforma/platform-shell";
 import {
   getPlatformBilling,
   isPlatformBillingConfigured,
@@ -23,34 +19,14 @@ export default async function CobrancaPage() {
   const configured = isPlatformBillingConfigured(billing);
 
   return (
-    <div className="flex min-h-screen flex-col bg-slate-100">
-      <BrandHeader subtitle="Cobrança automática — Mercado Pago">
-        <span className="hidden text-sm text-white/90 sm:inline">
-          {session.name}
-        </span>
-        <form action={logoutAction}>
-          <Button
-            variant="outline"
-            size="sm"
-            type="submit"
-            className="border-white/40 bg-white/10 text-white hover:bg-white/20"
-          >
-            <LogOut className="h-4 w-4" />
-            Sair
-          </Button>
-        </form>
-      </BrandHeader>
-
-      <main className="mx-auto w-full max-w-2xl flex-1 space-y-6 p-4 sm:p-8">
+    <PlatformShell
+      userName={session.name}
+      subtitle="Cobrança automática — Mercado Pago"
+      activePath="/plataforma/cobranca"
+    >
+      <div className="mx-auto max-w-2xl space-y-6">
         <div>
-          <Link
-            href="/plataforma"
-            className="mb-2 inline-flex items-center gap-1 text-sm text-teal-700 hover:underline"
-          >
-            <ArrowLeft className="h-4 w-4" />
-            Voltar
-          </Link>
-          <h1 className="text-2xl font-semibold text-slate-900">
+          <h1 className="font-display text-2xl font-semibold text-slate-900">
             Cobrança SaaS
           </h1>
           <p className="text-sm text-slate-500">
@@ -92,7 +68,7 @@ export default async function CobrancaPage() {
             </li>
           </ol>
         </div>
-      </main>
-    </div>
+      </div>
+    </PlatformShell>
   );
 }

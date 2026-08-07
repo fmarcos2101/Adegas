@@ -1,6 +1,6 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useState } from "react";
 import {
   generateCheckoutLinkAction,
   cancelMpSubscriptionAction,
@@ -22,6 +22,11 @@ type Props = {
   billingConfigured: boolean;
 };
 
+function extractUrl(text: string): string | null {
+  const match = text.match(/https?:\/\/\S+/);
+  return match?.[0] ?? null;
+}
+
 export function MpCheckoutForm({
   tenantId,
   defaultPlan,
@@ -39,6 +44,21 @@ export function MpCheckoutForm({
     async () => cancelMpSubscriptionAction(tenantId),
     initial,
   );
+  const [copied, setCopied] = useState(false);
+
+  const linkFromState = state.success ? extractUrl(state.success) : null;
+  const checkoutUrl = linkFromState ?? mpInitPoint;
+
+  async function copyLink() {
+    if (!checkoutUrl) return;
+    try {
+      await navigator.clipboard.writeText(checkoutUrl);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      setCopied(false);
+    }
+  }
 
   return (
     <Card>
@@ -63,16 +83,28 @@ export function MpCheckoutForm({
               <span className="font-mono text-xs">{mpPreapprovalId}</span>
             </p>
             <p className="text-slate-500">Status MP: {mpStatus ?? "—"}</p>
-            {mpInitPoint ? (
+          </div>
+        ) : null}
+
+        {checkoutUrl ? (
+          <div className="rounded-md border border-teal-200 bg-teal-50/60 p-3 text-sm">
+            <p className="font-medium text-teal-900">Link de checkout</p>
+            <p className="mt-1 break-all font-mono text-xs text-teal-800">
+              {checkoutUrl}
+            </p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <Button type="button" size="sm" variant="outline" onClick={copyLink}>
+                {copied ? "Copiado!" : "Copiar link"}
+              </Button>
               <a
-                href={mpInitPoint}
+                href={checkoutUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="mt-2 inline-block text-teal-700 hover:underline"
+                className="inline-flex h-8 items-center rounded-md px-3 text-sm font-medium text-teal-800 hover:underline"
               >
-                Abrir link de checkout
+                Abrir
               </a>
-            ) : null}
+            </div>
           </div>
         ) : null}
 
@@ -131,7 +163,7 @@ export function MpCheckoutForm({
               {state.error}
             </p>
           ) : null}
-          {state.success ? (
+          {state.success && !linkFromState ? (
             <p className="break-all rounded-md bg-teal-50 px-3 py-2 text-sm text-teal-800 sm:col-span-2">
               {state.success}
             </p>
@@ -149,7 +181,18 @@ export function MpCheckoutForm({
         </form>
 
         {mpPreapprovalId ? (
-          <form action={cancelAction}>
+          <form
+            action={cancelAction}
+            onSubmit={(e) => {
+              if (
+                !window.confirm(
+                  "Cancelar a assinatura no Mercado Pago e desativar a loja?",
+                )
+              ) {
+                e.preventDefault();
+              }
+            }}
+          >
             {cancelState.error ? (
               <p className="mb-2 rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
                 {cancelState.error}

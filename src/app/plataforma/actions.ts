@@ -161,3 +161,87 @@ export async function exitSupportAction() {
 
   redirect("/plataforma");
 }
+
+/** Suspende ou reativa a loja rapidamente (lista ou detalhe). */
+export async function setTenantActiveAction(tenantId: string, active: boolean) {
+  const session = await requirePlatformAdmin();
+  if (!tenantId) return;
+
+  const tenant = await prisma.tenant.findUnique({
+    where: { id: tenantId },
+    include: { subscription: true },
+  });
+  if (!tenant) return;
+
+  await prisma.tenant.update({
+    where: { id: tenantId },
+    data: { active },
+  });
+
+  if (tenant.subscription) {
+    if (!active && tenant.subscription.status !== "CANCELLED") {
+      await prisma.subscription.update({
+        where: { tenantId },
+        data: { status: "SUSPENDED" },
+      });
+    }
+    if (active && tenant.subscription.status === "SUSPENDED") {
+      const restore =
+        tenant.subscription.mpPreapprovalId || tenant.subscription.priceMonthly > 0
+          ? "ACTIVE"
+          : "TRIALING";
+      await prisma.subscription.update({
+        where: { tenantId },
+        data: { status: restore },
+      });
+    }
+  }
+
+  await prisma.auditLog.create({
+    data: {
+      tenantId,
+      userId: session.userId,
+      action: active ? "TENANT_ACTIVATE" : "TENANT_SUSPEND",
+      detail: `Loja ${tenant.slug} ${active ? "reativada" : "suspensa"} pela plataforma`,
+    },
+  });
+
+  revalidatePath("/plataforma");
+  revalidatePath(`/plataforma/lojas/${tenantId}`);
+  revalidatePath("/plataforma/atividade");
+}
+
+export async function updateTenantProfileAction(
+  _prev: PlatformActionState,
+  formData: FormData,
+): Promise<PlatformActionState> {
+  const session = await requirePlatformAdmin();
+  const tenantId = String(formData.get("tenantId") ?? "");
+  const name = String(formData.get("name") ?? "").trim();
+  const notes = String(formData.get("notes") ?? "").trim() || null;
+
+  if (!tenantId) return { error: "Loja inválida." };
+  if (!name) return { error: "Informe o nome da loja." };
+
+  const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
+  if (!tenant) return { error: "Loja não encontrada." };
+
+  await prisma.tenant.update({
+    where: { id: tenantId },
+    data: { name, notes },
+  });
+
+  await prisma.auditLog.create({
+    data: {
+      tenantId,
+      userId: session.userId,
+      action: "TENANT_UPDATE",
+      detail: `Perfil da loja ${tenant.slug} atualizado (${name})`,
+    },
+  });
+
+  revalidatePath("/plataforma");
+  revalidatePath(`/plataforma/lojas/${tenantId}`);
+  revalidatePath("/plataforma/atividade");
+  return { success: "Dados da loja salvos." };
+}
