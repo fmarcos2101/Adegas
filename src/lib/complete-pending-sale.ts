@@ -11,6 +11,12 @@ export async function completePendingSale(
     auditAction: string;
     auditDetail: string;
     userId?: string | null;
+    /**
+     * Valor efetivamente confirmado pelo provedor de pagamento. Quando
+     * informado, é comparado ao total da venda antes de liberá-la — evita
+     * liberar uma venda maior do que o valor realmente pago.
+     */
+    paidAmount?: number | null;
   },
 ) {
   const sale = await tx.sale.findUnique({
@@ -21,6 +27,15 @@ export async function completePendingSale(
   if (sale.status === "CONCLUIDA") return sale;
   if (sale.status !== "AGUARDANDO_PAGAMENTO") {
     throw new Error("Venda não está aguardando pagamento.");
+  }
+
+  if (
+    options.paidAmount != null &&
+    Math.abs(sale.total - options.paidAmount) > 0.01
+  ) {
+    throw new Error(
+      `Valor pago (${options.paidAmount.toFixed(2)}) diverge do total da venda (${sale.total.toFixed(2)}).`,
+    );
   }
 
   await tx.sale.update({
@@ -61,6 +76,7 @@ export async function completePendingSaleByRef(
     auditAction: string;
     auditDetail: string;
     userId?: string | null;
+    paidAmount?: number | null;
   },
 ) {
   const ref = paymentRef.trim().toUpperCase();
@@ -82,6 +98,7 @@ export async function completePendingSaleByMpOrderId(
     method?: PaymentMethod;
     auditAction: string;
     auditDetail: string;
+    paidAmount?: number | null;
   },
 ) {
   const sale = await prisma.sale.findUnique({ where: { mpOrderId } });

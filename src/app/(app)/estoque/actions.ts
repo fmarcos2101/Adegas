@@ -3,7 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/auth";
+import { requireActiveTenantSession } from "@/lib/session-guard";
 
 const schema = z.object({
   productId: z.string().min(1, "Selecione um produto"),
@@ -18,8 +18,12 @@ export async function createMovement(
   _prev: StockState,
   formData: FormData,
 ): Promise<StockState> {
-  const session = await getSession();
-  if (!session?.tenantId) return { error: "Não autorizado." };
+  let session: Awaited<ReturnType<typeof requireActiveTenantSession>>;
+  try {
+    session = await requireActiveTenantSession();
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Não autorizado." };
+  }
   const tenantId = session.tenantId;
 
   const parsed = schema.safeParse({

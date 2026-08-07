@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Boxes, LayoutDashboard, LogOut } from "lucide-react";
-import { getSession } from "@/lib/auth";
+import { destroySession, getSession } from "@/lib/auth";
+import { prisma } from "@/lib/prisma";
 import { BrandHeader } from "@/components/brand-header";
 import { Button } from "@/components/ui/button";
 import { logoutAction } from "@/app/(app)/actions";
@@ -19,7 +20,29 @@ export default async function PdvLayout({
   if (!session?.tenantId) redirect("/login");
 
   if (!session.supportMode) {
-    const subscription = await expireTrialIfNeeded(session.tenantId);
+    const [user, tenant, subscription] = await Promise.all([
+      prisma.user.findUnique({ where: { id: session.userId } }),
+      prisma.tenant.findUnique({ where: { id: session.tenantId } }),
+      expireTrialIfNeeded(session.tenantId),
+    ]);
+
+    if (
+      !user ||
+      !user.active ||
+      user.tenantId !== session.tenantId ||
+      user.role !== session.role ||
+      !tenant ||
+      !tenant.active
+    ) {
+      await destroySession();
+      redirect("/login");
+    }
+
+    if (subscription?.status === "SUSPENDED" || subscription?.status === "CANCELLED") {
+      await destroySession();
+      redirect("/login");
+    }
+
     if (mustCompleteSubscription(subscription)) {
       redirect(session.role === "ADMIN" ? "/assinatura" : "/login");
     }

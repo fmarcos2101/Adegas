@@ -4,13 +4,13 @@ import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
-import { getSession } from "@/lib/auth";
+import { requireActiveTenantAdmin } from "@/lib/session-guard";
 import { canAddPdvUser } from "@/lib/plan-limits";
 
 const schema = z.object({
   name: z.string().min(2, "Nome muito curto"),
   username: z.string().min(3, "Usuário muito curto"),
-  password: z.string().min(4, "Senha deve ter ao menos 4 caracteres"),
+  password: z.string().min(6, "Senha deve ter ao menos 6 caracteres"),
   role: z.enum(["ADMIN", "CAIXA"]),
 });
 
@@ -20,9 +20,11 @@ export async function createUser(
   _prev: UserState,
   formData: FormData,
 ): Promise<UserState> {
-  const session = await getSession();
-  if (!session?.tenantId || session.role !== "ADMIN") {
-    return { error: "Não autorizado." };
+  let session: Awaited<ReturnType<typeof requireActiveTenantAdmin>>;
+  try {
+    session = await requireActiveTenantAdmin();
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Não autorizado." };
   }
   const tenantId = session.tenantId;
 
@@ -71,8 +73,12 @@ export async function createUser(
 }
 
 export async function toggleUserActive(formData: FormData): Promise<void> {
-  const session = await getSession();
-  if (!session?.tenantId || session.role !== "ADMIN") return;
+  let session: Awaited<ReturnType<typeof requireActiveTenantAdmin>>;
+  try {
+    session = await requireActiveTenantAdmin();
+  } catch {
+    return;
+  }
   const tenantId = session.tenantId;
 
   const id = String(formData.get("id") ?? "");
@@ -115,17 +121,19 @@ export async function resetUserPassword(
   _prev: UserState,
   formData: FormData,
 ): Promise<UserState> {
-  const session = await getSession();
-  if (!session?.tenantId || session.role !== "ADMIN") {
-    return { error: "Não autorizado." };
+  let session: Awaited<ReturnType<typeof requireActiveTenantAdmin>>;
+  try {
+    session = await requireActiveTenantAdmin();
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Não autorizado." };
   }
   const tenantId = session.tenantId;
   const userId = String(formData.get("userId") ?? "");
   const password = String(formData.get("password") ?? "");
 
   if (!userId) return { error: "Usuário inválido." };
-  if (password.length < 4) {
-    return { error: "Senha deve ter ao menos 4 caracteres." };
+  if (password.length < 6) {
+    return { error: "Senha deve ter ao menos 6 caracteres." };
   }
 
   const user = await prisma.user.findFirst({ where: { id: userId, tenantId } });
@@ -153,9 +161,11 @@ export async function deleteUser(
   _prev: UserState,
   formData: FormData,
 ): Promise<UserState> {
-  const session = await getSession();
-  if (!session?.tenantId || session.role !== "ADMIN") {
-    return { error: "Não autorizado." };
+  let session: Awaited<ReturnType<typeof requireActiveTenantAdmin>>;
+  try {
+    session = await requireActiveTenantAdmin();
+  } catch (err) {
+    return { error: err instanceof Error ? err.message : "Não autorizado." };
   }
   const tenantId = session.tenantId;
   const id = String(formData.get("id") ?? "");

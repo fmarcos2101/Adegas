@@ -3,13 +3,13 @@
 import { useActionState, useEffect, useRef } from "react";
 import { toast } from "sonner";
 import { Upload } from "lucide-react";
-import { restoreBackup, type RestoreState } from "./actions";
+import { restoreBackupPlatform, type RestoreState } from "./actions";
 import { Button } from "@/components/ui/button";
 
 const initial: RestoreState = {};
 
 export function RestoreForm() {
-  const [state, action, pending] = useActionState(restoreBackup, initial);
+  const [state, action, pending] = useActionState(restoreBackupPlatform, initial);
   const formRef = useRef<HTMLFormElement>(null);
 
   useEffect(() => {
@@ -31,11 +31,11 @@ export function RestoreForm() {
       />
       <Button type="submit" variant="destructive" disabled={pending}>
         <Upload className="h-4 w-4" />
-        {pending ? "Restaurando..." : "Restaurar backup"}
+        {pending ? "Restaurando..." : "Restaurar backup completo"}
       </Button>
       <p className="text-xs text-zinc-400">
-        Atenção: a restauração substitui todos os dados atuais pelo conteúdo do
-        arquivo enviado.
+        Atenção: a restauração substitui os dados de{" "}
+        <strong>todas as lojas</strong> pelo conteúdo do arquivo enviado.
       </p>
     </form>
   );

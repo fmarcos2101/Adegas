@@ -179,16 +179,34 @@ export function isMercadoPagoOrderFailed(status: MpOrderStatus): boolean {
   return status === "failed" || status === "canceled" || status === "expired";
 }
 
+/** Janela máxima de aceite do timestamp da assinatura, contra replay attacks. */
+const WEBHOOK_MAX_AGE_SECONDS = 5 * 60;
+
+export type WebhookSignatureResult =
+  | { ok: true }
+  | { ok: false; reason: "missing_secret" | "missing_fields" | "invalid" | "expired" };
+
+/**
+ * Valida a assinatura HMAC do webhook do Mercado Pago.
+ *
+ * Sem segredo configurado, a validação FALHA (fail closed) — antes disso o
+ * código aceitava qualquer notificação sem assinatura quando o segredo não
+ * estava configurado, o que permitia forjar confirmações de pagamento.
+ * Também rejeita timestamps antigos para dificultar replay de notificações
+ * capturadas anteriormente.
+ */
 export function validateMercadoPagoWebhookSignature(
   signatureHeader: string | null,
   requestId: string | null,
   dataId: string | null,
   webhookSecret?: string,
-): boolean {
+): WebhookSignatureResult {
   const secret =
     webhookSecret?.trim() ?? process.env.MERCADOPAGO_WEBHOOK_SECRET?.trim();
-  if (!secret) return true;
-  if (!signatureHeader || !requestId || !dataId) return false;
+  if (!secret) return { ok: false, reason: "missing_secret" };
+  if (!signatureHeader || !requestId || !dataId) {
+    return { ok: false, reason: "missing_fields" };
+  }
 
   const parts = Object.fromEntries(
     signatureHeader.split(",").map((part) => {
@@ -198,15 +216,24 @@ export function validateMercadoPagoWebhookSignature(
   );
   const ts = parts.ts;
   const v1 = parts.v1;
-  if (!ts || !v1) return false;
+  if (!ts || !v1) return { ok: false, reason: "missing_fields" };
+
+  const tsSeconds = Number(ts);
+  if (
+    !Number.isFinite(tsSeconds) ||
+    Math.abs(Date.now() / 1000 - tsSeconds) > WEBHOOK_MAX_AGE_SECONDS
+  ) {
+    return { ok: false, reason: "expired" };
+  }
 
   const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`;
   const expected = createHmac("sha256", secret).update(manifest).digest("hex");
 
   try {
-    return timingSafeEqual(Buffer.from(v1), Buffer.from(expected));
+    const valid = timingSafeEqual(Buffer.from(v1), Buffer.from(expected));
+    return valid ? { ok: true } : { ok: false, reason: "invalid" };
   } catch {
-    return false;
+    return { ok: false, reason: "invalid" };
   }
 }
 

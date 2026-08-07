@@ -8,12 +8,17 @@ import { getDbPath } from "@/lib/dbfile";
 
 export type RestoreState = { error?: string; success?: boolean };
 
-export async function restoreBackup(
+/**
+ * Restauração completa do banco (todas as lojas). Exclusiva do dono da
+ * plataforma: um administrador de loja jamais pode substituir o banco
+ * inteiro do SaaS.
+ */
+export async function restoreBackupPlatform(
   _prev: RestoreState,
   formData: FormData,
 ): Promise<RestoreState> {
   const session = await getSession();
-  if (!session || session.role !== "ADMIN") return { error: "Não autorizado." };
+  if (!session?.isPlatformAdmin) return { error: "Não autorizado." };
 
   const file = formData.get("file");
   if (!(file instanceof File) || file.size === 0) {
@@ -22,29 +27,26 @@ export async function restoreBackup(
 
   const buffer = Buffer.from(await file.arrayBuffer());
 
-  // Validação simples do cabeçalho de um arquivo SQLite.
   const header = buffer.subarray(0, 16).toString("utf8");
   if (!header.startsWith("SQLite format 3")) {
     return { error: "Arquivo inválido: não é um banco SQLite." };
   }
 
   try {
-    // Fecha a conexão para liberar o arquivo antes de sobrescrever.
     await prisma.$disconnect();
     await fs.writeFile(getDbPath(), buffer);
 
-    // A próxima consulta reabre a conexão a partir do novo arquivo.
     await prisma.auditLog.create({
       data: {
-        tenantId: session.tenantId,
+        tenantId: null,
         userId: session.userId,
-        action: "RESTAURAR_BACKUP",
-        detail: `Backup restaurado (${file.name})`,
+        action: "RESTAURAR_BACKUP_PLATAFORMA",
+        detail: `Backup completo do SaaS restaurado por ${session.username} (${file.name})`,
       },
     });
 
-    revalidatePath("/dashboard");
-    revalidatePath("/backup");
+    revalidatePath("/plataforma");
+    revalidatePath("/plataforma/backup");
     return { success: true };
   } catch (err) {
     return {
