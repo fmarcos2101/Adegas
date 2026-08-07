@@ -20,7 +20,7 @@ const archivo = Archivo({
 export const metadata: Metadata = {
   title: `${APP_NAME} — PDV Online`,
   description: APP_DESCRIPTION,
-  icons: { icon: "/logo-maf.png" },
+  icons: { icon: "/logo-maf-icon.png" },
 };
 
 export default function RootLayout({

@@ -28,10 +28,10 @@ export default async function LandingPage() {
         <span className="inline-flex items-center gap-2.5">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/logo-maf.png"
+            src="/logo-maf-icon.png"
             alt={APP_NAME}
             width={56}
-            height={32}
+            height={34}
             className="h-9 w-auto object-contain"
           />
           <span className="font-display text-sm font-bold tracking-[0.16em] text-zinc-900">
@@ -101,6 +101,22 @@ export default async function LandingPage() {
               </a>
             </div>
           </div>
+        </div>
+      </section>
+
+      <section
+        id="especialistas"
+        className="border-y border-zinc-200 bg-white px-6 py-16 sm:px-10"
+      >
+        <div className="mx-auto max-w-2xl">
+          <h2 className="font-display text-3xl font-semibold tracking-tight text-zinc-900">
+            Falar com especialistas
+          </h2>
+          <p className="mt-3 text-zinc-600">
+            Prefere um atendimento humano antes de assinar? Preencha abaixo —
+            nossa equipe entra em contato pelo WhatsApp.
+          </p>
+          <SpecialistForm />
         </div>
       </section>
 
@@ -179,22 +195,6 @@ export default async function LandingPage() {
               <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
-        </div>
-      </section>
-
-      <section
-        id="especialistas"
-        className="bg-[var(--maf-surface)] px-6 py-20 sm:px-10"
-      >
-        <div className="mx-auto max-w-2xl">
-          <h2 className="font-display text-3xl font-semibold tracking-tight text-zinc-900">
-            Falar com especialistas
-          </h2>
-          <p className="mt-3 text-zinc-600">
-            Prefere um atendimento humano antes de assinar? Deixe seus dados —
-            nossa equipe entra em contato pelo WhatsApp.
-          </p>
-          <SpecialistForm />
         </div>
       </section>
 

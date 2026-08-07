@@ -65,7 +65,11 @@ export function Sidebar({
     >
       <div className="maf-dark-bar flex h-20 items-center gap-2.5 border-b border-white/10 px-4">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src="/logo-maf.png" alt="" className="h-9 w-auto object-contain" />
+        <img
+          src="/logo-maf-icon.png"
+          alt=""
+          className="h-10 w-auto object-contain"
+        />
         <span className="font-display text-sm font-bold leading-tight tracking-[0.12em] text-white">
           {APP_NAME}
           {storeName ? (

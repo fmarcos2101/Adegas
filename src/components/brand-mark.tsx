@@ -17,10 +17,10 @@ export function BrandMark({
     <span className={cn("inline-flex items-center gap-2.5", className)}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
-        src="/logo-maf.png"
+        src={size <= 56 ? "/logo-maf-icon.png" : "/logo-maf.png"}
         alt={APP_NAME}
         width={size}
-        height={Math.round(size * 0.56)}
+        height={Math.round(size * 0.62)}
         className="h-auto object-contain"
       />
       {showWordmark ? (
