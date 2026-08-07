@@ -212,6 +212,12 @@ export function mapMpPreapprovalStatus(
   }
 }
 
+const WEBHOOK_MAX_AGE_SECONDS = 5 * 60;
+
+/**
+ * Sem segredo configurado, a validação FALHA (fail closed). Também rejeita
+ * timestamps fora de uma janela curta para dificultar replay.
+ */
 export function validatePlatformMpWebhookSignature(
   signatureHeader: string | null,
   requestId: string | null,
@@ -219,7 +225,7 @@ export function validatePlatformMpWebhookSignature(
   webhookSecret?: string | null,
 ): boolean {
   const secret = webhookSecret?.trim();
-  if (!secret) return true;
+  if (!secret) return false;
   if (!signatureHeader || !requestId || !dataId) return false;
 
   const parts = Object.fromEntries(
@@ -231,6 +237,14 @@ export function validatePlatformMpWebhookSignature(
   const ts = parts.ts;
   const v1 = parts.v1;
   if (!ts || !v1) return false;
+
+  const tsSeconds = Number(ts);
+  if (
+    !Number.isFinite(tsSeconds) ||
+    Math.abs(Date.now() / 1000 - tsSeconds) > WEBHOOK_MAX_AGE_SECONDS
+  ) {
+    return false;
+  }
 
   const manifest = `id:${dataId};request-id:${requestId};ts:${ts};`;
   const expected = createHmac("sha256", secret).update(manifest).digest("hex");
