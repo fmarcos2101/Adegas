@@ -12,7 +12,6 @@ import {
   Users,
   ScrollText,
   Database,
-  Store,
   CreditCard,
   Receipt,
 } from "lucide-react";
@@ -60,18 +59,26 @@ export function Sidebar({
   return (
     <aside
       className={cn(
-        "fixed inset-y-0 left-0 z-50 flex w-60 shrink-0 flex-col border-r border-neutral-200 bg-white transition-transform duration-200 lg:static lg:translate-x-0",
+        "fixed inset-y-0 left-0 z-50 flex w-60 shrink-0 flex-col border-r border-white/10 bg-[#0a0a0c] transition-transform duration-200 lg:static lg:translate-x-0",
         mobileOpen ? "translate-x-0" : "-translate-x-full lg:translate-x-0",
       )}
     >
-      <div className="flex h-20 items-center gap-2 border-b border-neutral-200 bg-gradient-to-br from-teal-700 to-slate-900 px-5">
-        <Store className="h-5 w-5 text-teal-200" />
-        <span className="text-lg font-extrabold leading-none tracking-tight text-white">
+      <div className="relative flex h-20 items-center gap-2.5 overflow-hidden border-b border-white/10 px-4">
+        <div
+          className="absolute inset-0 opacity-60"
+          style={{
+            background:
+              "radial-gradient(ellipse at left, rgba(220,225,235,0.12), transparent 60%)",
+          }}
+          aria-hidden
+        />
+        <img src="/logo-maf.svg" alt="" width={42} height={26} className="relative h-7 w-auto" />
+        <span className="relative font-display text-sm font-bold leading-tight tracking-[0.12em] text-white">
           {APP_NAME}
           {storeName ? (
             <>
               <br />
-              <span className="text-xs font-medium normal-case tracking-normal text-teal-200/90">
+              <span className="font-sans text-[11px] font-medium normal-case tracking-normal text-zinc-400">
                 {storeName}
               </span>
             </>
@@ -80,13 +87,14 @@ export function Sidebar({
       </div>
       <nav className="flex-1 space-y-1 p-3">
         {visible.map((item) => {
-          const active = pathname === item.href || pathname.startsWith(`${item.href}/`);
+          const active =
+            pathname === item.href || pathname.startsWith(`${item.href}/`);
           const Icon = item.icon;
           const className = cn(
             "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
             active && !item.newTab
-              ? "bg-teal-700 text-white"
-              : "text-neutral-700 hover:bg-teal-50",
+              ? "bg-white/10 text-white ring-1 ring-white/15"
+              : "text-zinc-400 hover:bg-white/5 hover:text-zinc-100",
           );
 
           if (item.newTab) {

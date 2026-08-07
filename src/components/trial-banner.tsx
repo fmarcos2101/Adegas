@@ -17,30 +17,23 @@ export function TrialBanner({
     <div
       className={
         urgent
-          ? "flex flex-wrap items-center justify-between gap-3 rounded-md border border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950"
-          : "flex flex-wrap items-center justify-between gap-3 rounded-md border border-teal-200 bg-teal-50 px-4 py-3 text-sm text-teal-950"
+          ? "flex flex-wrap items-center justify-between gap-3 border-b border-amber-500/30 bg-amber-950/40 px-4 py-2.5 text-sm text-amber-100"
+          : "flex flex-wrap items-center justify-between gap-3 border-b border-white/10 bg-white/[0.04] px-4 py-2.5 text-sm text-zinc-200"
       }
     >
-      <div className="flex items-start gap-2">
-        <Clock className="mt-0.5 h-4 w-4 shrink-0" />
-        <div>
-          <p className="font-medium">
-            Teste grátis — {daysLeft}{" "}
-            {daysLeft === 1 ? "dia restante" : "dias restantes"}
-          </p>
-          <p className="text-xs opacity-80">
+      <div className="flex items-center gap-2">
+        <Clock className="h-4 w-4 shrink-0" />
+        <p>
+          <strong>Teste grátis — {daysLeft} dia(s) restante(s).</strong>{" "}
+          <span className="opacity-80">
             Período de {TRIAL_DAYS} dias até {trialEndsAtLabel}. Depois é
-            preciso assinar um plano.
-          </p>
-        </div>
+            preciso assinar.
+          </span>
+        </p>
       </div>
       <Link
         href="/assinatura"
-        className={
-          urgent
-            ? "rounded-md bg-amber-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-amber-600"
-            : "rounded-md bg-teal-700 px-3 py-1.5 text-xs font-medium text-white hover:bg-teal-600"
-        }
+        className="shrink-0 font-medium text-white underline-offset-2 hover:underline"
       >
         Ver planos
       </Link>

@@ -36,6 +36,8 @@ export const RESERVED_SLUGS = new Set([
   "suporte",
   "help",
   "nexopdv",
+  "mafpdv",
+  "maf",
   "pricing",
   "precos",
 ]);

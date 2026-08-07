@@ -74,10 +74,10 @@ export default async function PlataformaAtividadePage() {
       activePath="/plataforma/atividade"
     >
       <div>
-        <h1 className="font-display text-2xl font-semibold text-slate-900">
+        <h1 className="font-display text-2xl font-semibold text-zinc-100">
           Atividade
         </h1>
-        <p className="text-sm text-slate-500">
+        <p className="text-sm text-zinc-400">
           Auditoria do que você e o sistema fizeram nas lojas.
         </p>
       </div>
@@ -88,7 +88,7 @@ export default async function PlataformaAtividadePage() {
         </CardHeader>
         <CardContent>
           {logs.length === 0 ? (
-            <p className="text-sm text-slate-500">Nenhum evento registrado.</p>
+            <p className="text-sm text-zinc-400">Nenhum evento registrado.</p>
           ) : (
             <ul className="divide-y divide-slate-100">
               {logs.map((log) => (
@@ -97,18 +97,18 @@ export default async function PlataformaAtividadePage() {
                   className="flex flex-col gap-1 py-3 sm:flex-row sm:items-start sm:justify-between"
                 >
                   <div>
-                    <p className="text-sm font-medium text-slate-900">
+                    <p className="text-sm font-medium text-zinc-100">
                       {ACTION_LABEL[log.action] ?? log.action}
                       {log.tenant ? (
                         <>
                           {" · "}
                           <Link
                             href={`/plataforma/lojas/${log.tenant.id}`}
-                            className="text-teal-700 hover:underline"
+                            className="text-zinc-200 hover:underline"
                           >
                             {log.tenant.name}
                           </Link>
-                          <span className="text-slate-400">
+                          <span className="text-zinc-500">
                             {" "}
                             ({log.tenant.slug})
                           </span>
@@ -116,15 +116,15 @@ export default async function PlataformaAtividadePage() {
                       ) : null}
                     </p>
                     {log.detail ? (
-                      <p className="text-xs text-slate-500">{log.detail}</p>
+                      <p className="text-xs text-zinc-400">{log.detail}</p>
                     ) : null}
                     {log.user ? (
-                      <p className="text-xs text-slate-400">
+                      <p className="text-xs text-zinc-500">
                         por {log.user.name} ({log.user.username})
                       </p>
                     ) : null}
                   </div>
-                  <time className="shrink-0 text-xs text-slate-400">
+                  <time className="shrink-0 text-xs text-zinc-500">
                     {log.createdAt.toLocaleString("pt-BR")}
                   </time>
                 </li>

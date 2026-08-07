@@ -80,8 +80,8 @@ export function TenantsTable({ rows }: { rows: TenantRow[] }) {
               onClick={() => setFilter(f.key)}
               className={
                 filter === f.key
-                  ? "rounded-md bg-teal-700 px-2.5 py-1 text-xs font-medium text-white"
-                  : "rounded-md bg-slate-100 px-2.5 py-1 text-xs font-medium text-slate-600 hover:bg-slate-200"
+                  ? "rounded-md bg-zinc-100 px-2.5 py-1 text-xs font-medium text-white"
+                  : "rounded-md bg-[var(--maf-ink)] px-2.5 py-1 text-xs font-medium text-zinc-400 hover:bg-slate-200"
               }
             >
               {f.label}
@@ -91,12 +91,12 @@ export function TenantsTable({ rows }: { rows: TenantRow[] }) {
       </div>
 
       {filtered.length === 0 ? (
-        <p className="text-sm text-slate-500">Nenhuma loja neste filtro.</p>
+        <p className="text-sm text-zinc-400">Nenhuma loja neste filtro.</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-slate-200 text-left text-slate-500">
+              <tr className="border-b border-white/10 text-left text-zinc-400">
                 <th className="py-2 pr-3">Loja</th>
                 <th className="py-2 pr-3">Plano</th>
                 <th className="py-2 pr-3">Status</th>
@@ -107,18 +107,18 @@ export function TenantsTable({ rows }: { rows: TenantRow[] }) {
             </thead>
             <tbody>
               {filtered.map((t) => (
-                <tr key={t.id} className="border-b border-slate-100 align-top">
+                <tr key={t.id} className="border-b border-white/5 align-top">
                   <td className="py-3 pr-3">
-                    <div className="font-medium text-slate-900">{t.name}</div>
-                    <div className="text-xs text-slate-500">
+                    <div className="font-medium text-zinc-100">{t.name}</div>
+                    <div className="text-xs text-zinc-400">
                       código <span className="font-mono">{t.slug}</span>
                       {!t.active ? " · inativa" : ""}
                     </div>
                     {t.payerEmail ? (
-                      <div className="text-xs text-slate-400">{t.payerEmail}</div>
+                      <div className="text-xs text-zinc-500">{t.payerEmail}</div>
                     ) : null}
                     {t.trialEndsAt && t.status === "TRIALING" ? (
-                      <div className="text-xs text-sky-700">
+                      <div className="text-xs text-sky-300">
                         Trial até{" "}
                         {new Date(t.trialEndsAt).toLocaleDateString("pt-BR")}
                       </div>
@@ -134,7 +134,7 @@ export function TenantsTable({ rows }: { rows: TenantRow[] }) {
                   </td>
                   <td className="py-3 pr-3">
                     <div>{t.monthSales} vendas</div>
-                    <div className="text-xs text-slate-500">
+                    <div className="text-xs text-zinc-400">
                       {formatBRL(t.monthRevenue)} · {t.users} users ·{" "}
                       {t.products} prod.
                     </div>
@@ -144,7 +144,7 @@ export function TenantsTable({ rows }: { rows: TenantRow[] }) {
                     <div className="flex flex-col items-start gap-1">
                       <Link
                         href={`/plataforma/lojas/${t.id}`}
-                        className="font-medium text-teal-700 hover:underline"
+                        className="font-medium text-zinc-200 hover:underline"
                       >
                         Gerenciar
                       </Link>
@@ -152,7 +152,7 @@ export function TenantsTable({ rows }: { rows: TenantRow[] }) {
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="h-7 px-2 text-xs text-slate-600"
+                        className="h-7 px-2 text-xs text-zinc-400"
                         disabled={pending}
                         onClick={() =>
                           startTransition(() =>

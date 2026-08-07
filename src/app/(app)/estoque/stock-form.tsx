@@ -66,7 +66,7 @@ export function StockForm({
           ) : null}
         </select>
         {!canManage ? (
-          <p className="text-xs text-neutral-500">
+          <p className="text-xs text-zinc-400">
             Seu perfil permite apenas entrada de estoque.
           </p>
         ) : null}

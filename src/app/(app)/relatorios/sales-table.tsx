@@ -44,14 +44,14 @@ export function SalesTable({
   }
 
   if (sales.length === 0) {
-    return <p className="text-sm text-neutral-500">Nenhuma venda no período.</p>;
+    return <p className="text-sm text-zinc-400">Nenhuma venda no período.</p>;
   }
 
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-neutral-200 text-left text-neutral-500">
+          <tr className="border-b border-white/10 text-left text-zinc-400">
             <th className="py-2">Data</th>
             <th className="py-2">Operador</th>
             <th className="py-2">Itens</th>
@@ -62,25 +62,25 @@ export function SalesTable({
         </thead>
         <tbody>
           {sales.map((s) => (
-            <tr key={s.id} className="border-b border-neutral-100">
-              <td className="py-2 text-neutral-500">{s.createdAt}</td>
+            <tr key={s.id} className="border-b border-white/5">
+              <td className="py-2 text-zinc-400">{s.createdAt}</td>
               <td className="py-2">{s.user}</td>
               <td className="py-2">{s.itemsCount}</td>
               <td className="py-2 font-medium">{formatBRL(s.total)}</td>
               <td className="py-2">
                 {s.status === "CANCELADA" ? (
                   <span
-                    className="rounded-full bg-red-50 px-2 py-0.5 text-xs text-red-700"
+                    className="rounded-full bg-red-950/40 px-2 py-0.5 text-xs text-red-700"
                     title={s.cancelReason ?? undefined}
                   >
                     Cancelada
                   </span>
                 ) : s.status === "AGUARDANDO_PAGAMENTO" ? (
-                  <span className="rounded-full bg-amber-50 px-2 py-0.5 text-xs text-amber-800">
+                  <span className="rounded-full bg-amber-950/40 px-2 py-0.5 text-xs text-amber-200">
                     Aguardando pagamento
                   </span>
                 ) : (
-                  <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700">
+                  <span className="rounded-full bg-emerald-950/40 px-2 py-0.5 text-xs text-emerald-300">
                     Concluída
                   </span>
                 )}
@@ -92,7 +92,7 @@ export function SalesTable({
                       type="button"
                       variant="ghost"
                       size="sm"
-                      className="text-red-600"
+                      className="text-red-300"
                       disabled={pending && busyId === s.id}
                       onClick={() => handleCancel(s.id)}
                     >

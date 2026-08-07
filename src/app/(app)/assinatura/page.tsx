@@ -21,7 +21,7 @@ export default async function AssinaturaPage() {
   const session = await requireTenantSession();
   if (session.role !== "ADMIN") {
     return (
-      <p className="text-sm text-neutral-500">
+      <p className="text-sm text-zinc-400">
         Apenas o administrador da loja gerencia a assinatura.
       </p>
     );
@@ -48,8 +48,8 @@ export default async function AssinaturaPage() {
   return (
     <div className="mx-auto max-w-2xl space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-neutral-900">Assinatura</h1>
-        <p className="text-sm text-neutral-500">
+        <h1 className="text-2xl font-semibold text-zinc-100">Assinatura</h1>
+        <p className="text-sm text-zinc-400">
           Teste grátis de 7 dias · cobrança automática via Mercado Pago
         </p>
       </div>
@@ -81,13 +81,13 @@ export default async function AssinaturaPage() {
       />
 
       {payments.length > 0 ? (
-        <div className="rounded-lg border border-neutral-200 bg-white p-4">
-          <h2 className="mb-3 text-sm font-semibold text-neutral-900">
+        <div className="rounded-lg border border-white/10 bg-white p-4">
+          <h2 className="mb-3 text-sm font-semibold text-zinc-100">
             Histórico de cobranças
           </h2>
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b text-left text-neutral-500">
+              <tr className="border-b text-left text-zinc-400">
                 <th className="py-2">Data</th>
                 <th className="py-2">Valor</th>
                 <th className="py-2">Status</th>
@@ -95,7 +95,7 @@ export default async function AssinaturaPage() {
             </thead>
             <tbody>
               {payments.map((p) => (
-                <tr key={p.id} className="border-b border-neutral-100">
+                <tr key={p.id} className="border-b border-white/5">
                   <td className="py-2">
                     {format(p.createdAt, "dd/MM/yyyy HH:mm")}
                   </td>

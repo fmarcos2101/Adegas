@@ -1,7 +1,7 @@
 import { cookies } from "next/headers";
 import { SignJWT, jwtVerify } from "jose";
 
-const COOKIE_NAME = "nexopdv_session";
+const COOKIE_NAME = "mafpdv_session";
 const secret = new TextEncoder().encode(
   process.env.AUTH_SECRET ?? "dev-secret-change-me-please-32bytes-minimum-000",
 );

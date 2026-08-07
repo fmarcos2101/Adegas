@@ -150,10 +150,10 @@ export default async function PlataformaPage() {
     <PlatformShell userName={session.name} activePath="/plataforma">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="font-display text-2xl font-semibold text-slate-900">
+          <h1 className="font-display text-2xl font-semibold text-zinc-100">
             Seu painel — {APP_NAME}
           </h1>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-zinc-400">
             Clientes, assinaturas, suporte e cobrança em um só lugar.
           </p>
         </div>
@@ -166,12 +166,12 @@ export default async function PlataformaPage() {
             <Card key={c.title}>
               <CardHeader className="flex flex-row items-center justify-between">
                 <CardTitle>{c.title}</CardTitle>
-                <Icon className="h-5 w-5 text-slate-400" />
+                <Icon className="h-5 w-5 text-zinc-500" />
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold text-slate-900">{c.value}</div>
+                <div className="text-2xl font-bold text-zinc-100">{c.value}</div>
                 {c.hint ? (
-                  <p className="mt-1 text-xs text-slate-500">{c.hint}</p>
+                  <p className="mt-1 text-xs text-zinc-400">{c.hint}</p>
                 ) : null}
               </CardContent>
             </Card>
@@ -193,7 +193,7 @@ export default async function PlataformaPage() {
           />
           <AttentionCard
             title="Trial acabando (≤3 dias)"
-            icon={<Clock className="h-4 w-4 text-sky-700" />}
+            icon={<Clock className="h-4 w-4 text-sky-300" />}
             items={trialEnding.map((t) => ({
               id: t.id,
               label: t.name,
@@ -223,7 +223,7 @@ export default async function PlataformaPage() {
           </CardHeader>
           <CardContent>
             {tenants.length === 0 ? (
-              <p className="text-sm text-slate-500">
+              <p className="text-sm text-zinc-400">
                 Nenhuma loja cadastrada ainda. Crie à direita ou espere o
                 auto-cadastro em /cadastro.
               </p>
@@ -258,22 +258,22 @@ function AttentionCard({
       </CardHeader>
       <CardContent>
         {items.length === 0 ? (
-          <p className="text-sm text-slate-500">{empty}</p>
+          <p className="text-sm text-zinc-400">{empty}</p>
         ) : (
           <ul className="space-y-2">
             {items.slice(0, 6).map((item) => (
               <li key={item.id}>
                 <Link
                   href={`/plataforma/lojas/${item.id}`}
-                  className="block text-sm font-medium text-teal-800 hover:underline"
+                  className="block text-sm font-medium text-zinc-100 hover:underline"
                 >
                   {item.label}
                 </Link>
-                <p className="text-xs text-slate-500">{item.hint}</p>
+                <p className="text-xs text-zinc-400">{item.hint}</p>
               </li>
             ))}
             {items.length > 6 ? (
-              <li className="text-xs text-slate-500">
+              <li className="text-xs text-zinc-400">
                 +{items.length - 6} outras
               </li>
             ) : null}

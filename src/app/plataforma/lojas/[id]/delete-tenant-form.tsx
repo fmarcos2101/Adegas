@@ -28,7 +28,7 @@ export function DeleteTenantForm({
         <CardTitle className="text-red-800">Zona de perigo</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        <p className="text-sm text-slate-600">
+        <p className="text-sm text-zinc-400">
           <strong>Cancelar assinatura</strong> só bloqueia o acesso e{" "}
           <strong>mantém</strong> produtos, vendas e usuários.
         </p>
@@ -66,7 +66,7 @@ export function DeleteTenantForm({
             />
           </div>
           {state.error ? (
-            <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
+            <p className="rounded-md bg-red-950/40 px-3 py-2 text-sm text-red-300">
               {state.error}
             </p>
           ) : null}
@@ -74,7 +74,7 @@ export function DeleteTenantForm({
             type="submit"
             variant="outline"
             disabled={pending}
-            className="border-red-400 text-red-700 hover:bg-red-50"
+            className="border-red-400 text-red-700 hover:bg-red-950/40"
           >
             {pending ? "Apagando..." : "Apagar conta e todos os dados"}
           </Button>

@@ -1,4 +1,4 @@
-# NexoPDV — PDV Online (SaaS multi-loja)
+# MAF PDV — PDV Online (SaaS multi-loja)
 
 Sistema de ponto de venda e gestão com isolamento por cliente (tenant), painel da plataforma para assinaturas e acesso de suporte.
 

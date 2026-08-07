@@ -1,4 +1,4 @@
-# NexoPDV — Documentação do sistema SaaS
+# MAF PDV — Documentação do sistema SaaS
 
 ## Credenciais (desenvolvimento)
 
@@ -16,7 +16,7 @@
 
 ### Visitante (público)
 
-- **/** — landing NexoPDV (apresentação, planos, CTA)
+- **/** — landing MAF PDV (apresentação, planos, CTA)
 - **/cadastro** — auto-cadastro: cria loja + admin, inicia trial de 7 dias e já entra no painel
 - **/login** — código da loja + usuário + senha (código vazio = dono da plataforma)
 
@@ -77,7 +77,7 @@ Next.js 16 (App Router) + React 19 + TypeScript + Tailwind v4 + Prisma 7 (SQLite
 
 ## 5. Identidade
 
-Produto genérico **NexoPDV** (sem marca de loja específica). Tipografia Syne + DM Sans, paleta teal/slate. WhatsApp de suporte via `NEXT_PUBLIC_SUPPORT_WHATSAPP`.
+**MAF PDV** — tipografia Orbitron + Archivo, paleta chrome metálico / preto / fumaça. Logo em `public/logo-maf.svg`. WhatsApp de suporte via `NEXT_PUBLIC_SUPPORT_WHATSAPP`.
 
 ## 6. Auto-cadastro
 

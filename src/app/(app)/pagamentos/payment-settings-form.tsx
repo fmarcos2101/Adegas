@@ -80,8 +80,8 @@ export function PaymentSettingsForm({
               className={
                 "cursor-pointer rounded-lg border p-4 transition-colors " +
                 (form.activeProvider === p.id
-                  ? "border-teal-600 bg-teal-50 ring-1 ring-teal-600"
-                  : "border-neutral-200 hover:border-teal-200")
+                  ? "border-zinc-400 bg-white/5 ring-1 ring-zinc-400"
+                  : "border-white/10 hover:border-white/15")
               }
             >
               <div className="flex items-start gap-2">
@@ -90,11 +90,11 @@ export function PaymentSettingsForm({
                   name="provider"
                   checked={form.activeProvider === p.id}
                   onChange={() => setField("activeProvider", p.id)}
-                  className="mt-1 accent-teal-700"
+                  className="mt-1 accent-zinc-300"
                 />
                 <div>
-                  <p className="font-medium text-neutral-900">{p.label}</p>
-                  <p className="text-xs text-neutral-500">{p.hint}</p>
+                  <p className="font-medium text-zinc-100">{p.label}</p>
+                  <p className="text-xs text-zinc-400">{p.hint}</p>
                 </div>
               </div>
             </label>
@@ -126,8 +126,8 @@ export function PaymentSettingsForm({
               onChange={(v) => setField("mpWebhookSecret", v)}
               placeholder="Chave do painel Suas integrações"
             />
-            <p className="text-xs text-neutral-500">
-              Webhook: <code className="rounded bg-neutral-100 px-1">{webhookUrls.mercadopago}</code>
+            <p className="text-xs text-zinc-400">
+              Webhook: <code className="rounded bg-[var(--maf-ink)] px-1">{webhookUrls.mercadopago}</code>
             </p>
           </CardContent>
         </Card>
@@ -150,8 +150,8 @@ export function PaymentSettingsForm({
               value={form.sumupMerchantCode}
               onChange={(v) => setField("sumupMerchantCode", v)}
             />
-            <p className="text-xs text-neutral-500">
-              Webhook: <code className="rounded bg-neutral-100 px-1">{webhookUrls.sumup}</code>
+            <p className="text-xs text-zinc-400">
+              Webhook: <code className="rounded bg-[var(--maf-ink)] px-1">{webhookUrls.sumup}</code>
             </p>
           </CardContent>
         </Card>
@@ -174,8 +174,8 @@ export function PaymentSettingsForm({
               value={form.tonMerchantId}
               onChange={(v) => setField("tonMerchantId", v)}
             />
-            <p className="text-xs text-neutral-500">
-              Webhook: <code className="rounded bg-neutral-100 px-1">{webhookUrls.ton}</code>
+            <p className="text-xs text-zinc-400">
+              Webhook: <code className="rounded bg-[var(--maf-ink)] px-1">{webhookUrls.ton}</code>
             </p>
           </CardContent>
         </Card>
@@ -193,8 +193,8 @@ export function PaymentSettingsForm({
               onChange={(v) => setField("terminalApiKey", v)}
               placeholder="sua-chave-secreta"
             />
-            <p className="text-xs text-neutral-500">
-              Callback: <code className="rounded bg-neutral-100 px-1">{webhookUrls.generic}</code>
+            <p className="text-xs text-zinc-400">
+              Callback: <code className="rounded bg-[var(--maf-ink)] px-1">{webhookUrls.generic}</code>
             </p>
           </CardContent>
         </Card>
@@ -206,7 +206,7 @@ export function PaymentSettingsForm({
         </CardHeader>
         <CardContent className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1">
-            <label className="text-sm font-medium text-neutral-700">
+            <label className="text-sm font-medium text-zinc-300">
               Taxa débito (%)
             </label>
             <Input
@@ -221,7 +221,7 @@ export function PaymentSettingsForm({
             />
           </div>
           <div className="space-y-1">
-            <label className="text-sm font-medium text-neutral-700">
+            <label className="text-sm font-medium text-zinc-300">
               Taxa crédito (%)
             </label>
             <Input
@@ -235,7 +235,7 @@ export function PaymentSettingsForm({
               }
             />
           </div>
-          <p className="text-xs text-neutral-500 sm:col-span-2">
+          <p className="text-xs text-zinc-400 sm:col-span-2">
             Usadas nos relatórios: lucro líquido = lucro bruto − taxas estimadas
             sobre vendas no débito/crédito. Dinheiro e PIX não têm taxa.
           </p>
@@ -262,7 +262,7 @@ function Field({
 }) {
   return (
     <div className="space-y-1">
-      <label className="text-sm font-medium text-neutral-700">{label}</label>
+      <label className="text-sm font-medium text-zinc-300">{label}</label>
       <Input
         value={value}
         onChange={(e) => onChange(e.target.value)}

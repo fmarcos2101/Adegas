@@ -35,8 +35,8 @@ export default async function EstoquePage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-neutral-900">Estoque</h1>
-        <p className="text-sm text-neutral-500">
+        <h1 className="text-2xl font-semibold text-zinc-100">Estoque</h1>
+        <p className="text-sm text-zinc-400">
           Movimentações e histórico de estoque
         </p>
       </div>
@@ -67,7 +67,7 @@ export default async function EstoquePage() {
               {lowStock.map((p) => (
                 <span
                   key={p.id}
-                  className="rounded-full bg-red-50 px-3 py-1 text-sm text-red-700"
+                  className="rounded-full bg-red-950/40 px-3 py-1 text-sm text-red-700"
                 >
                   {p.name}: {p.stock}/{p.minStock}
                 </span>
@@ -83,12 +83,12 @@ export default async function EstoquePage() {
         </CardHeader>
         <CardContent>
           {movements.length === 0 ? (
-            <p className="text-sm text-neutral-500">Nenhuma movimentação.</p>
+            <p className="text-sm text-zinc-400">Nenhuma movimentação.</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-neutral-200 text-left text-neutral-500">
+                  <tr className="border-b border-white/10 text-left text-zinc-400">
                     <th className="py-2">Data</th>
                     <th className="py-2">Produto</th>
                     <th className="py-2">Tipo</th>
@@ -98,13 +98,13 @@ export default async function EstoquePage() {
                 </thead>
                 <tbody>
                   {movements.map((m) => (
-                    <tr key={m.id} className="border-b border-neutral-100">
-                      <td className="py-2 text-neutral-500">
+                    <tr key={m.id} className="border-b border-white/5">
+                      <td className="py-2 text-zinc-400">
                         {format(m.createdAt, "dd/MM/yyyy HH:mm")}
                       </td>
                       <td className="py-2 font-medium">
                         {m.product?.name ?? (
-                          <span className="italic text-neutral-400">
+                          <span className="italic text-zinc-500">
                             Produto removido
                           </span>
                         )}
@@ -113,13 +113,13 @@ export default async function EstoquePage() {
                       <td
                         className={
                           m.quantity < 0
-                            ? "py-2 font-medium text-red-600"
-                            : "py-2 font-medium text-emerald-700"
+                            ? "py-2 font-medium text-red-300"
+                            : "py-2 font-medium text-emerald-300"
                         }
                       >
                         {m.quantity > 0 ? `+${m.quantity}` : m.quantity}
                       </td>
-                      <td className="py-2 text-neutral-500">{m.reason ?? "—"}</td>
+                      <td className="py-2 text-zinc-400">{m.reason ?? "—"}</td>
                     </tr>
                   ))}
                 </tbody>

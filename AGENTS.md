@@ -6,7 +6,7 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 ## Cursor Cloud specific instructions
 
-Sistema de PDV/gestão multi-loja (**NexoPDV** SaaS). Stack: **Next.js 16 (App Router, Turbopack) + React 19 + TypeScript + Tailwind v4 + Prisma 7 (SQLite via `@prisma/adapter-better-sqlite3`)**. Código em `src/` (alias `@/*` → `./src/*`). Scripts em `package.json`; telas em `SISTEMA.md`.
+Sistema de PDV/gestão multi-loja (**MAF PDV** SaaS). Stack: **Next.js 16 (App Router, Turbopack) + React 19 + TypeScript + Tailwind v4 + Prisma 7 (SQLite via `@prisma/adapter-better-sqlite3`)**. Código em `src/` (alias `@/*` → `./src/*`). Scripts em `package.json`; telas em `SISTEMA.md`.
 
 ### Primeira execução (banco não é versionado)
 `prisma/dev.db` está no `.gitignore`. Após checkout limpo:

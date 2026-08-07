@@ -17,7 +17,7 @@ export function SupportButton() {
       rel="noopener noreferrer"
       aria-label="Suporte via WhatsApp"
       title="Suporte — fale conosco no WhatsApp"
-      className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-teal-700 text-2xl font-bold text-white shadow-lg ring-4 ring-teal-700/20 transition-transform hover:scale-105 hover:bg-teal-800 active:scale-95"
+      className="maf-chrome-btn fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full text-xl font-bold transition hover:brightness-110 active:scale-95"
     >
       ?
     </a>

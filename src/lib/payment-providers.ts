@@ -76,7 +76,7 @@ async function sendMercadoPago(
       externalReference: input.paymentRef,
       amount: input.total,
       method: input.method,
-      description: `NexoPDV — ${input.paymentRef}`,
+      description: `MAF PDV — ${input.paymentRef}`,
     },
     {
       accessToken: settings.mpAccessToken,

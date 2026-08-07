@@ -33,7 +33,7 @@ export function RestoreForm() {
         <Upload className="h-4 w-4" />
         {pending ? "Restaurando..." : "Restaurar backup"}
       </Button>
-      <p className="text-xs text-neutral-500">
+      <p className="text-xs text-zinc-400">
         Atenção: a restauração substitui todos os dados atuais pelo conteúdo do
         arquivo enviado.
       </p>

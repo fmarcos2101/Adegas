@@ -86,7 +86,7 @@ export function ProductForm({ categories }: { categories: Category[] }) {
               required
               placeholder="Quanto você paga"
             />
-            <p className="text-xs text-neutral-500">
+            <p className="text-xs text-zinc-400">
               Usado no cálculo de lucro bruto e líquido nos relatórios.
             </p>
           </div>

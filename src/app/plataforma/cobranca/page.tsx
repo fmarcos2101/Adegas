@@ -26,15 +26,15 @@ export default async function CobrancaPage() {
     >
       <div className="mx-auto max-w-2xl space-y-6">
         <div>
-          <h1 className="font-display text-2xl font-semibold text-slate-900">
+          <h1 className="font-display text-2xl font-semibold text-zinc-100">
             Cobrança SaaS
           </h1>
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-zinc-400">
             Configure o Mercado Pago para cobrar as assinaturas do {APP_NAME}{" "}
             automaticamente todo mês.
           </p>
           <p
-            className={`mt-2 text-sm font-medium ${configured ? "text-teal-700" : "text-amber-700"}`}
+            className={`mt-2 text-sm font-medium ${configured ? "text-zinc-200" : "text-amber-700"}`}
           >
             {configured
               ? "Mercado Pago configurado — pronto para gerar links."
@@ -51,8 +51,8 @@ export default async function CobrancaPage() {
           webhookUrl={webhookUrl}
         />
 
-        <div className="rounded-lg border border-slate-200 bg-white p-5 text-sm text-slate-600">
-          <p className="font-medium text-slate-900">Como funciona</p>
+        <div className="rounded-lg border border-white/10 bg-white p-5 text-sm text-zinc-400">
+          <p className="font-medium text-zinc-100">Como funciona</p>
           <ol className="mt-2 list-decimal space-y-1 pl-5">
             <li>Salve o Access Token da sua conta Mercado Pago.</li>
             <li>

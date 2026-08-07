@@ -16,7 +16,7 @@ export function CopyBlock({ label, code }: { label: string; code: string }) {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium text-neutral-500">{label}</span>
+        <span className="text-xs font-medium text-zinc-400">{label}</span>
         <Button type="button" variant="outline" size="sm" onClick={copy}>
           {copied ? <Check className="h-3 w-3" /> : <Copy className="h-3 w-3" />}
           {copied ? "Copiado" : "Copiar"}

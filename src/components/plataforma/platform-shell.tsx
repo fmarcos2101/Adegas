@@ -23,23 +23,18 @@ export function PlatformShell({
   children: React.ReactNode;
 }) {
   return (
-    <div className="flex min-h-screen flex-col bg-slate-100">
+    <div className="flex min-h-screen flex-col bg-[var(--maf-ink)]">
       <BrandHeader subtitle={subtitle}>
-        <span className="hidden text-sm text-white/90 sm:inline">{userName}</span>
+        <span className="hidden text-sm text-zinc-300 sm:inline">{userName}</span>
         <form action={logoutAction}>
-          <Button
-            variant="outline"
-            size="sm"
-            type="submit"
-            className="border-white/40 bg-white/10 text-white hover:bg-white/20"
-          >
+          <Button variant="outline" size="sm" type="submit">
             <LogOut className="h-4 w-4" />
             Sair
           </Button>
         </form>
       </BrandHeader>
 
-      <nav className="border-b border-slate-200 bg-white">
+      <nav className="border-b border-white/10 bg-[var(--maf-panel)]">
         <div className="mx-auto flex w-full max-w-6xl gap-1 overflow-x-auto px-4 sm:px-8">
           {NAV.map((item) => {
             const active = item.exact
@@ -53,8 +48,8 @@ export function PlatformShell({
                 className={cn(
                   "border-b-2 px-3 py-3 text-sm font-medium whitespace-nowrap transition",
                   active
-                    ? "border-teal-700 text-teal-800"
-                    : "border-transparent text-slate-500 hover:text-slate-800",
+                    ? "border-[var(--maf-chrome)] text-white"
+                    : "border-transparent text-zinc-500 hover:text-zinc-200",
                 )}
               >
                 {item.label}

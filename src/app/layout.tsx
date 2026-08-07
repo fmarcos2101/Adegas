@@ -1,19 +1,19 @@
 import type { Metadata } from "next";
-import { DM_Sans, Syne } from "next/font/google";
+import { Archivo, Orbitron } from "next/font/google";
 import { Toaster } from "sonner";
 import { SupportButton } from "@/components/support-button";
 import { APP_DESCRIPTION, APP_NAME } from "@/lib/constants";
 import "./globals.css";
 
-const syne = Syne({
+const orbitron = Orbitron({
   subsets: ["latin"],
-  variable: "--font-syne",
+  variable: "--font-orbitron",
   display: "swap",
 });
 
-const dmSans = DM_Sans({
+const archivo = Archivo({
   subsets: ["latin"],
-  variable: "--font-dm-sans",
+  variable: "--font-archivo",
   display: "swap",
 });
 
@@ -27,11 +27,22 @@ export default function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="pt-BR" className={`${syne.variable} ${dmSans.variable}`}>
+    <html lang="pt-BR" className={`${orbitron.variable} ${archivo.variable}`}>
       <body>
         {children}
         <SupportButton />
-        <Toaster richColors position="top-right" />
+        <Toaster
+          theme="dark"
+          richColors
+          position="top-right"
+          toastOptions={{
+            style: {
+              background: "#121216",
+              border: "1px solid rgba(255,255,255,0.1)",
+              color: "#f3f5f8",
+            },
+          }}
+        />
       </body>
     </html>
   );

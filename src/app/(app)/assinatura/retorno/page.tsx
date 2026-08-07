@@ -68,11 +68,11 @@ export default async function AssinaturaRetornoPage() {
 
   return (
     <div className="mx-auto flex max-w-lg flex-col items-center gap-4 py-12 text-center">
-      <CheckCircle2 className="h-12 w-12 text-teal-600" />
-      <h1 className="text-2xl font-semibold text-neutral-900">
+      <CheckCircle2 className="h-12 w-12 text-zinc-300" />
+      <h1 className="text-2xl font-semibold text-zinc-100">
         Retorno do Mercado Pago
       </h1>
-      <p className="text-sm text-neutral-500">
+      <p className="text-sm text-zinc-400">
         {fresh?.mpStatus === "authorized" || fresh?.status === "ACTIVE"
           ? "Assinatura autorizada. A cobrança mensal está ativa."
           : "Recebemos seu retorno. Se o pagamento ainda estiver pendente, aguarde a confirmação do Mercado Pago (webhook)."}
@@ -89,7 +89,7 @@ export default async function AssinaturaRetornoPage() {
           <Button variant="outline">Ver assinatura</Button>
         </Link>
         <Link href="/dashboard">
-          <Button className="bg-teal-700 hover:bg-teal-600">Dashboard</Button>
+          <Button className="bg-zinc-100 hover:bg-white">Dashboard</Button>
         </Link>
       </div>
     </div>

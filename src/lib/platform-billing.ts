@@ -122,7 +122,7 @@ export function buildExternalReference(
   tenantId: string,
   plan: PaidPlan,
 ): string {
-  return `nexopdv:${tenantId}:${plan}`;
+  return `mafpdv:${tenantId}:${plan}`;
 }
 
 export function parseExternalReference(
@@ -130,7 +130,10 @@ export function parseExternalReference(
 ): { tenantId: string; plan: PaidPlan } | null {
   if (!ref) return null;
   const parts = String(ref).split(":");
-  if (parts.length !== 3 || parts[0] !== "nexopdv") return null;
+  // Aceita prefixo antigo (nexopdv) por compatibilidade
+  if (parts.length !== 3 || (parts[0] !== "mafpdv" && parts[0] !== "nexopdv")) {
+    return null;
+  }
   if (parts[2] !== "BASIC" && parts[2] !== "PLUS" && parts[2] !== "PRO") {
     return null;
   }

@@ -40,7 +40,7 @@ export function BillingSettingsForm({
       </CardHeader>
       <CardContent>
         <form action={formAction} className="space-y-4">
-          <p className="text-sm text-slate-500">
+          <p className="text-sm text-zinc-400">
             Use o Access Token da aplicação Mercado Pago da <strong>sua</strong>{" "}
             conta (recebedor das mensalidades). Ative os webhooks{" "}
             <code className="text-xs">subscription_preapproval</code> e{" "}
@@ -112,27 +112,27 @@ export function BillingSettingsForm({
             </div>
           </div>
 
-          <div className="rounded-md border border-slate-200 bg-slate-50 p-3 text-sm">
-            <p className="font-medium text-slate-800">URL do webhook</p>
-            <p className="mt-1 break-all font-mono text-xs text-slate-600">
+          <div className="rounded-md border border-white/10 bg-white/5 p-3 text-sm">
+            <p className="font-medium text-zinc-200">URL do webhook</p>
+            <p className="mt-1 break-all font-mono text-xs text-zinc-400">
               {webhookUrl}
             </p>
           </div>
 
           {state.error ? (
-            <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
+            <p className="rounded-md bg-red-950/40 px-3 py-2 text-sm text-red-300">
               {state.error}
             </p>
           ) : null}
           {state.success ? (
-            <p className="rounded-md bg-teal-50 px-3 py-2 text-sm text-teal-800">
+            <p className="rounded-md bg-white/5 px-3 py-2 text-sm text-zinc-100">
               {state.success}
             </p>
           ) : null}
 
           <Button
             type="submit"
-            className="bg-teal-700 hover:bg-teal-600"
+            className="bg-zinc-100 hover:bg-white"
             disabled={pending}
           >
             {pending ? "Salvando..." : "Salvar configuração"}

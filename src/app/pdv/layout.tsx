@@ -26,7 +26,7 @@ export default async function PdvLayout({
   }
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-neutral-100">
+    <div className="flex h-screen flex-col overflow-hidden bg-[var(--maf-void)]">
       <BrandHeader
         brandName={session.tenantName ?? undefined}
         subtitle="PDV — Ponto de Venda"

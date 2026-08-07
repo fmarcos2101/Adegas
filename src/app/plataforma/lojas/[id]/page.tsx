@@ -91,13 +91,13 @@ export default async function TenantDetailPage({
         <div>
           <Link
             href="/plataforma"
-            className="mb-2 inline-flex items-center gap-1 text-sm text-teal-700 hover:underline"
+            className="mb-2 inline-flex items-center gap-1 text-sm text-zinc-200 hover:underline"
           >
             <ArrowLeft className="h-4 w-4" />
             Voltar aos clientes
           </Link>
           <div className="flex flex-wrap items-center gap-2">
-            <h1 className="font-display text-2xl font-semibold text-slate-900">
+            <h1 className="font-display text-2xl font-semibold text-zinc-100">
               {tenant.name}
             </h1>
             {sub ? (
@@ -110,7 +110,7 @@ export default async function TenantDetailPage({
               <StatusBadge status="SUSPENDED" label="Loja inativa" />
             ) : null}
           </div>
-          <p className="mt-1 text-sm text-slate-500">
+          <p className="mt-1 text-sm text-zinc-400">
             Código: <span className="font-mono font-medium">{tenant.slug}</span>
             {sub?.status === "TRIALING" && sub.trialEndsAt ? (
               <>
@@ -130,7 +130,7 @@ export default async function TenantDetailPage({
             </Button>
           </form>
           <form action={enterTenantSupportAction.bind(null, tenant.id)}>
-            <Button type="submit" className="bg-teal-700 hover:bg-teal-600">
+            <Button type="submit" className="bg-zinc-100 hover:bg-white">
               Entrar como suporte
             </Button>
           </form>
@@ -144,7 +144,7 @@ export default async function TenantDetailPage({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{monthSales._count}</div>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-zinc-400">
               {formatBRL(monthSales._sum.total ?? 0)}
             </p>
           </CardContent>
@@ -155,7 +155,7 @@ export default async function TenantDetailPage({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{totalRevenue._count}</div>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-zinc-400">
               {formatBRL(totalRevenue._sum.total ?? 0)} total
             </p>
           </CardContent>
@@ -166,7 +166,7 @@ export default async function TenantDetailPage({
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{tenant._count.products}</div>
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-zinc-400">
               {tenant.users.length} usuários · {tenant._count.categories}{" "}
               categorias · PDV {pdvUsage.used}/{pdvUsage.max}
             </p>
@@ -218,13 +218,13 @@ export default async function TenantDetailPage({
         </CardHeader>
         <CardContent>
           {recentPayments.length === 0 ? (
-            <p className="text-sm text-slate-500">
+            <p className="text-sm text-zinc-400">
               Nenhuma cobrança registrada ainda para esta loja.
             </p>
           ) : (
             <table className="w-full text-sm">
               <thead>
-                <tr className="border-b border-slate-200 text-left text-slate-500">
+                <tr className="border-b border-white/10 text-left text-zinc-400">
                   <th className="py-2">Data</th>
                   <th className="py-2">Valor</th>
                   <th className="py-2">Status</th>
@@ -232,7 +232,7 @@ export default async function TenantDetailPage({
               </thead>
               <tbody>
                 {recentPayments.map((p) => (
-                  <tr key={p.id} className="border-b border-slate-100">
+                  <tr key={p.id} className="border-b border-white/5">
                     <td className="py-2">
                       {p.createdAt.toLocaleString("pt-BR")}
                     </td>

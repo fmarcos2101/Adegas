@@ -33,7 +33,7 @@ export function CadastroForm({ basicPrice, proPrice }: Props) {
   return (
     <form action={formAction} className="space-y-5">
       <div className="space-y-1">
-        <label htmlFor="storeName" className="text-sm font-medium text-slate-800">
+        <label htmlFor="storeName" className="text-sm font-medium text-zinc-300">
           Nome do negócio
         </label>
         <Input
@@ -49,7 +49,7 @@ export function CadastroForm({ basicPrice, proPrice }: Props) {
       </div>
 
       <div className="space-y-1">
-        <label htmlFor="slug" className="text-sm font-medium text-slate-800">
+        <label htmlFor="slug" className="text-sm font-medium text-zinc-300">
           Código da loja (usado no login)
         </label>
         <Input
@@ -64,14 +64,14 @@ export function CadastroForm({ basicPrice, proPrice }: Props) {
           required
           autoComplete="off"
         />
-        <p className="text-xs text-slate-500">
+        <p className="text-xs text-zinc-500">
           Seus usuários entram com este código + usuário/senha.
         </p>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         <div className="space-y-1 sm:col-span-2">
-          <label htmlFor="adminName" className="text-sm font-medium text-slate-800">
+          <label htmlFor="adminName" className="text-sm font-medium text-zinc-300">
             Seu nome
           </label>
           <Input
@@ -83,7 +83,7 @@ export function CadastroForm({ basicPrice, proPrice }: Props) {
           />
         </div>
         <div className="space-y-1">
-          <label htmlFor="adminUser" className="text-sm font-medium text-slate-800">
+          <label htmlFor="adminUser" className="text-sm font-medium text-zinc-300">
             Usuário admin
           </label>
           <Input
@@ -95,7 +95,7 @@ export function CadastroForm({ basicPrice, proPrice }: Props) {
           />
         </div>
         <div className="space-y-1">
-          <label htmlFor="adminPass" className="text-sm font-medium text-slate-800">
+          <label htmlFor="adminPass" className="text-sm font-medium text-zinc-300">
             Senha
           </label>
           <Input
@@ -110,7 +110,7 @@ export function CadastroForm({ basicPrice, proPrice }: Props) {
         <div className="space-y-1 sm:col-span-2">
           <label
             htmlFor="adminPassConfirm"
-            className="text-sm font-medium text-slate-800"
+            className="text-sm font-medium text-zinc-300"
           >
             Confirmar senha
           </label>
@@ -126,71 +126,63 @@ export function CadastroForm({ basicPrice, proPrice }: Props) {
       </div>
 
       <fieldset className="space-y-3">
-        <legend className="text-sm font-medium text-slate-800">
+        <legend className="text-sm font-medium text-zinc-300">
           Plano após o teste ({TRIAL_DAYS} dias grátis agora)
         </legend>
-        <label className="flex cursor-pointer items-start gap-3 rounded-md border border-slate-200 bg-white p-3 has-[:checked]:border-teal-600 has-[:checked]:bg-teal-50/60">
-          <input
-            type="radio"
-            name="plan"
-            value="BASIC"
-            defaultChecked
-            className="mt-1 accent-teal-700"
-          />
-          <span>
-            <span className="block font-semibold text-slate-900">
-              Básico — {formatBRL(basicPrice)}/mês
+        {(
+          [
+            {
+              value: "BASIC",
+              title: `Básico — ${formatBRL(basicPrice)}/mês`,
+              detail: "1 PDV (caixa ativo)",
+              defaultChecked: true,
+            },
+            {
+              value: "PLUS",
+              title: `Plus — ${formatBRL(proPrice)}/mês`,
+              detail: "Até 3 PDVs",
+            },
+            {
+              value: "PRO",
+              title: `Pro — ${formatBRL(proPrice)}/mês`,
+              detail: "Até 3 PDVs",
+            },
+          ] as const
+        ).map((plan) => (
+          <label
+            key={plan.value}
+            className="flex cursor-pointer items-start gap-3 rounded-md border border-white/10 bg-black/25 p-3 has-[:checked]:border-zinc-300 has-[:checked]:bg-white/5"
+          >
+            <input
+              type="radio"
+              name="plan"
+              value={plan.value}
+              defaultChecked={"defaultChecked" in plan && plan.defaultChecked}
+              className="mt-1 accent-zinc-300"
+            />
+            <span>
+              <span className="block font-semibold text-zinc-100">
+                {plan.title}
+              </span>
+              <span className="text-xs text-zinc-500">{plan.detail}</span>
             </span>
-            <span className="text-xs text-slate-500">1 PDV (caixa ativo)</span>
-          </span>
-        </label>
-        <label className="flex cursor-pointer items-start gap-3 rounded-md border border-slate-200 bg-white p-3 has-[:checked]:border-teal-600 has-[:checked]:bg-teal-50/60">
-          <input
-            type="radio"
-            name="plan"
-            value="PLUS"
-            className="mt-1 accent-teal-700"
-          />
-          <span>
-            <span className="block font-semibold text-slate-900">
-              Plus — {formatBRL(proPrice)}/mês
-            </span>
-            <span className="text-xs text-slate-500">Até 3 PDVs</span>
-          </span>
-        </label>
-        <label className="flex cursor-pointer items-start gap-3 rounded-md border border-slate-200 bg-white p-3 has-[:checked]:border-teal-600 has-[:checked]:bg-teal-50/60">
-          <input
-            type="radio"
-            name="plan"
-            value="PRO"
-            className="mt-1 accent-teal-700"
-          />
-          <span>
-            <span className="block font-semibold text-slate-900">
-              Pro — {formatBRL(proPrice)}/mês
-            </span>
-            <span className="text-xs text-slate-500">Até 3 PDVs</span>
-          </span>
-        </label>
+          </label>
+        ))}
       </fieldset>
 
       {state.error ? (
-        <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
+        <p className="rounded-md bg-red-950/40 px-3 py-2 text-sm text-red-300">
           {state.error}
         </p>
       ) : null}
 
-      <Button
-        type="submit"
-        className="w-full bg-teal-700 hover:bg-teal-600"
-        disabled={pending}
-      >
+      <Button type="submit" className="w-full" disabled={pending}>
         {pending ? "Criando loja..." : `Começar ${TRIAL_DAYS} dias grátis`}
       </Button>
 
-      <p className="text-center text-sm text-slate-500">
+      <p className="text-center text-sm text-zinc-500">
         Já tem conta?{" "}
-        <Link href="/login" className="font-medium text-teal-800 hover:underline">
+        <Link href="/login" className="font-medium text-zinc-200 hover:text-white">
           Entrar
         </Link>
       </p>

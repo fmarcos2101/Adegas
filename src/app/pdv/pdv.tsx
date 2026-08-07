@@ -310,9 +310,9 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
     <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
       {awaiting ? (
         <div className="lg:col-span-3">
-          <Card className="border-amber-300 bg-amber-50">
+          <Card className="border-amber-300 bg-amber-950/40">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-amber-900">
+              <CardTitle className="flex items-center gap-2 text-amber-100">
                 <Loader2 className="h-5 w-5 animate-spin" />
                 Aguardando pagamento na máquina
               </CardTitle>
@@ -320,25 +320,25 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
             <CardContent className="space-y-4">
               <div className="grid gap-3 sm:grid-cols-3">
                 <div>
-                  <p className="text-xs uppercase text-amber-800/70">Referência</p>
+                  <p className="text-xs uppercase text-amber-200/70">Referência</p>
                   <p className="font-mono text-2xl font-bold tracking-widest text-amber-950">
                     {awaiting.paymentRef}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase text-amber-800/70">Valor</p>
+                  <p className="text-xs uppercase text-amber-200/70">Valor</p>
                   <p className="text-2xl font-bold text-emerald-800">
                     {formatBRL(awaiting.total)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs uppercase text-amber-800/70">Forma</p>
+                  <p className="text-xs uppercase text-amber-200/70">Forma</p>
                   <p className="text-lg font-semibold text-amber-950">
                     {methods.find((m) => m.value === awaiting.method)?.label}
                   </p>
                 </div>
               </div>
-              <p className="text-sm text-amber-900/80">
+              <p className="text-sm text-amber-100/80">
                 {awaiting.provider === "mercadopago" ? (
                   <>
                     A ordem foi enviada para <strong>{terminal.label}</strong>. O cliente paga na
@@ -400,7 +400,7 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
                 />
               </div>
               <div className="relative flex-1">
-                <Barcode className="absolute left-3 top-3 h-4 w-4 text-neutral-400" />
+                <Barcode className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
                 <Input
                   ref={inputRef}
                   value={query}
@@ -413,7 +413,7 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
                   autoComplete="off"
                 />
                 {predictions.length > 0 ? (
-                  <ul className="absolute z-10 mt-1 max-h-72 w-full overflow-auto rounded-md border border-neutral-200 bg-white shadow-lg">
+                  <ul className="absolute z-10 mt-1 max-h-72 w-full overflow-auto rounded-md border border-white/10 bg-white shadow-lg">
                     {predictions.map((p, i) => (
                       <li key={p.id}>
                         <button
@@ -425,19 +425,19 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
                           onMouseEnter={() => setHighlight(i)}
                           className={
                             "flex w-full items-center justify-between px-3 py-2 text-left text-sm " +
-                            (i === highlight ? "bg-emerald-50" : "hover:bg-neutral-50")
+                            (i === highlight ? "bg-emerald-950/40" : "hover:bg-white/5")
                           }
                         >
                           <span className="font-medium text-neutral-800">{p.name}</span>
                           <span className="flex items-center gap-3 text-xs">
                             <span
                               className={
-                                p.stock <= 0 ? "text-red-600" : "text-neutral-500"
+                                p.stock <= 0 ? "text-red-300" : "text-zinc-400"
                               }
                             >
                               estoque: {p.stock}
                             </span>
-                            <span className="font-medium text-neutral-700">
+                            <span className="font-medium text-zinc-300">
                               {formatBRL(p.price)}
                             </span>
                           </span>
@@ -448,7 +448,7 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
                 ) : null}
               </div>
             </div>
-            <p className="mt-2 text-xs text-neutral-500">
+            <p className="mt-2 text-xs text-zinc-400">
               Atalhos: <kbd className="rounded border px-1">F8</kbd> busca,{" "}
               <kbd className="rounded border px-1">F2</kbd> finalizar,{" "}
               <kbd className="rounded border px-1">F4</kbd> limpar,{" "}
@@ -464,7 +464,7 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
             </CardHeader>
             <CardContent>
               <div className="relative mb-3">
-                <Search className="absolute left-3 top-3 h-4 w-4 text-neutral-400" />
+                <Search className="absolute left-3 top-3 h-4 w-4 text-zinc-500" />
                 <Input
                   value={stockFilter}
                   onChange={(e) => setStockFilter(e.target.value)}
@@ -475,7 +475,7 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
               <div className="max-h-64 overflow-auto">
                 <table className="w-full text-sm">
                   <thead>
-                    <tr className="border-b border-neutral-200 text-left text-neutral-500">
+                    <tr className="border-b border-white/10 text-left text-zinc-400">
                       <th className="py-2">Produto</th>
                       <th className="py-2 text-right">Preço</th>
                       <th className="py-2 text-right">Estoque</th>
@@ -483,13 +483,13 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
                   </thead>
                   <tbody>
                     {filteredStock.map((p) => (
-                      <tr key={p.id} className="border-b border-neutral-100">
+                      <tr key={p.id} className="border-b border-white/5">
                         <td className="py-2">{p.name}</td>
                         <td className="py-2 text-right">{formatBRL(p.price)}</td>
                         <td
                           className={
                             p.stock <= 0
-                              ? "py-2 text-right font-medium text-red-600"
+                              ? "py-2 text-right font-medium text-red-300"
                               : "py-2 text-right"
                           }
                         >
@@ -510,11 +510,11 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
           </CardHeader>
           <CardContent>
             {cart.length === 0 ? (
-              <p className="text-sm text-neutral-500">Nenhum item no carrinho.</p>
+              <p className="text-sm text-zinc-400">Nenhum item no carrinho.</p>
             ) : (
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="border-b border-neutral-200 text-left text-neutral-500">
+                  <tr className="border-b border-white/10 text-left text-zinc-400">
                     <th className="py-2">Produto</th>
                     <th className="py-2">Preço</th>
                     <th className="py-2 text-center">Qtd</th>
@@ -524,7 +524,7 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
                 </thead>
                 <tbody>
                   {cart.map((l) => (
-                    <tr key={l.id} className="border-b border-neutral-100">
+                    <tr key={l.id} className="border-b border-white/5">
                       <td className="py-2 font-medium">{l.name}</td>
                       <td className="py-2">{formatBRL(l.price)}</td>
                       <td className="py-2">
@@ -583,7 +583,7 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex justify-between text-sm">
-              <span className="text-neutral-500">Subtotal</span>
+              <span className="text-zinc-400">Subtotal</span>
               <span className="font-medium">{formatBRL(subtotal)}</span>
             </div>
             <div className="space-y-1">
@@ -617,21 +617,21 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
               </select>
             </div>
             {canUseTerminal ? (
-              <label className="flex cursor-pointer items-center gap-2 rounded-md border border-teal-200 bg-teal-50 px-3 py-2 text-sm">
+              <label className="flex cursor-pointer items-center gap-2 rounded-md border border-white/15 bg-white/5 px-3 py-2 text-sm">
                 <input
                   type="checkbox"
                   checked={useTerminal}
                   disabled={locked}
                   onChange={(e) => setUseTerminal(e.target.checked)}
-                  className="h-4 w-4 accent-teal-700"
+                  className="h-4 w-4 accent-zinc-300"
                 />
-                <CreditCard className="h-4 w-4 text-teal-700" />
+                <CreditCard className="h-4 w-4 text-zinc-200" />
                 <span>Cobrar na maquininha ({terminal.label})</span>
               </label>
             ) : null}
-            <div className="flex justify-between border-t border-neutral-200 pt-3 text-lg font-bold">
+            <div className="flex justify-between border-t border-white/10 pt-3 text-lg font-bold">
               <span>Total</span>
-              <span className="text-emerald-700">{formatBRL(total)}</span>
+              <span className="text-emerald-300">{formatBRL(total)}</span>
             </div>
             <Button
               type="button"
@@ -652,7 +652,7 @@ export function Pdv({ terminal }: { terminal: TerminalInfo }) {
               <Button
                 type="button"
                 variant="ghost"
-                className="w-full text-neutral-500"
+                className="w-full text-zinc-400"
                 onClick={() => setCart([])}
               >
                 <X className="h-4 w-4" />

@@ -5,11 +5,11 @@ export function isInternalBarcode(barcode: string): boolean {
   return barcode.startsWith(INTERNAL_BARCODE_PREFIX);
 }
 
-/** Identidade do produto SaaS (genérica — sem marca de loja). */
-export const APP_NAME = "NexoPDV";
-export const APP_TAGLINE = "PDV e gestão para o seu negócio";
+/** Identidade do produto SaaS — MAF PDV (chrome / preto). */
+export const APP_NAME = "MAF PDV";
+export const APP_TAGLINE = "Ponto de venda com precisão metálica";
 export const APP_DESCRIPTION =
-  "Sistema multi-loja de ponto de venda, estoque e assinaturas";
+  "PDV online multi-loja: vendas, estoque e assinaturas sob o seu controle";
 
 /** Slug reservado — não pode ser usado por clientes. */
 export const PLATFORM_SLUG = "plataforma";

@@ -31,12 +31,12 @@ export function DeleteUserButton({
         variant="outline"
         size="sm"
         disabled={pending}
-        className="border-red-300 text-red-700 hover:bg-red-50"
+        className="border-red-300 text-red-700 hover:bg-red-950/40"
       >
         {pending ? "..." : "Excluir"}
       </Button>
       {state.error ? (
-        <p className="mt-1 text-xs text-red-600">{state.error}</p>
+        <p className="mt-1 text-xs text-red-300">{state.error}</p>
       ) : null}
     </form>
   );

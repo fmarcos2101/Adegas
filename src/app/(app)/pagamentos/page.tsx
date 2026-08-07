@@ -41,14 +41,14 @@ export default async function PagamentosPage() {
   return (
     <div className="mx-auto max-w-4xl space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-neutral-900">Pagamentos — Maquininhas</h1>
+        <h1 className="text-2xl font-bold text-zinc-100">Pagamentos — Maquininhas</h1>
         <p className="mt-1 text-sm text-neutral-600">
           Escolha a maquininha e cole as credenciais quando tiver. Até lá, use{" "}
           <strong>dinheiro/PIX</strong> ou <strong>liberação manual</strong> no PDV.
         </p>
       </div>
 
-      <Card className={configured || active === "GENERIC" ? "border-emerald-200 bg-emerald-50/50" : "border-amber-200 bg-amber-50/50"}>
+      <Card className={configured || active === "GENERIC" ? "border-emerald-200 bg-emerald-950/40/50" : "border-amber-200 bg-amber-950/40/50"}>
         <CardHeader>
           <CardTitle>Status</CardTitle>
         </CardHeader>
@@ -57,9 +57,9 @@ export default async function PagamentosPage() {
             Provedor ativo: <strong>{PROVIDER_LABELS[active]}</strong>
             {" — "}
             {active === "GENERIC" || configured ? (
-              <span className="text-emerald-700">pronto para usar</span>
+              <span className="text-emerald-300">pronto para usar</span>
             ) : (
-              <span className="text-amber-800">aguardando credenciais (salve abaixo quando tiver)</span>
+              <span className="text-amber-200">aguardando credenciais (salve abaixo quando tiver)</span>
             )}
           </p>
           <p className="mt-2 text-neutral-600">
@@ -80,7 +80,7 @@ export default async function PagamentosPage() {
         <CardHeader>
           <CardTitle>Como funciona cada maquininha</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4 text-sm text-neutral-700">
+        <CardContent className="space-y-4 text-sm text-zinc-300">
           <div>
             <p className="font-medium">Mercado Pago Point</p>
             <p className="text-neutral-600">

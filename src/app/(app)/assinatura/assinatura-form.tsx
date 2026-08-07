@@ -61,12 +61,12 @@ export function AssinaturaCheckoutForm({
             Status: <strong>{currentStatus}</strong>
           </p>
           {trialExpired ? (
-            <p className="rounded-md bg-amber-50 px-3 py-2 text-amber-900">
+            <p className="rounded-md bg-amber-950/40 px-3 py-2 text-amber-100">
               Seu teste grátis de 7 dias acabou. Escolha um plano abaixo para
               continuar usando o sistema.
             </p>
           ) : trialDaysLeft > 0 && trialEndsLabel ? (
-            <p className="text-teal-800">
+            <p className="text-zinc-100">
               Teste grátis: {trialDaysLeft}{" "}
               {trialDaysLeft === 1 ? "dia" : "dias"} restantes (até{" "}
               {trialEndsLabel}). Ao assinar agora, a 1ª cobrança fica para depois
@@ -74,10 +74,10 @@ export function AssinaturaCheckoutForm({
             </p>
           ) : null}
           {mpStatus ? (
-            <p className="text-neutral-500">Mercado Pago: {mpStatus}</p>
+            <p className="text-zinc-400">Mercado Pago: {mpStatus}</p>
           ) : null}
           {lastPaymentAt ? (
-            <p className="text-neutral-500">
+            <p className="text-zinc-400">
               Último pagamento: {lastPaymentAt}
               {lastPaymentAmount != null
                 ? ` · ${formatBRL(lastPaymentAmount)}`
@@ -100,55 +100,55 @@ export function AssinaturaCheckoutForm({
           ) : (
             <form action={formAction} className="space-y-4">
               <div className="grid gap-3 sm:grid-cols-3">
-                <label className="flex cursor-pointer flex-col rounded-md border border-neutral-200 p-4 has-[:checked]:border-teal-600 has-[:checked]:bg-teal-50">
+                <label className="flex cursor-pointer flex-col rounded-md border border-white/10 p-4 has-[:checked]:border-zinc-400 has-[:checked]:bg-white/5">
                   <span className="flex items-center gap-2 font-medium">
                     <input
                       type="radio"
                       name="plan"
                       value="BASIC"
                       defaultChecked={currentPlan.includes("Básico")}
-                      className="accent-teal-700"
+                      className="accent-zinc-300"
                     />
                     Básico
                   </span>
-                  <span className="mt-1 text-sm text-neutral-500">
+                  <span className="mt-1 text-sm text-zinc-400">
                     {formatBRL(basicPrice)} / mês
                   </span>
-                  <span className="mt-1 text-xs text-neutral-400">1 PDV</span>
+                  <span className="mt-1 text-xs text-zinc-500">1 PDV</span>
                 </label>
-                <label className="flex cursor-pointer flex-col rounded-md border border-neutral-200 p-4 has-[:checked]:border-teal-600 has-[:checked]:bg-teal-50">
+                <label className="flex cursor-pointer flex-col rounded-md border border-white/10 p-4 has-[:checked]:border-zinc-400 has-[:checked]:bg-white/5">
                   <span className="flex items-center gap-2 font-medium">
                     <input
                       type="radio"
                       name="plan"
                       value="PLUS"
                       defaultChecked={currentPlan.includes("Plus")}
-                      className="accent-teal-700"
+                      className="accent-zinc-300"
                     />
                     Plus
                   </span>
-                  <span className="mt-1 text-sm text-neutral-500">
+                  <span className="mt-1 text-sm text-zinc-400">
                     {formatBRL(proPrice)} / mês
                   </span>
-                  <span className="mt-1 text-xs text-neutral-400">
+                  <span className="mt-1 text-xs text-zinc-500">
                     Até 3 PDVs
                   </span>
                 </label>
-                <label className="flex cursor-pointer flex-col rounded-md border border-neutral-200 p-4 has-[:checked]:border-teal-600 has-[:checked]:bg-teal-50">
+                <label className="flex cursor-pointer flex-col rounded-md border border-white/10 p-4 has-[:checked]:border-zinc-400 has-[:checked]:bg-white/5">
                   <span className="flex items-center gap-2 font-medium">
                     <input
                       type="radio"
                       name="plan"
                       value="PRO"
                       defaultChecked={currentPlan.includes("Pro")}
-                      className="accent-teal-700"
+                      className="accent-zinc-300"
                     />
                     Pro
                   </span>
-                  <span className="mt-1 text-sm text-neutral-500">
+                  <span className="mt-1 text-sm text-zinc-400">
                     {formatBRL(proPrice)} / mês
                   </span>
-                  <span className="mt-1 text-xs text-neutral-400">
+                  <span className="mt-1 text-xs text-zinc-500">
                     Até 3 PDVs
                   </span>
                 </label>
@@ -169,19 +169,19 @@ export function AssinaturaCheckoutForm({
               </div>
 
               {state.error ? (
-                <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600">
+                <p className="rounded-md bg-red-950/40 px-3 py-2 text-sm text-red-300">
                   {state.error}
                 </p>
               ) : null}
               {state.success ? (
-                <p className="rounded-md bg-teal-50 px-3 py-2 text-sm text-teal-800">
+                <p className="rounded-md bg-white/5 px-3 py-2 text-sm text-zinc-100">
                   {state.success}
                 </p>
               ) : null}
 
               <Button
                 type="submit"
-                className="bg-teal-700 hover:bg-teal-600"
+                className="bg-zinc-100 hover:bg-white"
                 disabled={pending}
               >
                 {pending ? "Gerando link..." : "Gerar link de pagamento"}
@@ -194,7 +194,7 @@ export function AssinaturaCheckoutForm({
               href={initPoint}
               target="_blank"
               rel="noopener noreferrer"
-              className="mt-4 inline-flex h-10 items-center justify-center rounded-md bg-sky-600 px-4 text-sm font-medium text-white hover:bg-sky-500"
+              className="maf-chrome-btn mt-4 inline-flex h-10 items-center justify-center rounded-md px-4 text-sm font-semibold"
             >
               Ir para o checkout Mercado Pago
             </a>

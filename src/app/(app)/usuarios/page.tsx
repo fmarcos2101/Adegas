@@ -24,8 +24,8 @@ export default async function UsuariosPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-semibold text-neutral-900">Usuários</h1>
-        <p className="text-sm text-neutral-500">
+        <h1 className="text-2xl font-semibold text-zinc-100">Usuários</h1>
+        <p className="text-sm text-zinc-400">
           Gestão de acessos · PDVs: {pdvUsage.used}/{pdvUsage.max} (
           {SUBSCRIPTION_PLAN_LABEL[pdvUsage.plan] ?? pdvUsage.plan})
         </p>
@@ -36,7 +36,7 @@ export default async function UsuariosPage() {
           <CardTitle>Novo usuário</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="mb-3 text-xs text-neutral-500">
+          <p className="mb-3 text-xs text-zinc-400">
             Cada usuário <strong>Caixa</strong> ocupa 1 vaga de PDV. Plano Básico:
             1 PDV · Plus/Pro: até 3 PDVs. Administrador não consome vaga.
           </p>
@@ -51,7 +51,7 @@ export default async function UsuariosPage() {
         <CardContent>
           <table className="w-full text-sm">
             <thead>
-              <tr className="border-b border-neutral-200 text-left text-neutral-500">
+              <tr className="border-b border-white/10 text-left text-zinc-400">
                 <th className="py-2">Nome</th>
                 <th className="py-2">Usuário</th>
                 <th className="py-2">Perfil</th>
@@ -63,19 +63,19 @@ export default async function UsuariosPage() {
               {users.map((u) => {
                 const isSelf = u.id === session?.userId;
                 return (
-                  <tr key={u.id} className="border-b border-neutral-100 align-top">
+                  <tr key={u.id} className="border-b border-white/5 align-top">
                     <td className="py-3 font-medium">{u.name}</td>
-                    <td className="py-3 text-neutral-500">{u.username}</td>
+                    <td className="py-3 text-zinc-400">{u.username}</td>
                     <td className="py-3">
                       {u.role === "ADMIN" ? "Administrador" : "Caixa (PDV)"}
                     </td>
                     <td className="py-3">
                       {u.active ? (
-                        <span className="rounded-full bg-emerald-50 px-2 py-0.5 text-xs text-emerald-700">
+                        <span className="rounded-full bg-emerald-950/40 px-2 py-0.5 text-xs text-emerald-300">
                           Ativo
                         </span>
                       ) : (
-                        <span className="rounded-full bg-neutral-100 px-2 py-0.5 text-xs text-neutral-600">
+                        <span className="rounded-full bg-[var(--maf-ink)] px-2 py-0.5 text-xs text-neutral-600">
                           Inativo
                         </span>
                       )}

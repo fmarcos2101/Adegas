@@ -34,10 +34,10 @@ async function syncPreapproval(preapprovalId: string, accessToken: string) {
   });
 
   if (!sub) {
-    // tenta pelo external_reference nexopdv:tenantId:PLAN
+    // tenta pelo external_reference mafpdv:tenantId:PLAN
     const ref = String(preapproval.external_reference ?? "");
     const parts = ref.split(":");
-    if (parts[0] === "nexopdv" && parts[1]) {
+    if ((parts[0] === "mafpdv" || parts[0] === "nexopdv") && parts[1]) {
       const byTenant = await prisma.subscription.findUnique({
         where: { tenantId: parts[1] },
         include: { tenant: true },

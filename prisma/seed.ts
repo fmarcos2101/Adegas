@@ -126,7 +126,7 @@ async function main() {
     },
   });
 
-  console.log("Seed NexoPDV concluído:");
+  console.log("Seed MAF PDV concluído:");
   console.log(
     "  Plataforma → usuário owner / senha owner123 (deixe o código da loja em branco)",
   );

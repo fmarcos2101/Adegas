@@ -33,7 +33,7 @@ export function SubscriptionGate({
     !pathname.startsWith("/assinatura")
   ) {
     return (
-      <div className="rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-900">
+      <div className="rounded-md border border-amber-200 bg-amber-950/40 px-4 py-3 text-sm text-amber-100">
         Período de teste encerrado. Redirecionando para a assinatura…
       </div>
     );

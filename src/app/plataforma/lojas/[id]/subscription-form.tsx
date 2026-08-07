@@ -42,7 +42,7 @@ export function SubscriptionForm({
       <CardHeader>
         <CardTitle>
           Assinatura{" "}
-          <span className="text-sm font-normal text-slate-500">
+          <span className="text-sm font-normal text-zinc-400">
             ({planLabel} · {statusLabel})
           </span>
         </CardTitle>
@@ -58,7 +58,7 @@ export function SubscriptionForm({
               id="plan"
               name="plan"
               defaultValue={plan}
-              className="flex h-9 w-full rounded-md border border-neutral-200 bg-white px-3 text-sm"
+              className="flex h-9 w-full rounded-md border border-white/10 bg-white px-3 text-sm"
             >
               <option value="TRIAL">Trial (1 PDV)</option>
               <option value="BASIC">Básico (1 PDV)</option>
@@ -74,7 +74,7 @@ export function SubscriptionForm({
               id="status"
               name="status"
               defaultValue={status}
-              className="flex h-9 w-full rounded-md border border-neutral-200 bg-white px-3 text-sm"
+              className="flex h-9 w-full rounded-md border border-white/10 bg-white px-3 text-sm"
             >
               <option value="TRIALING">Em trial</option>
               <option value="ACTIVE">Ativa</option>
@@ -103,7 +103,7 @@ export function SubscriptionForm({
                 name="active"
                 value="true"
                 defaultChecked={active}
-                className="h-4 w-4 accent-teal-700"
+                className="h-4 w-4 accent-zinc-300"
               />
               Loja ativa (acesso liberado)
             </label>
@@ -118,17 +118,17 @@ export function SubscriptionForm({
               defaultValue={notes}
               rows={3}
               placeholder="Pagamento via Pix, contrato, etc."
-              className="flex w-full rounded-md border border-neutral-200 bg-white px-3 py-2 text-sm"
+              className="flex w-full rounded-md border border-white/10 bg-white px-3 py-2 text-sm"
             />
           </div>
 
           {state.error ? (
-            <p className="rounded-md bg-red-50 px-3 py-2 text-sm text-red-600 sm:col-span-2">
+            <p className="rounded-md bg-red-950/40 px-3 py-2 text-sm text-red-300 sm:col-span-2">
               {state.error}
             </p>
           ) : null}
           {state.success ? (
-            <p className="rounded-md bg-teal-50 px-3 py-2 text-sm text-teal-800 sm:col-span-2">
+            <p className="rounded-md bg-white/5 px-3 py-2 text-sm text-zinc-100 sm:col-span-2">
               {state.success}
             </p>
           ) : null}
@@ -136,7 +136,7 @@ export function SubscriptionForm({
           <div className="sm:col-span-2">
             <Button
               type="submit"
-              className="bg-teal-700 hover:bg-teal-600"
+              className="bg-zinc-100 hover:bg-white"
               disabled={pending}
             >
               {pending ? "Salvando..." : "Salvar assinatura"}
