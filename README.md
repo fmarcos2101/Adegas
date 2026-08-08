@@ -6,6 +6,8 @@ Derivado do PDV da Adega Faixa Rosa, com identidade genérica para exposição o
 
 ## Início rápido
 
+**Node.js recomendado: 22 LTS** ([nodejs.org](https://nodejs.org)). Evite Node 24 em PCs de loja no Windows.
+
 ```bash
 npm install
 npx prisma db push
@@ -20,6 +22,25 @@ Acesse http://localhost:3000 — landing pública. Cadastro em `/cadastro`, logi
 | Plataforma (dono) | *(deixe em branco)* | `owner` | `owner123` |
 | Loja demo (admin) | `demo` | `admin` | `admin123` |
 | Loja demo (caixa) | `demo` | `caixa` | `caixa123` |
+
+## Instalação no Windows (PC da loja)
+
+1. Extraia o projeto para uma pasta **fora do OneDrive** (ex.: `C:\NexoPDV`).
+2. Instale o **Node.js 22 LTS**.
+3. Execute `Instalar-NexoPDV.bat` (duplo clique).
+4. Depois use `Iniciar-NexoPDV.bat`.
+
+Se `npm install` falhar com `confbox` / `rolldown-runtime`, ou o build falhar com  
+`next-swc.win32-x64-msvc.node não é um aplicativo Win32 válido` / Turbopack:
+
+1. Delete a pasta `node_modules` e `.next`
+2. No Prompt, dentro da pasta do sistema:
+   ```bat
+   npm cache clean --force
+   ```
+3. Execute `Reparar-NexoPDV.bat` (ou `Instalar-NexoPDV.bat` de novo)
+
+O script `build` usa Webpack (`next build --webpack`) para não depender do Turbopack nativo no Windows quando o binário SWC vem corrompido.
 
 ## O que é
 
