@@ -36,7 +36,7 @@ if not exist "prisma\dev.db" set NOVO_BANCO=1
 
 echo Verificando banco de dados...
 call npx prisma db push --accept-data-loss
-if errorlevel 1 goto erro
+if errorlevel 1 goto erro_prisma
 
 if not "%NOVO_BANCO%"=="1" goto seed_ok
 echo Criando usuarios iniciais...
@@ -46,11 +46,11 @@ if errorlevel 1 goto erro
 :seed_ok
 echo Atualizando cliente do banco de dados...
 call npx prisma generate
-if errorlevel 1 goto erro
+if errorlevel 1 goto erro_prisma
 
 echo Atualizando versao do sistema...
 call npm run build
-if errorlevel 1 goto erro
+if errorlevel 1 goto erro_build
 
 :iniciar
 echo(
@@ -59,7 +59,8 @@ echo   NexoPDV - Sistema iniciando
 echo ========================================
 echo(
 echo Acesse: http://localhost:3000/login
-echo Login: admin / admin123
+echo Loja demo: codigo demo + admin / admin123
+echo Plataforma: codigo em branco + owner / owner123
 echo(
 echo Nao feche esta janela enquanto usar o sistema.
 echo(
@@ -68,6 +69,19 @@ start "" "http://localhost:3000/login"
 call npm start
 if errorlevel 1 goto erro
 goto fim
+
+:erro_prisma
+echo(
+echo [ERRO] Prisma falhou (confbox / client).
+echo Execute Reparar-NexoPDV.bat para reinstalar do zero.
+goto erro
+
+:erro_build
+echo(
+echo [ERRO] Build falhou (SWC/Turbopack/Win32).
+echo Execute Reparar-NexoPDV.bat
+echo Ou no Prompt: npm run build
+goto erro
 
 :erro
 echo(
